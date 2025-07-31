@@ -1,0 +1,439 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: ""
+    version: 0.0.1
+paths:
+    /industry/v1/categories:
+        get:
+            tags:
+                - Industry
+            description: 查询所有大类
+            operationId: Industry_ListCategories
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.ListCategoriesResp'
+    /industry/v1/categories/{categoryCode}/subcategories:
+        get:
+            tags:
+                - Industry
+            description: 根据大类查询小类
+            operationId: Industry_GetSubcategories
+            parameters:
+                - name: categoryCode
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.GetSubcategoriesResp'
+    /industry/v1/developers:
+        get:
+            tags:
+                - Developer
+            description: 分页查询开发商列表
+            operationId: Developer_ListDevelopers
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: countryId
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.ListDevelopersResp'
+        post:
+            tags:
+                - Developer
+            description: 创建开发商
+            operationId: Developer_CreateDeveloper
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/isms.v1.CreateDeveloperReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.DeveloperResp'
+    /industry/v1/developers/{id}:
+        get:
+            tags:
+                - Developer
+            description: 查询单个开发商（按ID）
+            operationId: Developer_GetDeveloper
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.DeveloperResp'
+    /v1/software:
+        get:
+            tags:
+                - Software
+            description: 分页查询工业软件记录
+            operationId: Software_ListSoftware
+            parameters:
+                - name: page
+                  in: query
+                  description: 修正：proto3 不支持 "= 1" 这种默认值写法，默认值需通过业务代码处理
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: category
+                  in: query
+                  schema:
+                    type: string
+                - name: countryId
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.ListSoftwareResp'
+        post:
+            tags:
+                - Software
+            description: 创建工业软件记录
+            operationId: Software_CreateSoftware
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/isms.v1.CreateSoftwareReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.CreateSoftwareResp'
+    /v1/software/{id}:
+        get:
+            tags:
+                - Software
+            description: 根据ID查询单个软件（修正：参数传递方式）
+            operationId: Software_GetSoftwareById
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.IsmsSoftware'
+        put:
+            tags:
+                - Software
+            description: 更新工业软件记录
+            operationId: Software_UpdateSoftware
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/isms.v1.UpdateSoftwareReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.UpdateSoftwareResp'
+components:
+    schemas:
+        isms.v1.CreateDeveloperReq:
+            type: object
+            properties:
+                nameZh:
+                    type: string
+                nameEn:
+                    type: string
+                countryId:
+                    type: integer
+                    format: uint32
+                website:
+                    type: string
+                description:
+                    type: string
+            description: 创建开发商的请求参数
+        isms.v1.CreateSoftwareReq:
+            type: object
+            properties:
+                name:
+                    type: string
+                nameEn:
+                    type: string
+                developer:
+                    type: string
+                version:
+                    type: string
+                category:
+                    type: string
+                osIds:
+                    type: array
+                    items:
+                        type: string
+                description:
+                    type: string
+                countryId:
+                    type: string
+                website:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+            description: 创建软件请求
+        isms.v1.CreateSoftwareResp:
+            type: object
+            properties:
+                id:
+                    type: string
+                message:
+                    type: string
+            description: 创建软件响应
+        isms.v1.DeveloperResp:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                nameZh:
+                    type: string
+                nameEn:
+                    type: string
+                countryId:
+                    type: integer
+                    format: uint32
+                countryName:
+                    type: string
+                website:
+                    type: string
+                description:
+                    type: string
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+            description: 单个开发商的响应
+        isms.v1.GetSubcategoriesResp:
+            type: object
+            properties:
+                subcategories:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/isms.v1.IsmsIndustry'
+            description: 查询结果
+        isms.v1.IndustryCategory:
+            type: object
+            properties:
+                categoryCode:
+                    type: string
+                categoryName:
+                    type: string
+            description: 大类信息
+        isms.v1.IsmsIndustry:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                categoryCode:
+                    type: string
+                categoryName:
+                    type: string
+                subcategoryCode:
+                    type: string
+                subcategoryName:
+                    type: string
+            description: 行业分类结构体
+        isms.v1.IsmsSoftware:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                nameEn:
+                    type: string
+                developer:
+                    type: string
+                version:
+                    type: string
+                category:
+                    type: string
+                osIds:
+                    type: array
+                    items:
+                        type: string
+                description:
+                    type: string
+                countryId:
+                    type: string
+                website:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+            description: 工业软件主表数据结构
+        isms.v1.ListCategoriesResp:
+            type: object
+            properties:
+                categories:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/isms.v1.IndustryCategory'
+            description: 所有大类的查询结果
+        isms.v1.ListDevelopersResp:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/isms.v1.DeveloperResp'
+                total:
+                    type: integer
+                    format: uint32
+                page:
+                    type: integer
+                    format: uint32
+                pageSize:
+                    type: integer
+                    format: uint32
+            description: 分页查询开发商的响应
+        isms.v1.ListSoftwareResp:
+            type: object
+            properties:
+                total:
+                    type: string
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/isms.v1.IsmsSoftware'
+                page:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+            description: 查询软件响应
+        isms.v1.UpdateSoftwareReq:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                nameEn:
+                    type: string
+                developer:
+                    type: string
+                version:
+                    type: string
+                category:
+                    type: string
+                osIds:
+                    type: array
+                    items:
+                        type: string
+                description:
+                    type: string
+                countryId:
+                    type: string
+                website:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+            description: 更新软件请求
+        isms.v1.UpdateSoftwareResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                message:
+                    type: string
+            description: 更新软件响应
+tags:
+    - name: Developer
+      description: 开发商服务
+    - name: Industry
+      description: 行业分类服务
+    - name: Software
+      description: 工业软件服务接口

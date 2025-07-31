@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package isms.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "isms/api/isms/v1;v1";
+
+// 开发商服务
+service Developer {
+  // 创建开发商
+  rpc CreateDeveloper (CreateDeveloperReq) returns (DeveloperResp) {
+    option (google.api.http) = {
+      post: "/industry/v1/developers"
+      body: "*"
+    };
+  }
+
+  // 查询单个开发商（按ID）
+  rpc GetDeveloper (GetDeveloperReq) returns (DeveloperResp) {
+    option (google.api.http) = {
+      get: "/industry/v1/developers/{id}"
+    };
+  }
+
+  // 分页查询开发商列表
+  rpc ListDevelopers (ListDevelopersReq) returns (ListDevelopersResp) {
+    option (google.api.http) = {
+      get: "/industry/v1/developers"
+    };
+  }
+}
+
+// 创建开发商的请求参数
+message CreateDeveloperReq {
+  string name_zh = 1 [(validate.rules).string = {min_len: 1, max_len: 200}]; // 中文名称（必填）
+  string name_en = 2 [(validate.rules).string = {min_len: 1, max_len: 200}]; // 英文名称（必填）
+  uint32 country_id = 3 [(validate.rules).uint32 = {gt: 0}]; // 国家ID（必填）
+  string website = 4 [(validate.rules).string = {max_len: 500}]; // 官网（可选）
+  string description = 5; // 简介（可选）
+}
+
+// 查询单个开发商的请求
+message GetDeveloperReq {
+  uint32 id = 1 [(validate.rules).uint32 = {gt: 0}]; // 开发商ID（必填）
+}
+
+// 分页查询开发商的请求
+message ListDevelopersReq {
+  uint32 page = 1 [(validate.rules).uint32 = {gt: 0}]; // 页码（必须>0，业务逻辑中默认1）
+  uint32 page_size = 2 [(validate.rules).uint32 = {gt: 0, lte: 100}]; // 每页条数（必须>0且≤100，业务逻辑中默认20）
+  uint32 country_id = 3; // 按国家筛选（可选）
+  string keyword = 4; // 按名称搜索（可选，匹配中文或英文名称）
+}
+
+// 单个开发商的响应
+message DeveloperResp {
+  uint32 id = 1; // 自增ID
+  string name_zh = 2; // 中文名称
+  string name_en = 3; // 英文名称
+  uint32 country_id = 4; // 国家ID
+  string country_name = 5; // 国家名称（冗余字段）
+  string website = 6; // 官网
+  string description = 7; // 简介
+  string created_at = 8; // 创建时间（RFC3339格式）
+  string updated_at = 9; // 更新时间（RFC3339格式）
+}
+
+// 分页查询开发商的响应
+message ListDevelopersResp {
+  repeated DeveloperResp items = 1; // 开发商列表
+  uint32 total = 2; // 总条数
+  uint32 page = 3; // 当前页码（实际使用的页码）
+  uint32 page_size = 4; // 实际使用的每页条数
+}

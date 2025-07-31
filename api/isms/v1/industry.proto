@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package isms.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "isms/api/isms/v1;v1";
+
+// 行业分类服务
+service Industry {
+  // 根据大类查询小类
+  rpc GetSubcategories (GetSubcategoriesReq) returns (GetSubcategoriesResp) {
+    option (google.api.http) = {
+      get: "/industry/v1/categories/{category_code}/subcategories"
+    };
+  }
+
+  // 查询所有大类
+  rpc ListCategories (ListCategoriesReq) returns (ListCategoriesResp) {
+    option (google.api.http) = {
+      get: "/industry/v1/categories"
+    };
+  }
+}
+
+// 根据大类查询小类的请求
+message GetSubcategoriesReq {
+  string category_code = 1 [(validate.rules).string = {min_len: 1, max_len: 2}]; // 大类代码（如B、C）
+}
+
+// 查询结果
+message GetSubcategoriesResp {
+  repeated IsmsIndustry subcategories = 1;
+}
+
+// 查询所有大类的请求
+message ListCategoriesReq {}
+
+// 所有大类的查询结果
+message ListCategoriesResp {
+  repeated IndustryCategory categories = 1;
+}
+
+// 行业分类结构体
+message IsmsIndustry {
+  int32 id = 1;
+  string category_code = 2;
+  string category_name = 3;
+  string subcategory_code = 4;
+  string subcategory_name = 5;
+}
+
+// 大类信息
+message IndustryCategory {
+  string category_code = 1;
+  string category_name = 2;
+}

@@ -1,0 +1,25 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+data:
+  database:
+    driver: mysql
+    host: 127.0.0.1
+    port: 3306
+    database: industrial_software_db
+    user: root
+    password: j*mPRCA2g$y^
+    max_open_conns: 100
+    max_idle_conns: 20
+    conn_max_lifetime: 1800s
+    conn_max_idle_time: 600s
+  redis:
+    addr: 127.0.0.1:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+  openapi:
+    path: /Users/randolph/goodjob/archive_project/isms/openapi.yaml

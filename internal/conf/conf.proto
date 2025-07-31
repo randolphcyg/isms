@@ -1,0 +1,55 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "isms/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+}
+
+message Server {
+  message HTTP {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  HTTP http = 1;
+  GRPC grpc = 2;
+}
+
+message Data {
+  message Database {
+    string driver = 1;
+    string host = 2;       // 数据库主机
+    int32 port = 3;        // 数据库端口
+    string database = 4;   // 数据库名称
+    string user = 5;       // 用户名
+    string password = 6;   // 密码
+    // 连接池配置
+    int32 max_open_conns = 7;           // 最大打开连接数
+    int32 max_idle_conns = 8;           // 最大空闲连接数
+    google.protobuf.Duration conn_max_lifetime = 9;  // 连接最大生命周期
+    google.protobuf.Duration conn_max_idle_time = 10; // 连接最大空闲时间
+  }
+  message Redis {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration read_timeout = 3;
+    google.protobuf.Duration write_timeout = 4;
+  }
+  // OpenAPI 路径
+  message Openapi {
+    string path = 1;
+  }
+  Database database = 1;
+  Redis redis = 2;
+  Openapi openapi = 3;
+}

@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+package isms.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "isms/api/isms/v1;v1";
+
+// 工业软件主表数据结构
+message IsmsSoftware {
+  int64 id = 1; // 自增ID
+  string name = 2 [(validate.rules).string.min_len = 1]; // 软件名称
+  string name_en = 3; // 英文名称
+  string developer = 4; // 开发商（关联开发商表ID或名称）
+  string version = 5; // 软件版本
+  string category = 6; // 软件类别（如CAD、CAE、MES等）
+  repeated int64 os_ids = 7; // 支持的操作系统ID列表（关联操作系统表）
+  string description = 8; // 软件描述
+  int64 country_id = 9; // 所属国家ID（关联国家表）
+  string website = 10; // 官网地址
+  int32 status = 11; // 状态（1=正常，0=停用）
+  string created_at = 12; // 创建时间
+  string updated_at = 13; // 更新时间
+}
+
+// 创建软件请求
+message CreateSoftwareReq {
+  string name = 1 [(validate.rules).string.min_len = 1];
+  string name_en = 2;
+  string developer = 3 [(validate.rules).string.min_len = 1];
+  string version = 4 [(validate.rules).string.min_len = 1];
+  string category = 5 [(validate.rules).string.min_len = 1];
+  repeated int64 os_ids = 6 [(validate.rules).repeated.min_items = 1]; // 至少支持一个操作系统（修正：补充校验规则）
+  string description = 7;
+  int64 country_id = 8 [(validate.rules).int64.gt = 0];
+  string website = 9 [(validate.rules).string.uri = true];
+  int32 status = 10 [(validate.rules).int32 = {in: [0, 1]}]; // 状态（1=正常，0=停用）
+}
+
+// 创建软件响应
+message CreateSoftwareResp {
+  int64 id = 1; // 新创建的软件ID
+  string message = 2; // 提示信息
+}
+
+// 更新软件请求
+message UpdateSoftwareReq {
+  int64 id = 1 [(validate.rules).int64.gt = 0]; // 必须指定ID
+  string name = 2; // 可选更新字段
+  string name_en = 3;
+  string developer = 4;
+  string version = 5;
+  string category = 6;
+  repeated int64 os_ids = 7;
+  string description = 8;
+  int64 country_id = 9;
+  string website = 10;
+  int32 status = 11;
+}
+
+// 更新软件响应
+message UpdateSoftwareResp {
+  bool success = 1;
+  string message = 2;
+}
+
+// 查询软件请求（支持分页和筛选）
+message ListSoftwareReq {
+  // 修正：proto3 不支持 "= 1" 这种默认值写法，默认值需通过业务代码处理
+  int32 page = 1 [(validate.rules).int32.gte = 1]; // 页码，默认第1页
+  int32 page_size = 2 [(validate.rules).int32.gte = 10]; // 每页条数，默认20（修正：移除 "= 20"）
+  string keyword = 3; // 搜索关键词（名称、开发商）
+  string category = 4; // 按类别筛选
+  int64 country_id = 5; // 按国家筛选
+  int32 status = 6; // 按状态筛选
+}
+
+// 查询软件响应
+message ListSoftwareResp {
+  int64 total = 1; // 总条数
+  repeated IsmsSoftware items = 2; // 软件列表
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+// 工业软件服务接口
+service Software {
+  // 创建工业软件记录
+  rpc CreateSoftware(CreateSoftwareReq) returns (CreateSoftwareResp) {
+    option (google.api.http) = {
+      post: "/v1/software"
+      body: "*"
+    };
+  }
+
+  // 更新工业软件记录
+  rpc UpdateSoftware(UpdateSoftwareReq) returns (UpdateSoftwareResp) {
+    option (google.api.http) = {
+      put: "/v1/software/{id}"
+      body: "*"
+    };
+  }
+
+  // 分页查询工业软件记录
+  rpc ListSoftware(ListSoftwareReq) returns (ListSoftwareResp) {
+    option (google.api.http) = {
+      get: "/v1/software"
+    };
+  }
+
+  // 根据ID查询单个软件（修正：参数传递方式）
+  rpc GetSoftwareById(GetSoftwareByIdReq) returns (IsmsSoftware) {
+    option (google.api.http) = {
+      get: "/v1/software/{id}"
+    };
+  }
+}
+
+// 新增：查询单个软件的请求（用于接收ID参数）
+message GetSoftwareByIdReq {
+  int64 id = 1 [(validate.rules).int64.gt = 0]; // 软件ID
+}

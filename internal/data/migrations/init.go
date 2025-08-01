@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
@@ -24,17 +26,47 @@ func main() {
 		FieldWithTypeTag:  true,                                          // 生成字段类型标签（建议开启）
 	})
 
+	// 1. 配置表名映射策略（保持原始表名，不单数化）
+	g.WithTableNameStrategy(func(tableName string) string {
+		return tableName // 直接返回原始表名
+	})
+
+	// 2. 配置模型结构体名生成策略（下划线转大驼峰，保留复数）
+	g.WithModelNameStrategy(func(tableName string) string {
+		// 处理特殊表名（如 isms_os → IsmsOS）
+		if tableName == "isms_os" {
+			return "IsmsOS"
+		}
+
+		if tableName == "isms_software_os" {
+			return "IsmsSoftwareOS"
+		}
+
+		// 通用处理：下划线转大驼峰（如 "isms_software" → "IsmsSoftware"）
+		parts := strings.Split(tableName, "_")
+		for i, part := range parts {
+			parts[i] = strings.Title(part) // 首字母大写
+		}
+		return strings.Join(parts, "")
+	})
+
 	// 关联数据库实例
 	g.UseDB(db)
 
 	// 生成所有表的模型（按实际表名添加）
-	industryTable := g.GenerateModel("isms_industry")                  // 行业表
-	countryTable := g.GenerateModel("isms_country")                    // 国家表
-	osTable := g.GenerateModel("isms_os")                              // 操作系统表
+	industryTable := g.GenerateModel("isms_industry") // 行业表
+	countryTable := g.GenerateModel("isms_country")   // 国家表
+	// 操作系统表
+	osTable := g.GenerateModel("isms_os")
+	osTable.ModelStructName = "IsmsOS"
+
 	developerTable := g.GenerateModel("isms_developer")                // 开发商表
 	softwareTable := g.GenerateModel("isms_software")                  // 主软件表
 	softwareIndustryTable := g.GenerateModel("isms_software_industry") // 软件-行业关联表
-	softwareOsTable := g.GenerateModel("isms_software_os")             // 软件-操作系统关联表
+
+	// 软件-操作系统关联表
+	softwareOsTable := g.GenerateModel("isms_software_os")
+	softwareOsTable.ModelStructName = "IsmsSoftwareOS"
 
 	// 应用基础CRUD生成（会生成Insert/Update/Delete/Query等方法）
 	g.ApplyBasic(

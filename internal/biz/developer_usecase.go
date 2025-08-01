@@ -40,3 +40,13 @@ func (uc *DeveloperUsecase) CreateDeveloper(ctx context.Context, dev *domain.Dev
 	// 3. 调用仓库接口完成数据持久化（不关心具体存储细节）
 	return uc.repo.Create(ctx, dev)
 }
+
+// 修改 GetDeveloperByID 方法
+func (uc *DeveloperUsecase) GetDeveloperByID(ctx context.Context, id uint32) (*domain.Developer, error) {
+	return uc.repo.GetByID(ctx, int32(id))
+}
+
+// 修改 ListDevelopers 方法
+func (uc *DeveloperUsecase) ListDevelopers(ctx context.Context, page, pageSize, countryID uint32, keyword string) ([]*domain.Developer, int64, error) {
+	return uc.repo.List(ctx, page, pageSize, countryID, keyword)
+}

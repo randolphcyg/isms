@@ -20,32 +20,32 @@ import (
 	"isms/internal/data/model"
 )
 
-func newIsmsO(db *gorm.DB, opts ...gen.DOOption) ismsO {
-	_ismsO := ismsO{}
+func newIsmsOS(db *gorm.DB, opts ...gen.DOOption) ismsOS {
+	_ismsOS := ismsOS{}
 
-	_ismsO.ismsODo.UseDB(db, opts...)
-	_ismsO.ismsODo.UseModel(&model.IsmsO{})
+	_ismsOS.ismsOSDo.UseDB(db, opts...)
+	_ismsOS.ismsOSDo.UseModel(&model.IsmsOS{})
 
-	tableName := _ismsO.ismsODo.TableName()
-	_ismsO.ALL = field.NewAsterisk(tableName)
-	_ismsO.ID = field.NewInt32(tableName, "id")
-	_ismsO.Name = field.NewString(tableName, "name")
-	_ismsO.Version = field.NewString(tableName, "version")
-	_ismsO.Architecture = field.NewString(tableName, "architecture")
-	_ismsO.Manufacturer = field.NewString(tableName, "manufacturer")
-	_ismsO.ReleaseYear = field.NewInt32(tableName, "release_year")
-	_ismsO.Description = field.NewString(tableName, "description")
-	_ismsO.CreatedAt = field.NewTime(tableName, "created_at")
-	_ismsO.UpdatedAt = field.NewTime(tableName, "updated_at")
+	tableName := _ismsOS.ismsOSDo.TableName()
+	_ismsOS.ALL = field.NewAsterisk(tableName)
+	_ismsOS.ID = field.NewInt32(tableName, "id")
+	_ismsOS.Name = field.NewString(tableName, "name")
+	_ismsOS.Version = field.NewString(tableName, "version")
+	_ismsOS.Architecture = field.NewString(tableName, "architecture")
+	_ismsOS.Manufacturer = field.NewString(tableName, "manufacturer")
+	_ismsOS.ReleaseYear = field.NewInt32(tableName, "release_year")
+	_ismsOS.Description = field.NewString(tableName, "description")
+	_ismsOS.CreatedAt = field.NewTime(tableName, "created_at")
+	_ismsOS.UpdatedAt = field.NewTime(tableName, "updated_at")
 
-	_ismsO.fillFieldMap()
+	_ismsOS.fillFieldMap()
 
-	return _ismsO
+	return _ismsOS
 }
 
-// ismsO 操作系统表
-type ismsO struct {
-	ismsODo ismsODo
+// ismsOS 操作系统表
+type ismsOS struct {
+	ismsOSDo ismsOSDo
 
 	ALL          field.Asterisk
 	ID           field.Int32  // 自增ID
@@ -61,17 +61,17 @@ type ismsO struct {
 	fieldMap map[string]field.Expr
 }
 
-func (i ismsO) Table(newTableName string) *ismsO {
-	i.ismsODo.UseTable(newTableName)
+func (i ismsOS) Table(newTableName string) *ismsOS {
+	i.ismsOSDo.UseTable(newTableName)
 	return i.updateTableName(newTableName)
 }
 
-func (i ismsO) As(alias string) *ismsO {
-	i.ismsODo.DO = *(i.ismsODo.As(alias).(*gen.DO))
+func (i ismsOS) As(alias string) *ismsOS {
+	i.ismsOSDo.DO = *(i.ismsOSDo.As(alias).(*gen.DO))
 	return i.updateTableName(alias)
 }
 
-func (i *ismsO) updateTableName(table string) *ismsO {
+func (i *ismsOS) updateTableName(table string) *ismsOS {
 	i.ALL = field.NewAsterisk(table)
 	i.ID = field.NewInt32(table, "id")
 	i.Name = field.NewString(table, "name")
@@ -88,15 +88,15 @@ func (i *ismsO) updateTableName(table string) *ismsO {
 	return i
 }
 
-func (i *ismsO) WithContext(ctx context.Context) IIsmsODo { return i.ismsODo.WithContext(ctx) }
+func (i *ismsOS) WithContext(ctx context.Context) IIsmsOSDo { return i.ismsOSDo.WithContext(ctx) }
 
-func (i ismsO) TableName() string { return i.ismsODo.TableName() }
+func (i ismsOS) TableName() string { return i.ismsOSDo.TableName() }
 
-func (i ismsO) Alias() string { return i.ismsODo.Alias() }
+func (i ismsOS) Alias() string { return i.ismsOSDo.Alias() }
 
-func (i ismsO) Columns(cols ...field.Expr) gen.Columns { return i.ismsODo.Columns(cols...) }
+func (i ismsOS) Columns(cols ...field.Expr) gen.Columns { return i.ismsOSDo.Columns(cols...) }
 
-func (i *ismsO) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
+func (i *ismsOS) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := i.fieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
@@ -105,7 +105,7 @@ func (i *ismsO) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	return _oe, ok
 }
 
-func (i *ismsO) fillFieldMap() {
+func (i *ismsOS) fillFieldMap() {
 	i.fieldMap = make(map[string]field.Expr, 9)
 	i.fieldMap["id"] = i.ID
 	i.fieldMap["name"] = i.Name
@@ -118,58 +118,58 @@ func (i *ismsO) fillFieldMap() {
 	i.fieldMap["updated_at"] = i.UpdatedAt
 }
 
-func (i ismsO) clone(db *gorm.DB) ismsO {
-	i.ismsODo.ReplaceConnPool(db.Statement.ConnPool)
+func (i ismsOS) clone(db *gorm.DB) ismsOS {
+	i.ismsOSDo.ReplaceConnPool(db.Statement.ConnPool)
 	return i
 }
 
-func (i ismsO) replaceDB(db *gorm.DB) ismsO {
-	i.ismsODo.ReplaceDB(db)
+func (i ismsOS) replaceDB(db *gorm.DB) ismsOS {
+	i.ismsOSDo.ReplaceDB(db)
 	return i
 }
 
-type ismsODo struct{ gen.DO }
+type ismsOSDo struct{ gen.DO }
 
-type IIsmsODo interface {
+type IIsmsOSDo interface {
 	gen.SubQuery
-	Debug() IIsmsODo
-	WithContext(ctx context.Context) IIsmsODo
+	Debug() IIsmsOSDo
+	WithContext(ctx context.Context) IIsmsOSDo
 	WithResult(fc func(tx gen.Dao)) gen.ResultInfo
 	ReplaceDB(db *gorm.DB)
-	ReadDB() IIsmsODo
-	WriteDB() IIsmsODo
+	ReadDB() IIsmsOSDo
+	WriteDB() IIsmsOSDo
 	As(alias string) gen.Dao
-	Session(config *gorm.Session) IIsmsODo
+	Session(config *gorm.Session) IIsmsOSDo
 	Columns(cols ...field.Expr) gen.Columns
-	Clauses(conds ...clause.Expression) IIsmsODo
-	Not(conds ...gen.Condition) IIsmsODo
-	Or(conds ...gen.Condition) IIsmsODo
-	Select(conds ...field.Expr) IIsmsODo
-	Where(conds ...gen.Condition) IIsmsODo
-	Order(conds ...field.Expr) IIsmsODo
-	Distinct(cols ...field.Expr) IIsmsODo
-	Omit(cols ...field.Expr) IIsmsODo
-	Join(table schema.Tabler, on ...field.Expr) IIsmsODo
-	LeftJoin(table schema.Tabler, on ...field.Expr) IIsmsODo
-	RightJoin(table schema.Tabler, on ...field.Expr) IIsmsODo
-	Group(cols ...field.Expr) IIsmsODo
-	Having(conds ...gen.Condition) IIsmsODo
-	Limit(limit int) IIsmsODo
-	Offset(offset int) IIsmsODo
+	Clauses(conds ...clause.Expression) IIsmsOSDo
+	Not(conds ...gen.Condition) IIsmsOSDo
+	Or(conds ...gen.Condition) IIsmsOSDo
+	Select(conds ...field.Expr) IIsmsOSDo
+	Where(conds ...gen.Condition) IIsmsOSDo
+	Order(conds ...field.Expr) IIsmsOSDo
+	Distinct(cols ...field.Expr) IIsmsOSDo
+	Omit(cols ...field.Expr) IIsmsOSDo
+	Join(table schema.Tabler, on ...field.Expr) IIsmsOSDo
+	LeftJoin(table schema.Tabler, on ...field.Expr) IIsmsOSDo
+	RightJoin(table schema.Tabler, on ...field.Expr) IIsmsOSDo
+	Group(cols ...field.Expr) IIsmsOSDo
+	Having(conds ...gen.Condition) IIsmsOSDo
+	Limit(limit int) IIsmsOSDo
+	Offset(offset int) IIsmsOSDo
 	Count() (count int64, err error)
-	Scopes(funcs ...func(gen.Dao) gen.Dao) IIsmsODo
-	Unscoped() IIsmsODo
-	Create(values ...*model.IsmsO) error
-	CreateInBatches(values []*model.IsmsO, batchSize int) error
-	Save(values ...*model.IsmsO) error
-	First() (*model.IsmsO, error)
-	Take() (*model.IsmsO, error)
-	Last() (*model.IsmsO, error)
-	Find() ([]*model.IsmsO, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.IsmsO, err error)
-	FindInBatches(result *[]*model.IsmsO, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Scopes(funcs ...func(gen.Dao) gen.Dao) IIsmsOSDo
+	Unscoped() IIsmsOSDo
+	Create(values ...*model.IsmsOS) error
+	CreateInBatches(values []*model.IsmsOS, batchSize int) error
+	Save(values ...*model.IsmsOS) error
+	First() (*model.IsmsOS, error)
+	Take() (*model.IsmsOS, error)
+	Last() (*model.IsmsOS, error)
+	Find() ([]*model.IsmsOS, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.IsmsOS, err error)
+	FindInBatches(result *[]*model.IsmsOS, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.IsmsO) (info gen.ResultInfo, err error)
+	Delete(...*model.IsmsOS) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -177,165 +177,165 @@ type IIsmsODo interface {
 	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
 	UpdateFrom(q gen.SubQuery) gen.Dao
-	Attrs(attrs ...field.AssignExpr) IIsmsODo
-	Assign(attrs ...field.AssignExpr) IIsmsODo
-	Joins(fields ...field.RelationField) IIsmsODo
-	Preload(fields ...field.RelationField) IIsmsODo
-	FirstOrInit() (*model.IsmsO, error)
-	FirstOrCreate() (*model.IsmsO, error)
-	FindByPage(offset int, limit int) (result []*model.IsmsO, count int64, err error)
+	Attrs(attrs ...field.AssignExpr) IIsmsOSDo
+	Assign(attrs ...field.AssignExpr) IIsmsOSDo
+	Joins(fields ...field.RelationField) IIsmsOSDo
+	Preload(fields ...field.RelationField) IIsmsOSDo
+	FirstOrInit() (*model.IsmsOS, error)
+	FirstOrCreate() (*model.IsmsOS, error)
+	FindByPage(offset int, limit int) (result []*model.IsmsOS, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
 	Scan(result interface{}) (err error)
-	Returning(value interface{}, columns ...string) IIsmsODo
+	Returning(value interface{}, columns ...string) IIsmsOSDo
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 }
 
-func (i ismsODo) Debug() IIsmsODo {
+func (i ismsOSDo) Debug() IIsmsOSDo {
 	return i.withDO(i.DO.Debug())
 }
 
-func (i ismsODo) WithContext(ctx context.Context) IIsmsODo {
+func (i ismsOSDo) WithContext(ctx context.Context) IIsmsOSDo {
 	return i.withDO(i.DO.WithContext(ctx))
 }
 
-func (i ismsODo) ReadDB() IIsmsODo {
+func (i ismsOSDo) ReadDB() IIsmsOSDo {
 	return i.Clauses(dbresolver.Read)
 }
 
-func (i ismsODo) WriteDB() IIsmsODo {
+func (i ismsOSDo) WriteDB() IIsmsOSDo {
 	return i.Clauses(dbresolver.Write)
 }
 
-func (i ismsODo) Session(config *gorm.Session) IIsmsODo {
+func (i ismsOSDo) Session(config *gorm.Session) IIsmsOSDo {
 	return i.withDO(i.DO.Session(config))
 }
 
-func (i ismsODo) Clauses(conds ...clause.Expression) IIsmsODo {
+func (i ismsOSDo) Clauses(conds ...clause.Expression) IIsmsOSDo {
 	return i.withDO(i.DO.Clauses(conds...))
 }
 
-func (i ismsODo) Returning(value interface{}, columns ...string) IIsmsODo {
+func (i ismsOSDo) Returning(value interface{}, columns ...string) IIsmsOSDo {
 	return i.withDO(i.DO.Returning(value, columns...))
 }
 
-func (i ismsODo) Not(conds ...gen.Condition) IIsmsODo {
+func (i ismsOSDo) Not(conds ...gen.Condition) IIsmsOSDo {
 	return i.withDO(i.DO.Not(conds...))
 }
 
-func (i ismsODo) Or(conds ...gen.Condition) IIsmsODo {
+func (i ismsOSDo) Or(conds ...gen.Condition) IIsmsOSDo {
 	return i.withDO(i.DO.Or(conds...))
 }
 
-func (i ismsODo) Select(conds ...field.Expr) IIsmsODo {
+func (i ismsOSDo) Select(conds ...field.Expr) IIsmsOSDo {
 	return i.withDO(i.DO.Select(conds...))
 }
 
-func (i ismsODo) Where(conds ...gen.Condition) IIsmsODo {
+func (i ismsOSDo) Where(conds ...gen.Condition) IIsmsOSDo {
 	return i.withDO(i.DO.Where(conds...))
 }
 
-func (i ismsODo) Order(conds ...field.Expr) IIsmsODo {
+func (i ismsOSDo) Order(conds ...field.Expr) IIsmsOSDo {
 	return i.withDO(i.DO.Order(conds...))
 }
 
-func (i ismsODo) Distinct(cols ...field.Expr) IIsmsODo {
+func (i ismsOSDo) Distinct(cols ...field.Expr) IIsmsOSDo {
 	return i.withDO(i.DO.Distinct(cols...))
 }
 
-func (i ismsODo) Omit(cols ...field.Expr) IIsmsODo {
+func (i ismsOSDo) Omit(cols ...field.Expr) IIsmsOSDo {
 	return i.withDO(i.DO.Omit(cols...))
 }
 
-func (i ismsODo) Join(table schema.Tabler, on ...field.Expr) IIsmsODo {
+func (i ismsOSDo) Join(table schema.Tabler, on ...field.Expr) IIsmsOSDo {
 	return i.withDO(i.DO.Join(table, on...))
 }
 
-func (i ismsODo) LeftJoin(table schema.Tabler, on ...field.Expr) IIsmsODo {
+func (i ismsOSDo) LeftJoin(table schema.Tabler, on ...field.Expr) IIsmsOSDo {
 	return i.withDO(i.DO.LeftJoin(table, on...))
 }
 
-func (i ismsODo) RightJoin(table schema.Tabler, on ...field.Expr) IIsmsODo {
+func (i ismsOSDo) RightJoin(table schema.Tabler, on ...field.Expr) IIsmsOSDo {
 	return i.withDO(i.DO.RightJoin(table, on...))
 }
 
-func (i ismsODo) Group(cols ...field.Expr) IIsmsODo {
+func (i ismsOSDo) Group(cols ...field.Expr) IIsmsOSDo {
 	return i.withDO(i.DO.Group(cols...))
 }
 
-func (i ismsODo) Having(conds ...gen.Condition) IIsmsODo {
+func (i ismsOSDo) Having(conds ...gen.Condition) IIsmsOSDo {
 	return i.withDO(i.DO.Having(conds...))
 }
 
-func (i ismsODo) Limit(limit int) IIsmsODo {
+func (i ismsOSDo) Limit(limit int) IIsmsOSDo {
 	return i.withDO(i.DO.Limit(limit))
 }
 
-func (i ismsODo) Offset(offset int) IIsmsODo {
+func (i ismsOSDo) Offset(offset int) IIsmsOSDo {
 	return i.withDO(i.DO.Offset(offset))
 }
 
-func (i ismsODo) Scopes(funcs ...func(gen.Dao) gen.Dao) IIsmsODo {
+func (i ismsOSDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IIsmsOSDo {
 	return i.withDO(i.DO.Scopes(funcs...))
 }
 
-func (i ismsODo) Unscoped() IIsmsODo {
+func (i ismsOSDo) Unscoped() IIsmsOSDo {
 	return i.withDO(i.DO.Unscoped())
 }
 
-func (i ismsODo) Create(values ...*model.IsmsO) error {
+func (i ismsOSDo) Create(values ...*model.IsmsOS) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return i.DO.Create(values)
 }
 
-func (i ismsODo) CreateInBatches(values []*model.IsmsO, batchSize int) error {
+func (i ismsOSDo) CreateInBatches(values []*model.IsmsOS, batchSize int) error {
 	return i.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (i ismsODo) Save(values ...*model.IsmsO) error {
+func (i ismsOSDo) Save(values ...*model.IsmsOS) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return i.DO.Save(values)
 }
 
-func (i ismsODo) First() (*model.IsmsO, error) {
+func (i ismsOSDo) First() (*model.IsmsOS, error) {
 	if result, err := i.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.IsmsO), nil
+		return result.(*model.IsmsOS), nil
 	}
 }
 
-func (i ismsODo) Take() (*model.IsmsO, error) {
+func (i ismsOSDo) Take() (*model.IsmsOS, error) {
 	if result, err := i.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.IsmsO), nil
+		return result.(*model.IsmsOS), nil
 	}
 }
 
-func (i ismsODo) Last() (*model.IsmsO, error) {
+func (i ismsOSDo) Last() (*model.IsmsOS, error) {
 	if result, err := i.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.IsmsO), nil
+		return result.(*model.IsmsOS), nil
 	}
 }
 
-func (i ismsODo) Find() ([]*model.IsmsO, error) {
+func (i ismsOSDo) Find() ([]*model.IsmsOS, error) {
 	result, err := i.DO.Find()
-	return result.([]*model.IsmsO), err
+	return result.([]*model.IsmsOS), err
 }
 
-func (i ismsODo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.IsmsO, err error) {
-	buf := make([]*model.IsmsO, 0, batchSize)
+func (i ismsOSDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.IsmsOS, err error) {
+	buf := make([]*model.IsmsOS, 0, batchSize)
 	err = i.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -343,49 +343,49 @@ func (i ismsODo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error
 	return results, err
 }
 
-func (i ismsODo) FindInBatches(result *[]*model.IsmsO, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (i ismsOSDo) FindInBatches(result *[]*model.IsmsOS, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return i.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (i ismsODo) Attrs(attrs ...field.AssignExpr) IIsmsODo {
+func (i ismsOSDo) Attrs(attrs ...field.AssignExpr) IIsmsOSDo {
 	return i.withDO(i.DO.Attrs(attrs...))
 }
 
-func (i ismsODo) Assign(attrs ...field.AssignExpr) IIsmsODo {
+func (i ismsOSDo) Assign(attrs ...field.AssignExpr) IIsmsOSDo {
 	return i.withDO(i.DO.Assign(attrs...))
 }
 
-func (i ismsODo) Joins(fields ...field.RelationField) IIsmsODo {
+func (i ismsOSDo) Joins(fields ...field.RelationField) IIsmsOSDo {
 	for _, _f := range fields {
 		i = *i.withDO(i.DO.Joins(_f))
 	}
 	return &i
 }
 
-func (i ismsODo) Preload(fields ...field.RelationField) IIsmsODo {
+func (i ismsOSDo) Preload(fields ...field.RelationField) IIsmsOSDo {
 	for _, _f := range fields {
 		i = *i.withDO(i.DO.Preload(_f))
 	}
 	return &i
 }
 
-func (i ismsODo) FirstOrInit() (*model.IsmsO, error) {
+func (i ismsOSDo) FirstOrInit() (*model.IsmsOS, error) {
 	if result, err := i.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.IsmsO), nil
+		return result.(*model.IsmsOS), nil
 	}
 }
 
-func (i ismsODo) FirstOrCreate() (*model.IsmsO, error) {
+func (i ismsOSDo) FirstOrCreate() (*model.IsmsOS, error) {
 	if result, err := i.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.IsmsO), nil
+		return result.(*model.IsmsOS), nil
 	}
 }
 
-func (i ismsODo) FindByPage(offset int, limit int) (result []*model.IsmsO, count int64, err error) {
+func (i ismsOSDo) FindByPage(offset int, limit int) (result []*model.IsmsOS, count int64, err error) {
 	result, err = i.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -400,7 +400,7 @@ func (i ismsODo) FindByPage(offset int, limit int) (result []*model.IsmsO, count
 	return
 }
 
-func (i ismsODo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
+func (i ismsOSDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
 	count, err = i.Count()
 	if err != nil {
 		return
@@ -410,15 +410,15 @@ func (i ismsODo) ScanByPage(result interface{}, offset int, limit int) (count in
 	return
 }
 
-func (i ismsODo) Scan(result interface{}) (err error) {
+func (i ismsOSDo) Scan(result interface{}) (err error) {
 	return i.DO.Scan(result)
 }
 
-func (i ismsODo) Delete(models ...*model.IsmsO) (result gen.ResultInfo, err error) {
+func (i ismsOSDo) Delete(models ...*model.IsmsOS) (result gen.ResultInfo, err error) {
 	return i.DO.Delete(models)
 }
 
-func (i *ismsODo) withDO(do gen.Dao) *ismsODo {
+func (i *ismsOSDo) withDO(do gen.Dao) *ismsOSDo {
 	i.DO = *do.(*gen.DO)
 	return i
 }

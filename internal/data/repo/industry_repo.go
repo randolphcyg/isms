@@ -31,7 +31,7 @@ func NewIndustryRepo(db *gorm.DB, logger log.Logger) domain.IndustryRepo {
 
 // GetAllCategories 查询所有大类（去重）
 func (r *industryRepo) GetAllCategories(ctx context.Context) ([]*domain.IndustryCategory, error) {
-	var modelCats []*model.IndustryClassification
+	var modelCats []*model.IsmsIndustry
 	err := r.db.WithContext(ctx).
 		Table("isms_industry").
 		Select("DISTINCT category_code, category_name").

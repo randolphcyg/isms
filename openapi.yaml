@@ -245,7 +245,8 @@ components:
                 osIds:
                     type: array
                     items:
-                        type: string
+                        type: integer
+                        format: int32
                 description:
                     type: string
                 countryId:
@@ -337,7 +338,8 @@ components:
                 osIds:
                     type: array
                     items:
-                        type: string
+                        type: integer
+                        format: int32
                 description:
                     type: string
                 countryId:
@@ -411,7 +413,8 @@ components:
                 osIds:
                     type: array
                     items:
-                        type: string
+                        type: integer
+                        format: int32
                 description:
                     type: string
                 countryId:

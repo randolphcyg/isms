@@ -20,10 +20,10 @@ var (
 	IsmsCountry          *ismsCountry
 	IsmsDeveloper        *ismsDeveloper
 	IsmsIndustry         *ismsIndustry
-	IsmsO                *ismsO
+	IsmsOS               *ismsOS
 	IsmsSoftware         *ismsSoftware
 	IsmsSoftwareIndustry *ismsSoftwareIndustry
-	IsmsSoftwareO        *ismsSoftwareO
+	IsmsSoftwareOS       *ismsSoftwareOS
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -31,10 +31,10 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	IsmsCountry = &Q.IsmsCountry
 	IsmsDeveloper = &Q.IsmsDeveloper
 	IsmsIndustry = &Q.IsmsIndustry
-	IsmsO = &Q.IsmsO
+	IsmsOS = &Q.IsmsOS
 	IsmsSoftware = &Q.IsmsSoftware
 	IsmsSoftwareIndustry = &Q.IsmsSoftwareIndustry
-	IsmsSoftwareO = &Q.IsmsSoftwareO
+	IsmsSoftwareOS = &Q.IsmsSoftwareOS
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
@@ -43,10 +43,10 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		IsmsCountry:          newIsmsCountry(db, opts...),
 		IsmsDeveloper:        newIsmsDeveloper(db, opts...),
 		IsmsIndustry:         newIsmsIndustry(db, opts...),
-		IsmsO:                newIsmsO(db, opts...),
+		IsmsOS:               newIsmsOS(db, opts...),
 		IsmsSoftware:         newIsmsSoftware(db, opts...),
 		IsmsSoftwareIndustry: newIsmsSoftwareIndustry(db, opts...),
-		IsmsSoftwareO:        newIsmsSoftwareO(db, opts...),
+		IsmsSoftwareOS:       newIsmsSoftwareOS(db, opts...),
 	}
 }
 
@@ -56,10 +56,10 @@ type Query struct {
 	IsmsCountry          ismsCountry
 	IsmsDeveloper        ismsDeveloper
 	IsmsIndustry         ismsIndustry
-	IsmsO                ismsO
+	IsmsOS               ismsOS
 	IsmsSoftware         ismsSoftware
 	IsmsSoftwareIndustry ismsSoftwareIndustry
-	IsmsSoftwareO        ismsSoftwareO
+	IsmsSoftwareOS       ismsSoftwareOS
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -70,10 +70,10 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		IsmsCountry:          q.IsmsCountry.clone(db),
 		IsmsDeveloper:        q.IsmsDeveloper.clone(db),
 		IsmsIndustry:         q.IsmsIndustry.clone(db),
-		IsmsO:                q.IsmsO.clone(db),
+		IsmsOS:               q.IsmsOS.clone(db),
 		IsmsSoftware:         q.IsmsSoftware.clone(db),
 		IsmsSoftwareIndustry: q.IsmsSoftwareIndustry.clone(db),
-		IsmsSoftwareO:        q.IsmsSoftwareO.clone(db),
+		IsmsSoftwareOS:       q.IsmsSoftwareOS.clone(db),
 	}
 }
 
@@ -91,10 +91,10 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		IsmsCountry:          q.IsmsCountry.replaceDB(db),
 		IsmsDeveloper:        q.IsmsDeveloper.replaceDB(db),
 		IsmsIndustry:         q.IsmsIndustry.replaceDB(db),
-		IsmsO:                q.IsmsO.replaceDB(db),
+		IsmsOS:               q.IsmsOS.replaceDB(db),
 		IsmsSoftware:         q.IsmsSoftware.replaceDB(db),
 		IsmsSoftwareIndustry: q.IsmsSoftwareIndustry.replaceDB(db),
-		IsmsSoftwareO:        q.IsmsSoftwareO.replaceDB(db),
+		IsmsSoftwareOS:       q.IsmsSoftwareOS.replaceDB(db),
 	}
 }
 
@@ -102,10 +102,10 @@ type queryCtx struct {
 	IsmsCountry          IIsmsCountryDo
 	IsmsDeveloper        IIsmsDeveloperDo
 	IsmsIndustry         IIsmsIndustryDo
-	IsmsO                IIsmsODo
+	IsmsOS               IIsmsOSDo
 	IsmsSoftware         IIsmsSoftwareDo
 	IsmsSoftwareIndustry IIsmsSoftwareIndustryDo
-	IsmsSoftwareO        IIsmsSoftwareODo
+	IsmsSoftwareOS       IIsmsSoftwareOSDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -113,10 +113,10 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		IsmsCountry:          q.IsmsCountry.WithContext(ctx),
 		IsmsDeveloper:        q.IsmsDeveloper.WithContext(ctx),
 		IsmsIndustry:         q.IsmsIndustry.WithContext(ctx),
-		IsmsO:                q.IsmsO.WithContext(ctx),
+		IsmsOS:               q.IsmsOS.WithContext(ctx),
 		IsmsSoftware:         q.IsmsSoftware.WithContext(ctx),
 		IsmsSoftwareIndustry: q.IsmsSoftwareIndustry.WithContext(ctx),
-		IsmsSoftwareO:        q.IsmsSoftwareO.WithContext(ctx),
+		IsmsSoftwareOS:       q.IsmsSoftwareOS.WithContext(ctx),
 	}
 }
 

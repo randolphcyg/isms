@@ -15,7 +15,7 @@ message IsmsSoftware {
   string developer = 4; // 开发商（关联开发商表ID或名称）
   string version = 5; // 软件版本
   string category = 6; // 软件类别（如CAD、CAE、MES等）
-  repeated int64 os_ids = 7; // 支持的操作系统ID列表（关联操作系统表）
+  repeated int32 os_ids = 7; // 支持的操作系统ID列表（关联操作系统表）
   string description = 8; // 软件描述
   int64 country_id = 9; // 所属国家ID（关联国家表）
   string website = 10; // 官网地址
@@ -31,7 +31,7 @@ message CreateSoftwareReq {
   string developer = 3 [(validate.rules).string.min_len = 1];
   string version = 4 [(validate.rules).string.min_len = 1];
   string category = 5 [(validate.rules).string.min_len = 1];
-  repeated int64 os_ids = 6 [(validate.rules).repeated.min_items = 1]; // 至少支持一个操作系统（修正：补充校验规则）
+  repeated int32 os_ids = 6 [(validate.rules).repeated.min_items = 1]; // 至少支持一个操作系统（修正：补充校验规则）
   string description = 7;
   int64 country_id = 8 [(validate.rules).int64.gt = 0];
   string website = 9 [(validate.rules).string.uri = true];
@@ -52,7 +52,7 @@ message UpdateSoftwareReq {
   string developer = 4;
   string version = 5;
   string category = 6;
-  repeated int64 os_ids = 7;
+  repeated int32 os_ids = 7;
   string description = 8;
   int64 country_id = 9;
   string website = 10;

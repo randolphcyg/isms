@@ -32,7 +32,7 @@ type IsmsSoftware struct {
 	Developer     string                 `protobuf:"bytes,4,opt,name=developer,proto3" json:"developer,omitempty"`                   // 开发商（关联开发商表ID或名称）
 	Version       string                 `protobuf:"bytes,5,opt,name=version,proto3" json:"version,omitempty"`                       // 软件版本
 	Category      string                 `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`                     // 软件类别（如CAD、CAE、MES等）
-	OsIds         []int64                `protobuf:"varint,7,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`      // 支持的操作系统ID列表（关联操作系统表）
+	OsIds         []int32                `protobuf:"varint,7,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`      // 支持的操作系统ID列表（关联操作系统表）
 	Description   string                 `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`               // 软件描述
 	CountryId     int64                  `protobuf:"varint,9,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"` // 所属国家ID（关联国家表）
 	Website       string                 `protobuf:"bytes,10,opt,name=website,proto3" json:"website,omitempty"`                      // 官网地址
@@ -115,7 +115,7 @@ func (x *IsmsSoftware) GetCategory() string {
 	return ""
 }
 
-func (x *IsmsSoftware) GetOsIds() []int64 {
+func (x *IsmsSoftware) GetOsIds() []int32 {
 	if x != nil {
 		return x.OsIds
 	}
@@ -172,7 +172,7 @@ type CreateSoftwareReq struct {
 	Developer     string                 `protobuf:"bytes,3,opt,name=developer,proto3" json:"developer,omitempty"`
 	Version       string                 `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
 	Category      string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
-	OsIds         []int64                `protobuf:"varint,6,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"` // 至少支持一个操作系统（修正：补充校验规则）
+	OsIds         []int32                `protobuf:"varint,6,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"` // 至少支持一个操作系统（修正：补充校验规则）
 	Description   string                 `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty"`
 	CountryId     int64                  `protobuf:"varint,8,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"`
 	Website       string                 `protobuf:"bytes,9,opt,name=website,proto3" json:"website,omitempty"`
@@ -246,7 +246,7 @@ func (x *CreateSoftwareReq) GetCategory() string {
 	return ""
 }
 
-func (x *CreateSoftwareReq) GetOsIds() []int64 {
+func (x *CreateSoftwareReq) GetOsIds() []int32 {
 	if x != nil {
 		return x.OsIds
 	}
@@ -343,7 +343,7 @@ type UpdateSoftwareReq struct {
 	Developer     string                 `protobuf:"bytes,4,opt,name=developer,proto3" json:"developer,omitempty"`
 	Version       string                 `protobuf:"bytes,5,opt,name=version,proto3" json:"version,omitempty"`
 	Category      string                 `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
-	OsIds         []int64                `protobuf:"varint,7,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`
+	OsIds         []int32                `protobuf:"varint,7,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`
 	Description   string                 `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`
 	CountryId     int64                  `protobuf:"varint,9,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"`
 	Website       string                 `protobuf:"bytes,10,opt,name=website,proto3" json:"website,omitempty"`
@@ -424,7 +424,7 @@ func (x *UpdateSoftwareReq) GetCategory() string {
 	return ""
 }
 
-func (x *UpdateSoftwareReq) GetOsIds() []int64 {
+func (x *UpdateSoftwareReq) GetOsIds() []int32 {
 	if x != nil {
 		return x.OsIds
 	}
@@ -724,7 +724,7 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\tdeveloper\x18\x04 \x01(\tR\tdeveloper\x12\x18\n" +
 	"\aversion\x18\x05 \x01(\tR\aversion\x12\x1a\n" +
 	"\bcategory\x18\x06 \x01(\tR\bcategory\x12\x15\n" +
-	"\x06os_ids\x18\a \x03(\x03R\x05osIds\x12 \n" +
+	"\x06os_ids\x18\a \x03(\x05R\x05osIds\x12 \n" +
 	"\vdescription\x18\b \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
 	"country_id\x18\t \x01(\x03R\tcountryId\x12\x18\n" +
@@ -741,7 +741,7 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\tdeveloper\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tdeveloper\x12!\n" +
 	"\aversion\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aversion\x12#\n" +
 	"\bcategory\x18\x05 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bcategory\x12\x1f\n" +
-	"\x06os_ids\x18\x06 \x03(\x03B\b\xfaB\x05\x92\x01\x02\b\x01R\x05osIds\x12 \n" +
+	"\x06os_ids\x18\x06 \x03(\x05B\b\xfaB\x05\x92\x01\x02\b\x01R\x05osIds\x12 \n" +
 	"\vdescription\x18\a \x01(\tR\vdescription\x12&\n" +
 	"\n" +
 	"country_id\x18\b \x01(\x03B\a\xfaB\x04\"\x02 \x00R\tcountryId\x12\"\n" +
@@ -758,7 +758,7 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\tdeveloper\x18\x04 \x01(\tR\tdeveloper\x12\x18\n" +
 	"\aversion\x18\x05 \x01(\tR\aversion\x12\x1a\n" +
 	"\bcategory\x18\x06 \x01(\tR\bcategory\x12\x15\n" +
-	"\x06os_ids\x18\a \x03(\x03R\x05osIds\x12 \n" +
+	"\x06os_ids\x18\a \x03(\x05R\x05osIds\x12 \n" +
 	"\vdescription\x18\b \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
 	"country_id\x18\t \x01(\x03R\tcountryId\x12\x18\n" +

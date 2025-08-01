@@ -6,7 +6,7 @@ CREATE TABLE `isms_software` (
   `release_date` DATE DEFAULT NULL COMMENT '发布日期',
   `developer_id` INT UNSIGNED NOT NULL COMMENT '开发商ID（关联isms_developer.id，代码逻辑维护）',
   `country_id` SMALLINT UNSIGNED NOT NULL COMMENT '产地国家ID（关联isms_country.id，代码逻辑维护）',
-  `system_requirements` text COMMENT '系统要求（处理器/内存等）',
+  `sys_req` text COMMENT '系统要求（处理器/内存等）',
   `description` text COMMENT '软件描述',
   `size_gb` DECIMAL(10,2) DEFAULT NULL COMMENT '软件大小（GB）',
   `deployment_method` varchar(100) DEFAULT NULL COMMENT '部署方式（如单机/云端）',

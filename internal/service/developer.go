@@ -46,8 +46,8 @@ func (s *DeveloperService) CreateDeveloper(ctx context.Context, req *pb.CreateDe
 		NameZh:      req.NameZh,
 		NameEn:      req.NameEn,
 		CountryID:   int32(req.CountryId), // 确保类型匹配domain定义
-		Website:     req.Website,
-		Description: req.Description,
+		Website:     &req.Website,
+		Description: &req.Description,
 		// 时间字段由数据库自动生成，无需手动设置
 	}
 
@@ -69,17 +69,66 @@ func (s *DeveloperService) CreateDeveloper(ctx context.Context, req *pb.CreateDe
 		NameZh:      createdDev.NameZh,
 		NameEn:      createdDev.NameEn,
 		CountryId:   uint32(createdDev.CountryID),
-		CountryName: createdDev.CountryName, // 从领域模型获取冗余的国家名称
-		Website:     createdDev.Website,
-		Description: createdDev.Description,
+		Website:     *createdDev.Website,
+		Description: *createdDev.Description,
 		CreatedAt:   createdDev.CreatedAt.Format(time.RFC3339), // 标准化时间格式
 		UpdatedAt:   createdDev.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }
 
 func (s *DeveloperService) GetDeveloper(ctx context.Context, req *pb.GetDeveloperReq) (*pb.DeveloperResp, error) {
-	return &pb.DeveloperResp{}, nil
+	s.log.WithContext(ctx).Infof("收到查询开发商请求: ID=%d", req.Id)
+
+	// 调用biz层获取领域模型
+	developer, err := s.uc.GetDeveloperByID(ctx, req.Id)
+	if err != nil {
+		s.log.WithContext(ctx).Errorf("查询开发商失败: %v", err)
+		return nil, status.Errorf(codes.NotFound, "开发商不存在")
+	}
+
+	// 转换领域模型到API响应
+	return &pb.DeveloperResp{
+		Id:          uint32(developer.ID),
+		NameZh:      developer.NameZh,
+		NameEn:      developer.NameEn,
+		CountryId:   uint32(developer.CountryID),
+		Website:     *developer.Website,
+		Description: *developer.Description,
+		CreatedAt:   developer.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   developer.UpdatedAt.Format(time.RFC3339),
+	}, nil
 }
+
 func (s *DeveloperService) ListDevelopers(ctx context.Context, req *pb.ListDevelopersReq) (*pb.ListDevelopersResp, error) {
-	return &pb.ListDevelopersResp{}, nil
+	s.log.WithContext(ctx).Infof("收到开发商列表请求: 页码=%d, 每页数量=%d, 国家ID=%d, 关键词=%s",
+		req.Page, req.PageSize, req.CountryId, req.Keyword)
+
+	// 调用biz层获取领域模型列表
+	developers, total, err := s.uc.ListDevelopers(ctx, req.Page, req.PageSize, req.CountryId, req.Keyword)
+	if err != nil {
+		s.log.WithContext(ctx).Errorf("查询开发商列表失败: %v", err)
+		return nil, status.Errorf(codes.Internal, "查询开发商列表失败")
+	}
+
+	// 转换领域模型列表到API响应
+	respDevelopers := make([]*pb.DeveloperResp, 0, len(developers))
+	for _, dev := range developers {
+		respDevelopers = append(respDevelopers, &pb.DeveloperResp{
+			Id:          uint32(dev.ID),
+			NameZh:      dev.NameZh,
+			NameEn:      dev.NameEn,
+			CountryId:   uint32(dev.CountryID),
+			Website:     *dev.Website,
+			Description: *dev.Description,
+			CreatedAt:   dev.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:   dev.UpdatedAt.Format(time.RFC3339),
+		})
+	}
+
+	return &pb.ListDevelopersResp{
+		Total:    uint32(total),
+		Items:    respDevelopers,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}, nil
 }

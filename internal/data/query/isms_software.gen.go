@@ -35,7 +35,7 @@ func newIsmsSoftware(db *gorm.DB, opts ...gen.DOOption) ismsSoftware {
 	_ismsSoftware.ReleaseDate = field.NewTime(tableName, "release_date")
 	_ismsSoftware.DeveloperID = field.NewInt32(tableName, "developer_id")
 	_ismsSoftware.CountryID = field.NewInt32(tableName, "country_id")
-	_ismsSoftware.SystemRequirements = field.NewString(tableName, "system_requirements")
+	_ismsSoftware.SysReq = field.NewString(tableName, "sys_req")
 	_ismsSoftware.Description = field.NewString(tableName, "description")
 	_ismsSoftware.SizeGb = field.NewFloat64(tableName, "size_gb")
 	_ismsSoftware.DeploymentMethod = field.NewString(tableName, "deployment_method")
@@ -63,7 +63,7 @@ type ismsSoftware struct {
 	ReleaseDate          field.Time    // 发布日期
 	DeveloperID          field.Int32   // 开发商ID（关联isms_developer.id，代码逻辑维护）
 	CountryID            field.Int32   // 产地国家ID（关联isms_country.id，代码逻辑维护）
-	SystemRequirements   field.String  // 系统要求（处理器/内存等）
+	SysReq               field.String  // 系统要求（处理器/内存等）
 	Description          field.String  // 软件描述
 	SizeGb               field.Float64 // 软件大小（GB）
 	DeploymentMethod     field.String  // 部署方式（如单机/云端）
@@ -96,7 +96,7 @@ func (i *ismsSoftware) updateTableName(table string) *ismsSoftware {
 	i.ReleaseDate = field.NewTime(table, "release_date")
 	i.DeveloperID = field.NewInt32(table, "developer_id")
 	i.CountryID = field.NewInt32(table, "country_id")
-	i.SystemRequirements = field.NewString(table, "system_requirements")
+	i.SysReq = field.NewString(table, "sys_req")
 	i.Description = field.NewString(table, "description")
 	i.SizeGb = field.NewFloat64(table, "size_gb")
 	i.DeploymentMethod = field.NewString(table, "deployment_method")
@@ -142,7 +142,7 @@ func (i *ismsSoftware) fillFieldMap() {
 	i.fieldMap["release_date"] = i.ReleaseDate
 	i.fieldMap["developer_id"] = i.DeveloperID
 	i.fieldMap["country_id"] = i.CountryID
-	i.fieldMap["system_requirements"] = i.SystemRequirements
+	i.fieldMap["sys_req"] = i.SysReq
 	i.fieldMap["description"] = i.Description
 	i.fieldMap["size_gb"] = i.SizeGb
 	i.fieldMap["deployment_method"] = i.DeploymentMethod

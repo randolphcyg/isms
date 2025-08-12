@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>软件列表</title>
+    <style>
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="menu.html" class="back-link">← 返回菜单</a>
+        <h1>工业软件列表</h1>
+        <div id="message" class="message"></div>
+        <table id="softwareTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>软件名称</th>
+                    <th>版本</th>
+                    <th>国家</th>
+                    <th>厂商</th>
+                    <th>描述</th>
+                </tr>
+            </thead>
+            <tbody id="softwareTableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // 后端API基础URL
+        const API_BASE_URL = 'http://localhost:8000/v1';
+
+        // 页面加载时获取软件列表
+        document.addEventListener('DOMContentLoaded', fetchSoftwareList);
+
+        // 获取软件列表
+        async function fetchSoftwareList() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/software`);
+                if (!response.ok) throw new Error('获取软件列表失败');
+                const data = await response.json();
+                const tableBody = document.getElementById('softwareTableBody');
+                tableBody.innerHTML = '';
+
+                data.forEach(software => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${software.id}</td>
+                        <td>${software.name}</td>
+                        <td>${software.version}</td>
+                        <td>${software.country_name || '未知'}</td>
+                        <td>${software.manufacturer_name || '未知'}</td>
+                        <td>${software.description || '-'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('获取软件列表错误:', error);
+            }
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+
+            // 3秒后自动清除消息
+            setTimeout(() => {
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

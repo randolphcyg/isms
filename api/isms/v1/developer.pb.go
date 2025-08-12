@@ -100,6 +100,91 @@ func (x *CreateDeveloperReq) GetDescription() string {
 	return ""
 }
 
+// 更新开发商的请求参数
+type UpdateDeveloperReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 开发商ID（必填）
+	NameZh        string                 `protobuf:"bytes,2,opt,name=name_zh,json=nameZh,proto3" json:"name_zh,omitempty"`           // 中文名称（可选，有值则更新）
+	NameEn        string                 `protobuf:"bytes,3,opt,name=name_en,json=nameEn,proto3" json:"name_en,omitempty"`           // 英文名称（可选，有值则更新）
+	CountryId     uint32                 `protobuf:"varint,4,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"` // 国家ID（可选，有值则更新）
+	Website       string                 `protobuf:"bytes,5,opt,name=website,proto3" json:"website,omitempty"`                       // 官网（可选，有值则更新）
+	Description   string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`               // 简介（可选，有值则更新）
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateDeveloperReq) Reset() {
+	*x = UpdateDeveloperReq{}
+	mi := &file_isms_v1_developer_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateDeveloperReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateDeveloperReq) ProtoMessage() {}
+
+func (x *UpdateDeveloperReq) ProtoReflect() protoreflect.Message {
+	mi := &file_isms_v1_developer_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateDeveloperReq.ProtoReflect.Descriptor instead.
+func (*UpdateDeveloperReq) Descriptor() ([]byte, []int) {
+	return file_isms_v1_developer_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UpdateDeveloperReq) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *UpdateDeveloperReq) GetNameZh() string {
+	if x != nil {
+		return x.NameZh
+	}
+	return ""
+}
+
+func (x *UpdateDeveloperReq) GetNameEn() string {
+	if x != nil {
+		return x.NameEn
+	}
+	return ""
+}
+
+func (x *UpdateDeveloperReq) GetCountryId() uint32 {
+	if x != nil {
+		return x.CountryId
+	}
+	return 0
+}
+
+func (x *UpdateDeveloperReq) GetWebsite() string {
+	if x != nil {
+		return x.Website
+	}
+	return ""
+}
+
+func (x *UpdateDeveloperReq) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
 // 查询单个开发商的请求
 type GetDeveloperReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -110,7 +195,7 @@ type GetDeveloperReq struct {
 
 func (x *GetDeveloperReq) Reset() {
 	*x = GetDeveloperReq{}
-	mi := &file_isms_v1_developer_proto_msgTypes[1]
+	mi := &file_isms_v1_developer_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -122,7 +207,7 @@ func (x *GetDeveloperReq) String() string {
 func (*GetDeveloperReq) ProtoMessage() {}
 
 func (x *GetDeveloperReq) ProtoReflect() protoreflect.Message {
-	mi := &file_isms_v1_developer_proto_msgTypes[1]
+	mi := &file_isms_v1_developer_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -135,7 +220,7 @@ func (x *GetDeveloperReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDeveloperReq.ProtoReflect.Descriptor instead.
 func (*GetDeveloperReq) Descriptor() ([]byte, []int) {
-	return file_isms_v1_developer_proto_rawDescGZIP(), []int{1}
+	return file_isms_v1_developer_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetDeveloperReq) GetId() uint32 {
@@ -158,7 +243,7 @@ type ListDevelopersReq struct {
 
 func (x *ListDevelopersReq) Reset() {
 	*x = ListDevelopersReq{}
-	mi := &file_isms_v1_developer_proto_msgTypes[2]
+	mi := &file_isms_v1_developer_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -170,7 +255,7 @@ func (x *ListDevelopersReq) String() string {
 func (*ListDevelopersReq) ProtoMessage() {}
 
 func (x *ListDevelopersReq) ProtoReflect() protoreflect.Message {
-	mi := &file_isms_v1_developer_proto_msgTypes[2]
+	mi := &file_isms_v1_developer_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -183,7 +268,7 @@ func (x *ListDevelopersReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDevelopersReq.ProtoReflect.Descriptor instead.
 func (*ListDevelopersReq) Descriptor() ([]byte, []int) {
-	return file_isms_v1_developer_proto_rawDescGZIP(), []int{2}
+	return file_isms_v1_developer_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListDevelopersReq) GetPage() uint32 {
@@ -232,7 +317,7 @@ type DeveloperResp struct {
 
 func (x *DeveloperResp) Reset() {
 	*x = DeveloperResp{}
-	mi := &file_isms_v1_developer_proto_msgTypes[3]
+	mi := &file_isms_v1_developer_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -244,7 +329,7 @@ func (x *DeveloperResp) String() string {
 func (*DeveloperResp) ProtoMessage() {}
 
 func (x *DeveloperResp) ProtoReflect() protoreflect.Message {
-	mi := &file_isms_v1_developer_proto_msgTypes[3]
+	mi := &file_isms_v1_developer_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -257,7 +342,7 @@ func (x *DeveloperResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeveloperResp.ProtoReflect.Descriptor instead.
 func (*DeveloperResp) Descriptor() ([]byte, []int) {
-	return file_isms_v1_developer_proto_rawDescGZIP(), []int{3}
+	return file_isms_v1_developer_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeveloperResp) GetId() uint32 {
@@ -336,7 +421,7 @@ type ListDevelopersResp struct {
 
 func (x *ListDevelopersResp) Reset() {
 	*x = ListDevelopersResp{}
-	mi := &file_isms_v1_developer_proto_msgTypes[4]
+	mi := &file_isms_v1_developer_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -348,7 +433,7 @@ func (x *ListDevelopersResp) String() string {
 func (*ListDevelopersResp) ProtoMessage() {}
 
 func (x *ListDevelopersResp) ProtoReflect() protoreflect.Message {
-	mi := &file_isms_v1_developer_proto_msgTypes[4]
+	mi := &file_isms_v1_developer_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -361,7 +446,7 @@ func (x *ListDevelopersResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDevelopersResp.ProtoReflect.Descriptor instead.
 func (*ListDevelopersResp) Descriptor() ([]byte, []int) {
-	return file_isms_v1_developer_proto_rawDescGZIP(), []int{4}
+	return file_isms_v1_developer_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListDevelopersResp) GetItems() []*DeveloperResp {
@@ -405,7 +490,17 @@ const file_isms_v1_developer_proto_rawDesc = "" +
 	"\n" +
 	"country_id\x18\x03 \x01(\rB\a\xfaB\x04*\x02 \x00R\tcountryId\x12\"\n" +
 	"\awebsite\x18\x04 \x01(\tB\b\xfaB\x05r\x03\x18\xf4\x03R\awebsite\x12 \n" +
-	"\vdescription\x18\x05 \x01(\tR\vdescription\"*\n" +
+	"\vdescription\x18\x05 \x01(\tR\vdescription\"\xe5\x01\n" +
+	"\x12UpdateDeveloperReq\x12\x17\n" +
+	"\x02id\x18\x01 \x01(\rB\a\xfaB\x04*\x02 \x00R\x02id\x12#\n" +
+	"\aname_zh\x18\x02 \x01(\tB\n" +
+	"\xfaB\ar\x05\x10\x01\x18\xc8\x01R\x06nameZh\x12#\n" +
+	"\aname_en\x18\x03 \x01(\tB\n" +
+	"\xfaB\ar\x05\x10\x01\x18\xc8\x01R\x06nameEn\x12&\n" +
+	"\n" +
+	"country_id\x18\x04 \x01(\rB\a\xfaB\x04*\x02 \x00R\tcountryId\x12\"\n" +
+	"\awebsite\x18\x05 \x01(\tB\b\xfaB\x05r\x03\x18\xf4\x03R\awebsite\x12 \n" +
+	"\vdescription\x18\x06 \x01(\tR\vdescription\"*\n" +
 	"\x0fGetDeveloperReq\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\rB\a\xfaB\x04*\x02 \x00R\x02id\"\x91\x01\n" +
 	"\x11ListDevelopersReq\x12\x1b\n" +
@@ -431,11 +526,12 @@ const file_isms_v1_developer_proto_rawDesc = "" +
 	"\x05items\x18\x01 \x03(\v2\x16.isms.v1.DeveloperRespR\x05items\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\rR\x05total\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\rR\x04page\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\rR\bpageSize2\xcb\x02\n" +
-	"\tDeveloper\x12j\n" +
-	"\x0fCreateDeveloper\x12\x1b.isms.v1.CreateDeveloperReq\x1a\x16.isms.v1.DeveloperResp\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/industry/v1/developers\x12f\n" +
-	"\fGetDeveloper\x12\x18.isms.v1.GetDeveloperReq\x1a\x16.isms.v1.DeveloperResp\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/industry/v1/developers/{id}\x12j\n" +
-	"\x0eListDevelopers\x12\x1a.isms.v1.ListDevelopersReq\x1a\x1b.isms.v1.ListDevelopersResp\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/industry/v1/developersB\x15Z\x13isms/api/isms/v1;v1b\x06proto3"
+	"\tpage_size\x18\x04 \x01(\rR\bpageSize2\x98\x03\n" +
+	"\tDeveloper\x12a\n" +
+	"\x0fCreateDeveloper\x12\x1b.isms.v1.CreateDeveloperReq\x1a\x16.isms.v1.DeveloperResp\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/developers\x12f\n" +
+	"\x0fUpdateDeveloper\x12\x1b.isms.v1.UpdateDeveloperReq\x1a\x16.isms.v1.DeveloperResp\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\x1a\x13/v1/developers/{id}\x12]\n" +
+	"\fGetDeveloper\x12\x18.isms.v1.GetDeveloperReq\x1a\x16.isms.v1.DeveloperResp\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/developers/{id}\x12a\n" +
+	"\x0eListDevelopers\x12\x1a.isms.v1.ListDevelopersReq\x1a\x1b.isms.v1.ListDevelopersResp\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/developersB\x15Z\x13isms/api/isms/v1;v1b\x06proto3"
 
 var (
 	file_isms_v1_developer_proto_rawDescOnce sync.Once
@@ -449,24 +545,27 @@ func file_isms_v1_developer_proto_rawDescGZIP() []byte {
 	return file_isms_v1_developer_proto_rawDescData
 }
 
-var file_isms_v1_developer_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_isms_v1_developer_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_isms_v1_developer_proto_goTypes = []any{
 	(*CreateDeveloperReq)(nil), // 0: isms.v1.CreateDeveloperReq
-	(*GetDeveloperReq)(nil),    // 1: isms.v1.GetDeveloperReq
-	(*ListDevelopersReq)(nil),  // 2: isms.v1.ListDevelopersReq
-	(*DeveloperResp)(nil),      // 3: isms.v1.DeveloperResp
-	(*ListDevelopersResp)(nil), // 4: isms.v1.ListDevelopersResp
+	(*UpdateDeveloperReq)(nil), // 1: isms.v1.UpdateDeveloperReq
+	(*GetDeveloperReq)(nil),    // 2: isms.v1.GetDeveloperReq
+	(*ListDevelopersReq)(nil),  // 3: isms.v1.ListDevelopersReq
+	(*DeveloperResp)(nil),      // 4: isms.v1.DeveloperResp
+	(*ListDevelopersResp)(nil), // 5: isms.v1.ListDevelopersResp
 }
 var file_isms_v1_developer_proto_depIdxs = []int32{
-	3, // 0: isms.v1.ListDevelopersResp.items:type_name -> isms.v1.DeveloperResp
+	4, // 0: isms.v1.ListDevelopersResp.items:type_name -> isms.v1.DeveloperResp
 	0, // 1: isms.v1.Developer.CreateDeveloper:input_type -> isms.v1.CreateDeveloperReq
-	1, // 2: isms.v1.Developer.GetDeveloper:input_type -> isms.v1.GetDeveloperReq
-	2, // 3: isms.v1.Developer.ListDevelopers:input_type -> isms.v1.ListDevelopersReq
-	3, // 4: isms.v1.Developer.CreateDeveloper:output_type -> isms.v1.DeveloperResp
-	3, // 5: isms.v1.Developer.GetDeveloper:output_type -> isms.v1.DeveloperResp
-	4, // 6: isms.v1.Developer.ListDevelopers:output_type -> isms.v1.ListDevelopersResp
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
+	1, // 2: isms.v1.Developer.UpdateDeveloper:input_type -> isms.v1.UpdateDeveloperReq
+	2, // 3: isms.v1.Developer.GetDeveloper:input_type -> isms.v1.GetDeveloperReq
+	3, // 4: isms.v1.Developer.ListDevelopers:input_type -> isms.v1.ListDevelopersReq
+	4, // 5: isms.v1.Developer.CreateDeveloper:output_type -> isms.v1.DeveloperResp
+	4, // 6: isms.v1.Developer.UpdateDeveloper:output_type -> isms.v1.DeveloperResp
+	4, // 7: isms.v1.Developer.GetDeveloper:output_type -> isms.v1.DeveloperResp
+	5, // 8: isms.v1.Developer.ListDevelopers:output_type -> isms.v1.ListDevelopersResp
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -483,7 +582,7 @@ func file_isms_v1_developer_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_isms_v1_developer_proto_rawDesc), len(file_isms_v1_developer_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

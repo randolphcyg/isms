@@ -31,8 +31,8 @@ type IndustryHTTPServer interface {
 
 func RegisterIndustryHTTPServer(s *http.Server, srv IndustryHTTPServer) {
 	r := s.Route("/")
-	r.GET("/industry/v1/categories/{category_code}/subcategories", _Industry_GetSubcategories0_HTTP_Handler(srv))
-	r.GET("/industry/v1/categories", _Industry_ListCategories0_HTTP_Handler(srv))
+	r.GET("/v1/categories/{category_code}/subcategories", _Industry_GetSubcategories0_HTTP_Handler(srv))
+	r.GET("/v1/categories", _Industry_ListCategories0_HTTP_Handler(srv))
 }
 
 func _Industry_GetSubcategories0_HTTP_Handler(srv IndustryHTTPServer) func(ctx http.Context) error {
@@ -91,7 +91,7 @@ func NewIndustryHTTPClient(client *http.Client) IndustryHTTPClient {
 
 func (c *IndustryHTTPClientImpl) GetSubcategories(ctx context.Context, in *GetSubcategoriesReq, opts ...http.CallOption) (*GetSubcategoriesResp, error) {
 	var out GetSubcategoriesResp
-	pattern := "/industry/v1/categories/{category_code}/subcategories"
+	pattern := "/v1/categories/{category_code}/subcategories"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationIndustryGetSubcategories))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -104,7 +104,7 @@ func (c *IndustryHTTPClientImpl) GetSubcategories(ctx context.Context, in *GetSu
 
 func (c *IndustryHTTPClientImpl) ListCategories(ctx context.Context, in *ListCategoriesReq, opts ...http.CallOption) (*ListCategoriesResp, error) {
 	var out ListCategoriesResp
-	pattern := "/industry/v1/categories"
+	pattern := "/v1/categories"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationIndustryListCategories))
 	opts = append(opts, http.PathTemplate(pattern))

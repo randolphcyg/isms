@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 行业分类服务
+// 行业分类
 type IndustryClient interface {
 	// 根据大类查询小类
 	GetSubcategories(ctx context.Context, in *GetSubcategoriesReq, opts ...grpc.CallOption) (*GetSubcategoriesResp, error)
@@ -67,7 +67,7 @@ func (c *industryClient) ListCategories(ctx context.Context, in *ListCategoriesR
 // All implementations must embed UnimplementedIndustryServer
 // for forward compatibility.
 //
-// 行业分类服务
+// 行业分类
 type IndustryServer interface {
 	// 根据大类查询小类
 	GetSubcategories(context.Context, *GetSubcategoriesReq) (*GetSubcategoriesResp, error)

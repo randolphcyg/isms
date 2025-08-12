@@ -84,7 +84,7 @@ message ListSoftwareResp {
   int32 page_size = 4;
 }
 
-// 工业软件服务接口
+// 工业软件
 service Software {
   // 创建工业软件记录
   rpc CreateSoftware(CreateSoftwareReq) returns (CreateSoftwareResp) {

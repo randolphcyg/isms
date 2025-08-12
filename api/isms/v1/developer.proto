@@ -7,12 +7,20 @@ import "validate/validate.proto";
 
 option go_package = "isms/api/isms/v1;v1";
 
-// 开发商服务
+// 开发商
 service Developer {
   // 创建开发商
   rpc CreateDeveloper (CreateDeveloperReq) returns (DeveloperResp) {
     option (google.api.http) = {
-      post: "/industry/v1/developers"
+      post: "/v1/developers"
+      body: "*"
+    };
+  }
+
+  // 更新开发商
+  rpc UpdateDeveloper (UpdateDeveloperReq) returns (DeveloperResp) {
+    option (google.api.http) = {
+      put: "/v1/developers/{id}"
       body: "*"
     };
   }
@@ -20,14 +28,14 @@ service Developer {
   // 查询单个开发商（按ID）
   rpc GetDeveloper (GetDeveloperReq) returns (DeveloperResp) {
     option (google.api.http) = {
-      get: "/industry/v1/developers/{id}"
+      get: "/v1/developers/{id}"
     };
   }
 
   // 分页查询开发商列表
   rpc ListDevelopers (ListDevelopersReq) returns (ListDevelopersResp) {
     option (google.api.http) = {
-      get: "/industry/v1/developers"
+      get: "/v1/developers"
     };
   }
 }
@@ -39,6 +47,16 @@ message CreateDeveloperReq {
   uint32 country_id = 3 [(validate.rules).uint32 = {gt: 0}]; // 国家ID（必填）
   string website = 4 [(validate.rules).string = {max_len: 500}]; // 官网（可选）
   string description = 5; // 简介（可选）
+}
+
+// 更新开发商的请求参数
+message UpdateDeveloperReq {
+  uint32 id = 1 [(validate.rules).uint32 = {gt: 0}]; // 开发商ID（必填）
+  string name_zh = 2 [(validate.rules).string = {min_len: 1, max_len: 200}]; // 中文名称（可选，有值则更新）
+  string name_en = 3 [(validate.rules).string = {min_len: 1, max_len: 200}]; // 英文名称（可选，有值则更新）
+  uint32 country_id = 4 [(validate.rules).uint32 = {gt: 0}]; // 国家ID（可选，有值则更新）
+  string website = 5 [(validate.rules).string = {max_len: 500}]; // 官网（可选，有值则更新）
+  string description = 6; // 简介（可选，有值则更新）
 }
 
 // 查询单个开发商的请求

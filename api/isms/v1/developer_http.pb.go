@@ -22,6 +22,7 @@ const _ = http.SupportPackageIsVersion1
 const OperationDeveloperCreateDeveloper = "/isms.v1.Developer/CreateDeveloper"
 const OperationDeveloperGetDeveloper = "/isms.v1.Developer/GetDeveloper"
 const OperationDeveloperListDevelopers = "/isms.v1.Developer/ListDevelopers"
+const OperationDeveloperUpdateDeveloper = "/isms.v1.Developer/UpdateDeveloper"
 
 type DeveloperHTTPServer interface {
 	// CreateDeveloper 创建开发商
@@ -30,13 +31,16 @@ type DeveloperHTTPServer interface {
 	GetDeveloper(context.Context, *GetDeveloperReq) (*DeveloperResp, error)
 	// ListDevelopers 分页查询开发商列表
 	ListDevelopers(context.Context, *ListDevelopersReq) (*ListDevelopersResp, error)
+	// UpdateDeveloper 更新开发商
+	UpdateDeveloper(context.Context, *UpdateDeveloperReq) (*DeveloperResp, error)
 }
 
 func RegisterDeveloperHTTPServer(s *http.Server, srv DeveloperHTTPServer) {
 	r := s.Route("/")
-	r.POST("/industry/v1/developers", _Developer_CreateDeveloper0_HTTP_Handler(srv))
-	r.GET("/industry/v1/developers/{id}", _Developer_GetDeveloper0_HTTP_Handler(srv))
-	r.GET("/industry/v1/developers", _Developer_ListDevelopers0_HTTP_Handler(srv))
+	r.POST("/v1/developers", _Developer_CreateDeveloper0_HTTP_Handler(srv))
+	r.PUT("/v1/developers/{id}", _Developer_UpdateDeveloper0_HTTP_Handler(srv))
+	r.GET("/v1/developers/{id}", _Developer_GetDeveloper0_HTTP_Handler(srv))
+	r.GET("/v1/developers", _Developer_ListDevelopers0_HTTP_Handler(srv))
 }
 
 func _Developer_CreateDeveloper0_HTTP_Handler(srv DeveloperHTTPServer) func(ctx http.Context) error {
@@ -51,6 +55,31 @@ func _Developer_CreateDeveloper0_HTTP_Handler(srv DeveloperHTTPServer) func(ctx 
 		http.SetOperation(ctx, OperationDeveloperCreateDeveloper)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.CreateDeveloper(ctx, req.(*CreateDeveloperReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeveloperResp)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Developer_UpdateDeveloper0_HTTP_Handler(srv DeveloperHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateDeveloperReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationDeveloperUpdateDeveloper)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateDeveloper(ctx, req.(*UpdateDeveloperReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -106,6 +135,7 @@ type DeveloperHTTPClient interface {
 	CreateDeveloper(ctx context.Context, req *CreateDeveloperReq, opts ...http.CallOption) (rsp *DeveloperResp, err error)
 	GetDeveloper(ctx context.Context, req *GetDeveloperReq, opts ...http.CallOption) (rsp *DeveloperResp, err error)
 	ListDevelopers(ctx context.Context, req *ListDevelopersReq, opts ...http.CallOption) (rsp *ListDevelopersResp, err error)
+	UpdateDeveloper(ctx context.Context, req *UpdateDeveloperReq, opts ...http.CallOption) (rsp *DeveloperResp, err error)
 }
 
 type DeveloperHTTPClientImpl struct {
@@ -118,7 +148,7 @@ func NewDeveloperHTTPClient(client *http.Client) DeveloperHTTPClient {
 
 func (c *DeveloperHTTPClientImpl) CreateDeveloper(ctx context.Context, in *CreateDeveloperReq, opts ...http.CallOption) (*DeveloperResp, error) {
 	var out DeveloperResp
-	pattern := "/industry/v1/developers"
+	pattern := "/v1/developers"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationDeveloperCreateDeveloper))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -131,7 +161,7 @@ func (c *DeveloperHTTPClientImpl) CreateDeveloper(ctx context.Context, in *Creat
 
 func (c *DeveloperHTTPClientImpl) GetDeveloper(ctx context.Context, in *GetDeveloperReq, opts ...http.CallOption) (*DeveloperResp, error) {
 	var out DeveloperResp
-	pattern := "/industry/v1/developers/{id}"
+	pattern := "/v1/developers/{id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationDeveloperGetDeveloper))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -144,11 +174,24 @@ func (c *DeveloperHTTPClientImpl) GetDeveloper(ctx context.Context, in *GetDevel
 
 func (c *DeveloperHTTPClientImpl) ListDevelopers(ctx context.Context, in *ListDevelopersReq, opts ...http.CallOption) (*ListDevelopersResp, error) {
 	var out ListDevelopersResp
-	pattern := "/industry/v1/developers"
+	pattern := "/v1/developers"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationDeveloperListDevelopers))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *DeveloperHTTPClientImpl) UpdateDeveloper(ctx context.Context, in *UpdateDeveloperReq, opts ...http.CallOption) (*DeveloperResp, error) {
+	var out DeveloperResp
+	pattern := "/v1/developers/{id}"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationDeveloperUpdateDeveloper))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

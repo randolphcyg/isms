@@ -21,7 +21,7 @@ func NewDeveloperUsecase(repo domain.DeveloperRepo, logger log.Logger) *Develope
 	}
 }
 
-// CreateDeveloper 实现“创建开发商”的完整业务流程
+// CreateDeveloper 创建
 func (uc *DeveloperUsecase) CreateDeveloper(ctx context.Context, dev *domain.Developer) (*domain.Developer, error) {
 	// 1. 调用领域模型的业务校验（封装核心规则）
 	if err := dev.Validate(); err != nil {
@@ -41,12 +41,32 @@ func (uc *DeveloperUsecase) CreateDeveloper(ctx context.Context, dev *domain.Dev
 	return uc.repo.Create(ctx, dev)
 }
 
-// 修改 GetDeveloperByID 方法
+// GetDeveloperByID 获取
 func (uc *DeveloperUsecase) GetDeveloperByID(ctx context.Context, id uint32) (*domain.Developer, error) {
 	return uc.repo.GetByID(ctx, int32(id))
 }
 
-// 修改 ListDevelopers 方法
+// ListDevelopers 列表
 func (uc *DeveloperUsecase) ListDevelopers(ctx context.Context, page, pageSize, countryID uint32, keyword string) ([]*domain.Developer, int64, error) {
 	return uc.repo.List(ctx, page, pageSize, countryID, keyword)
+}
+
+// Update 更新开发商信息
+func (uc *DeveloperUsecase) Update(ctx context.Context, dev *domain.Developer) (*domain.Developer, error) {
+    // 1. 领域模型验证
+    if err := dev.Validate(); err != nil {
+        return nil, err
+    }
+
+    // 2. 检查名称唯一性（排除当前ID）
+    exists, err := uc.repo.ExistByNameExcludeID(ctx, dev.NameZh, dev.ID)
+    if err != nil {
+        return nil, err
+    }
+    if exists {
+        return nil, fmt.Errorf("开发商名称已存在")
+    }
+
+    // 3. 调用仓库层更新
+    return uc.repo.Update(ctx, dev)
 }

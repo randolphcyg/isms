@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>国家列表</title>
+    <style>
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .success { background-color: #d4edda; color: #155724; }
+        
+        /* 分页控件样式 */
+        .pagination { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            margin-top: 20px; 
+            gap: 10px;
+        }
+        .pagination button { 
+            padding: 8px 12px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        .pagination button:disabled { 
+            background-color: #ccc; 
+            cursor: not-allowed; 
+        }
+        .pagination input { 
+            width: 60px; 
+            padding: 6px; 
+            text-align: center; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        .pagination span { 
+            margin: 0 5px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="menu.html" class="back-link">← 返回菜单</a>
+        <h1>国家列表</h1>
+        <div id="message" class="message"></div>
+        <table id="countriesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>中文名称</th>
+                    <th>英文名称</th>
+                    <th>ISO代码</th>
+                    <th>大洲</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody id="countriesTableBody"></tbody>
+        </table>
+        
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination">
+            <button id="firstPage">首页</button>
+            <button id="prevPage">上一页</button>
+            <span>第 <input type="number" id="pageInput" min="1" value="1"> 页</span>
+            <span>/ 共 <span id="totalPages">1</span> 页</span>
+            <button id="nextPage">下一页</button>
+            <button id="lastPage">末页</button>
+            <span>每页 <input type="number" id="pageSizeInput" min="1" max="100" value="20"> 条</span>
+            <button id="goPage">跳转</button>
+        </div>
+    </div>
+
+    <script>
+        // 后端API基础URL
+        const API_BASE_URL = 'http://localhost:8000/v1';
+        
+        // 当前分页状态
+        let currentPage = 1;
+        let pageSize = 20;
+        let total = 0;
+
+        // 页面加载时获取国家列表
+        document.addEventListener('DOMContentLoaded', function() {
+            setupPagination();
+            fetchCountriesList(currentPage, pageSize);
+        });
+
+        // 设置分页控件事件监听
+        function setupPagination() {
+            document.getElementById('firstPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    fetchCountriesList(1, pageSize);
+                }
+            });
+            
+            document.getElementById('prevPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    fetchCountriesList(currentPage - 1, pageSize);
+                }
+            });
+            
+            document.getElementById('nextPage').addEventListener('click', () => {
+                const totalPages = Math.ceil(total / pageSize);
+                if (currentPage < totalPages) {
+                    fetchCountriesList(currentPage + 1, pageSize);
+                }
+            });
+            
+            document.getElementById('lastPage').addEventListener('click', () => {
+                const totalPages = Math.ceil(total / pageSize);
+                if (currentPage < totalPages) {
+                    fetchCountriesList(totalPages, pageSize);
+                }
+            });
+            
+            document.getElementById('goPage').addEventListener('click', () => {
+                const pageInput = document.getElementById('pageInput');
+                const page = parseInt(pageInput.value);
+                const totalPages = Math.ceil(total / pageSize);
+                
+                if (page >= 1 && page <= totalPages) {
+                    fetchCountriesList(page, pageSize);
+                } else {
+                    showMessage(`请输入有效的页码 (1-${totalPages})`, 'error');
+                }
+            });
+            
+            document.getElementById('pageSizeInput').addEventListener('change', (e) => {
+                const newSize = parseInt(e.target.value);
+                if (newSize >= 1 && newSize <= 100) {
+                    pageSize = newSize;
+                    fetchCountriesList(1, pageSize); // 重置到第一页
+                } else {
+                    showMessage('每页条数应在1-100之间', 'error');
+                    e.target.value = pageSize;
+                }
+            });
+            
+            // 回车跳转页面
+            document.getElementById('pageInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('goPage').click();
+                }
+            });
+            
+            // 回车设置每页条数
+            document.getElementById('pageSizeInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('pageSizeInput').dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        // 获取国家列表
+        async function fetchCountriesList(page = 1, pageSize = 20) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/countries?page=${page}&page_size=${pageSize}`);
+                if (!response.ok) throw new Error(`获取国家列表失败: ${response.status} ${response.statusText}`);
+                
+                const result = await response.json();
+                
+                // 检查响应数据结构
+                if (!result || typeof result !== 'object') {
+                    throw new Error('服务器响应格式错误');
+                }
+                
+                // 提取数据数组
+                const data = Array.isArray(result.items) ? result.items : [];
+                total = result.total || 0;
+                currentPage = result.page || page;
+                
+                // 更新分页控件
+                updatePaginationControls();
+                
+                // 渲染表格
+                renderCountriesTable(data);
+                
+                // 显示成功消息
+                showMessage(`成功加载 ${data.length} 条国家数据`, 'success');
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('获取国家列表错误:', error);
+                
+                // 渲染空表格
+                renderCountriesTable([]);
+            }
+        }
+
+        // 渲染国家表格
+        function renderCountriesTable(data) {
+            const tableBody = document.getElementById('countriesTableBody');
+            tableBody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="6" style="text-align: center;">暂无数据</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+
+            data.forEach(country => {
+                // 数据存在性检查和默认值设置
+                const id = country.id || '-';
+                const nameZh = country.nameZh || '未设置';
+                const nameEn = country.nameEn || '未设置';
+                const isoCode = country.code || '-';
+                const continent = country.continent || '未知';
+                const createdAt = formatDate(country.createdAt) || '-';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${id}</td>
+                    <td>${nameZh}</td>
+                    <td>${nameEn}</td>
+                    <td>${isoCode}</td>
+                    <td>${continent}</td>
+                    <td>${createdAt}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 更新分页控件状态
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(total / pageSize);
+            
+            // 更新页码输入框
+            document.getElementById('pageInput').value = currentPage;
+            document.getElementById('pageInput').min = 1;
+            document.getElementById('pageInput').max = totalPages;
+            
+            // 更新总页数显示
+            document.getElementById('totalPages').textContent = totalPages || 1;
+            
+            // 更新按钮状态
+            document.getElementById('firstPage').disabled = currentPage <= 1;
+            document.getElementById('prevPage').disabled = currentPage <= 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+            document.getElementById('lastPage').disabled = currentPage >= totalPages;
+            
+            // 更新每页条数输入框
+            document.getElementById('pageSizeInput').value = pageSize;
+        }
+
+        // 格式化日期时间
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return '-'; // 无效日期
+                
+                // 使用中文格式化日期
+                return new Intl.DateTimeFormat('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).format(date);
+            } catch (error) {
+                console.error('日期格式化错误:', error);
+                return '-'; // 格式化失败时返回默认值
+            }
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+
+            // 3秒后自动清除消息
+            setTimeout(() => {
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

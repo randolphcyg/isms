@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Developer_CreateDeveloper_FullMethodName = "/isms.v1.Developer/CreateDeveloper"
+	Developer_UpdateDeveloper_FullMethodName = "/isms.v1.Developer/UpdateDeveloper"
 	Developer_GetDeveloper_FullMethodName    = "/isms.v1.Developer/GetDeveloper"
 	Developer_ListDevelopers_FullMethodName  = "/isms.v1.Developer/ListDevelopers"
 )
@@ -28,10 +29,12 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 开发商服务
+// 开发商
 type DeveloperClient interface {
 	// 创建开发商
 	CreateDeveloper(ctx context.Context, in *CreateDeveloperReq, opts ...grpc.CallOption) (*DeveloperResp, error)
+	// 更新开发商
+	UpdateDeveloper(ctx context.Context, in *UpdateDeveloperReq, opts ...grpc.CallOption) (*DeveloperResp, error)
 	// 查询单个开发商（按ID）
 	GetDeveloper(ctx context.Context, in *GetDeveloperReq, opts ...grpc.CallOption) (*DeveloperResp, error)
 	// 分页查询开发商列表
@@ -50,6 +53,16 @@ func (c *developerClient) CreateDeveloper(ctx context.Context, in *CreateDevelop
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeveloperResp)
 	err := c.cc.Invoke(ctx, Developer_CreateDeveloper_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *developerClient) UpdateDeveloper(ctx context.Context, in *UpdateDeveloperReq, opts ...grpc.CallOption) (*DeveloperResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeveloperResp)
+	err := c.cc.Invoke(ctx, Developer_UpdateDeveloper_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,10 +93,12 @@ func (c *developerClient) ListDevelopers(ctx context.Context, in *ListDevelopers
 // All implementations must embed UnimplementedDeveloperServer
 // for forward compatibility.
 //
-// 开发商服务
+// 开发商
 type DeveloperServer interface {
 	// 创建开发商
 	CreateDeveloper(context.Context, *CreateDeveloperReq) (*DeveloperResp, error)
+	// 更新开发商
+	UpdateDeveloper(context.Context, *UpdateDeveloperReq) (*DeveloperResp, error)
 	// 查询单个开发商（按ID）
 	GetDeveloper(context.Context, *GetDeveloperReq) (*DeveloperResp, error)
 	// 分页查询开发商列表
@@ -100,6 +115,9 @@ type UnimplementedDeveloperServer struct{}
 
 func (UnimplementedDeveloperServer) CreateDeveloper(context.Context, *CreateDeveloperReq) (*DeveloperResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateDeveloper not implemented")
+}
+func (UnimplementedDeveloperServer) UpdateDeveloper(context.Context, *UpdateDeveloperReq) (*DeveloperResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDeveloper not implemented")
 }
 func (UnimplementedDeveloperServer) GetDeveloper(context.Context, *GetDeveloperReq) (*DeveloperResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDeveloper not implemented")
@@ -142,6 +160,24 @@ func _Developer_CreateDeveloper_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(DeveloperServer).CreateDeveloper(ctx, req.(*CreateDeveloperReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Developer_UpdateDeveloper_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDeveloperReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeveloperServer).UpdateDeveloper(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Developer_UpdateDeveloper_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeveloperServer).UpdateDeveloper(ctx, req.(*UpdateDeveloperReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -192,6 +228,10 @@ var Developer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateDeveloper",
 			Handler:    _Developer_CreateDeveloper_Handler,
+		},
+		{
+			MethodName: "UpdateDeveloper",
+			Handler:    _Developer_UpdateDeveloper_Handler,
 		},
 		{
 			MethodName: "GetDeveloper",

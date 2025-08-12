@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发商列表</title>
+    <style>
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .pagination { margin-top: 20px; display: flex; justify-content: center; }
+        .pagination button { margin: 0 5px; padding: 8px 12px; cursor: pointer; }
+        .pagination .current { background-color: #007bff; color: white; border: none; }
+        .pagination input { width: 50px; text-align: center; margin: 0 5px; }
+        .pagination-info { text-align: center; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="menu.html" class="back-link">← 返回菜单</a>
+        <h1>开发商列表</h1>
+        <div id="message" class="message"></div>
+        <table id="manufacturersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>开发商名称</th>
+                    <th>国家</th>
+                    <th>创建时间</th>
+                    <th>更新时间</th>
+                </tr>
+            </thead>
+            <tbody id="manufacturersTableBody"></tbody>
+        </table>
+        
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination">
+            <button id="firstPage">首页</button>
+            <button id="prevPage">上一页</button>
+            <span>第 <input type="number" id="pageInput" min="1" value="1"> 页</span>
+            <span>/ 共 <span id="totalPages">1</span> 页</span>
+            <button id="nextPage">下一页</button>
+            <button id="lastPage">末页</button>
+            <button id="goPage">跳转</button>
+        </div>
+        <div class="pagination-info">
+            每页显示 <input type="number" id="pageSizeInput" min="1" max="100" value="20"> 条
+            <span id="totalInfo">共 0 条记录</span>
+        </div>
+    </div>
+
+    <script>
+        // 后端API基础URL
+        const API_BASE_URL = 'http://localhost:8000/v1';
+        
+        // 分页参数
+        let currentPage = 1;
+        let pageSize = 20;
+        let totalPages = 1;
+        let totalItems = 0;
+
+        // 页面加载时获取开发商列表
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchManufacturersList(currentPage, pageSize);
+            
+            // 绑定分页控件事件
+            document.getElementById('firstPage').addEventListener('click', () => goToPage(1));
+            document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
+            document.getElementById('nextPage').addEventListener('click', () => goToPage(currentPage + 1));
+            document.getElementById('lastPage').addEventListener('click', () => goToPage(totalPages));
+            document.getElementById('goPage').addEventListener('click', () => {
+                const page = parseInt(document.getElementById('pageInput').value);
+                if (page >= 1 && page <= totalPages) {
+                    goToPage(page);
+                } else {
+                    showMessage('请输入有效的页码', 'error');
+                }
+            });
+            
+            // 回车跳转页面
+            document.getElementById('pageInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('goPage').click();
+                }
+            });
+            
+            // 改变每页显示条数
+            document.getElementById('pageSizeInput').addEventListener('change', (e) => {
+                pageSize = parseInt(e.target.value);
+                if (pageSize < 1) pageSize = 1;
+                if (pageSize > 100) pageSize = 100;
+                e.target.value = pageSize;
+                goToPage(1); // 重置到第一页
+            });
+        });
+
+        // 获取开发商列表
+        async function fetchManufacturersList(page = 1, size = 20) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/developers?page=${page}&page_size=${size}`);
+                if (!response.ok) throw new Error('获取开发商列表失败');
+                const result = await response.json();
+                const data = result.items || []; // 从items字段获取数组
+                
+                // 更新分页信息
+                totalItems = result.total || 0;
+                currentPage = result.page || page;
+                pageSize = result.page_size || size;
+                totalPages = Math.ceil(totalItems / pageSize);
+                
+                // 更新UI
+                updatePaginationUI();
+                
+                const tableBody = document.getElementById('manufacturersTableBody');
+                tableBody.innerHTML = '';
+
+                // 检查数据是否存在
+                if (!data || data.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="5" style="text-align: center;">暂无数据</td>`;
+                    tableBody.appendChild(row);
+                    return;
+                }
+
+                data.forEach(manufacturer => {
+                    // 确保字段存在，如果不存在则使用默认值
+                    const id = manufacturer.id || '-';
+                    const nameZh = manufacturer.nameZh || '未知';
+                    const countryName = manufacturer.countryName || '未知';
+                    const createdAt = formatDate(manufacturer.createdAt);
+                    const updatedAt = formatDate(manufacturer.updatedAt);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${id}</td>
+                        <td>${nameZh}</td>
+                        <td>${countryName}</td>
+                        <td>${createdAt}</td>
+                        <td>${updatedAt}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('获取开发商列表错误:', error);
+            }
+        }
+
+        // 更新分页控件UI
+        function updatePaginationUI() {
+            // 更新页码输入框
+            document.getElementById('pageInput').value = currentPage;
+            document.getElementById('pageInput').max = totalPages;
+            
+            // 更新总页数显示
+            document.getElementById('totalPages').textContent = totalPages;
+            
+            // 更新记录总数显示
+            document.getElementById('totalInfo').textContent = `共 ${totalItems} 条记录`;
+            
+            // 更新按钮状态
+            document.getElementById('firstPage').disabled = currentPage <= 1;
+            document.getElementById('prevPage').disabled = currentPage <= 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+            document.getElementById('lastPage').disabled = currentPage >= totalPages;
+        }
+
+        // 跳转到指定页
+        function goToPage(page) {
+            if (page >= 1 && page <= totalPages) {
+                fetchManufacturersList(page, pageSize);
+            }
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            // 检查日期字符串是否存在且不为空
+            if (!dateString || dateString === '') return '-';
+            
+            try {
+                const date = new Date(dateString);
+                // 检查日期是否有效
+                if (isNaN(date.getTime())) return '-';
+                return date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            } catch (e) {
+                console.error('日期格式化错误:', e);
+                return '-';
+            }
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+
+            // 3秒后自动清除消息
+            setTimeout(() => {
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

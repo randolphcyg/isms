@@ -15,6 +15,7 @@ func NewGRPCServer(c *conf.Server,
 	industryService *service.IndustryService,
 	developerService *service.DeveloperService,
 	softwareService *service.SoftwareService,
+	countryService *service.CountryService,
 	logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
@@ -34,5 +35,6 @@ func NewGRPCServer(c *conf.Server,
 	v1.RegisterIndustryServer(srv, industryService)
 	v1.RegisterDeveloperServer(srv, developerService)
 	v1.RegisterSoftwareServer(srv, softwareService)
+	v1.RegisterCountryServer(srv, countryService)
 	return srv
 }

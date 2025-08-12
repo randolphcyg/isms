@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增工业软件</title>
+    <style>
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>新增工业软件</h1>
+        <form id="softwareForm">
+            <div class="form-group">
+                <label for="name">软件名称*</label>
+                <input type="text" id="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="version">版本*</label>
+                <input type="text" id="version" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="country">国家*</label>
+                <select id="country" required>
+                    <option value="">请选择国家</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="manufacturer">厂商*</label>
+                <select id="manufacturer" required>
+                    <option value="">请选择厂商</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">描述</label>
+                <textarea id="description" rows="4"></textarea>
+            </div>
+            
+            <button type="submit">提交</button>
+            <div id="message" class="message"></div>
+        </form>
+    </div>
+
+    <script>
+        // 后端API基础URL
+        const API_BASE_URL = 'http://localhost:8000/v1';
+
+        // 页面加载时获取国家和厂商列表
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchCountries();
+            fetchManufacturers();
+            document.getElementById('softwareForm').addEventListener('submit', handleSubmit);
+        });
+
+        // 获取国家列表
+        async function fetchCountries() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/countries`);
+                if (!response.ok) throw new Error('获取国家列表失败');
+                const data = await response.json();
+                const select = document.getElementById('country');
+                
+                data.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.id;
+                    option.textContent = country.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('获取国家列表错误:', error);
+            }
+        }
+
+        // 获取厂商列表
+        async function fetchManufacturers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/manufacturers`);
+                if (!response.ok) throw new Error('获取厂商列表失败');
+                const data = await response.json();
+                const select = document.getElementById('manufacturer');
+                
+                data.forEach(manufacturer => {
+                    const option = document.createElement('option');
+                    option.value = manufacturer.id;
+                    option.textContent = manufacturer.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('获取厂商列表错误:', error);
+            }
+        }
+
+        // 处理表单提交
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const formData = {
+                name: document.getElementById('name').value,
+                version: document.getElementById('version').value,
+                country_id: document.getElementById('country').value,
+                manufacturer_id: document.getElementById('manufacturer').value,
+                description: document.getElementById('description').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/software`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || '提交失败，请重试');
+                }
+
+                showMessage('工业软件添加成功！', 'success');
+                document.getElementById('softwareForm').reset();
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('提交表单错误:', error);
+            }
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+
+            // 3秒后自动清除消息
+            setTimeout(() => {
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

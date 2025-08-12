@@ -132,3 +132,36 @@ func (s *DeveloperService) ListDevelopers(ctx context.Context, req *pb.ListDevel
 		PageSize: req.PageSize,
 	}, nil
 }
+
+func (s *DeveloperService) UpdateDevelopers(ctx context.Context, req *pb.UpdateDeveloperReq) (*pb.DeveloperResp, error) {
+    s.log.WithContext(ctx).Infof("收到更新开发商请求: ID=%d, 中文名称=%s", req.Id, req.NameZh)
+
+    // 转换API请求到领域模型
+    domainDev := &domain.Developer{
+        ID:          int32(req.Id),
+        NameZh:      req.NameZh,
+        NameEn:      req.NameEn,
+        CountryID:   int32(req.CountryId),
+        Website:     &req.Website,
+        Description: &req.Description,
+    }
+
+    // 调用biz层更新方法
+    updatedDev, err := s.uc.Update(ctx, domainDev)
+    if err != nil {
+        s.log.WithContext(ctx).Errorf("更新开发商失败: %v", err)
+        return nil, status.Errorf(codes.Internal, "更新开发商失败")
+    }
+
+    // 转换领域模型到API响应
+    return &pb.DeveloperResp{
+        Id:          uint32(updatedDev.ID),
+        NameZh:      updatedDev.NameZh,
+        NameEn:      updatedDev.NameEn,
+        CountryId:   uint32(updatedDev.CountryID),
+        Website:     *updatedDev.Website,
+        Description: *updatedDev.Description,
+        CreatedAt:   updatedDev.CreatedAt.Format(time.RFC3339),
+        UpdatedAt:   updatedDev.UpdatedAt.Format(time.RFC3339),
+    }, nil
+}

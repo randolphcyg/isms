@@ -183,6 +183,165 @@ var _ interface {
 	ErrorName() string
 } = CreateDeveloperReqValidationError{}
 
+// Validate checks the field values on UpdateDeveloperReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateDeveloperReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateDeveloperReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateDeveloperReqMultiError, or nil if none found.
+func (m *UpdateDeveloperReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateDeveloperReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetId() <= 0 {
+		err := UpdateDeveloperReqValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetNameZh()); l < 1 || l > 200 {
+		err := UpdateDeveloperReqValidationError{
+			field:  "NameZh",
+			reason: "value length must be between 1 and 200 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetNameEn()); l < 1 || l > 200 {
+		err := UpdateDeveloperReqValidationError{
+			field:  "NameEn",
+			reason: "value length must be between 1 and 200 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCountryId() <= 0 {
+		err := UpdateDeveloperReqValidationError{
+			field:  "CountryId",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetWebsite()) > 500 {
+		err := UpdateDeveloperReqValidationError{
+			field:  "Website",
+			reason: "value length must be at most 500 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Description
+
+	if len(errors) > 0 {
+		return UpdateDeveloperReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdateDeveloperReqMultiError is an error wrapping multiple validation errors
+// returned by UpdateDeveloperReq.ValidateAll() if the designated constraints
+// aren't met.
+type UpdateDeveloperReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateDeveloperReqMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateDeveloperReqMultiError) AllErrors() []error { return m }
+
+// UpdateDeveloperReqValidationError is the validation error returned by
+// UpdateDeveloperReq.Validate if the designated constraints aren't met.
+type UpdateDeveloperReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateDeveloperReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateDeveloperReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateDeveloperReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateDeveloperReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateDeveloperReqValidationError) ErrorName() string {
+	return "UpdateDeveloperReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateDeveloperReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateDeveloperReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateDeveloperReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateDeveloperReqValidationError{}
+
 // Validate checks the field values on GetDeveloperReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.

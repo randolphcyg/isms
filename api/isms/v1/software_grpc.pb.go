@@ -29,7 +29,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 工业软件服务接口
+// 工业软件
 type SoftwareClient interface {
 	// 创建工业软件记录
 	CreateSoftware(ctx context.Context, in *CreateSoftwareReq, opts ...grpc.CallOption) (*CreateSoftwareResp, error)
@@ -93,7 +93,7 @@ func (c *softwareClient) GetSoftwareById(ctx context.Context, in *GetSoftwareByI
 // All implementations must embed UnimplementedSoftwareServer
 // for forward compatibility.
 //
-// 工业软件服务接口
+// 工业软件
 type SoftwareServer interface {
 	// 创建工业软件记录
 	CreateSoftware(context.Context, *CreateSoftwareReq) (*CreateSoftwareResp, error)

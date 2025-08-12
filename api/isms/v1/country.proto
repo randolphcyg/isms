@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package isms.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "isms/api/isms/v1;v1";
+
+// 国家
+ service Country {
+  // 创建国家
+  rpc CreateCountry (CreateCountryReq) returns (CountryResp) {
+    option (google.api.http) = {
+      post: "/v1/countries"
+      body: "*"
+    };
+  }
+
+  // 更新国家
+  rpc UpdateCountry (UpdateCountryReq) returns (CountryResp) {
+    option (google.api.http) = {
+      put: "/v1/countries/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除国家
+  rpc DeleteCountry (DeleteCountryReq) returns (DeleteCountryResp) {
+    option (google.api.http) = {
+      delete: "/v1/countries/{id}"
+    };
+  }
+
+  // 查询单个国家
+  rpc GetCountry (GetCountryReq) returns (CountryResp) {
+    option (google.api.http) = {
+      get: "/v1/countries/{id}"
+    };
+  }
+
+  // 分页查询国家列表
+  rpc ListCountries (ListCountriesReq) returns (ListCountriesResp) {
+    option (google.api.http) = {
+      get: "/v1/countries"
+    };
+  }
+}
+
+// 创建国家请求
+message CreateCountryReq {
+  string name_zh = 1 [(validate.rules).string = {min_len: 1, max_len: 100}]; // 中文名称
+  string name_en = 2 [(validate.rules).string = {min_len: 1, max_len: 100}]; // 英文名称
+  string code = 3 [(validate.rules).string = {min_len: 2, max_len: 10}]; // 国家代码(ISO标准)
+  string continent = 4 [(validate.rules).string = {min_len: 2, max_len: 50}]; // 所属大洲
+}
+
+// 更新国家请求
+message UpdateCountryReq {
+  uint32 id = 1 [(validate.rules).uint32 = {gt: 0}]; // 国家ID
+  string name_zh = 2 [(validate.rules).string = {min_len: 1, max_len: 100}]; // 中文名称(可选更新)
+  string name_en = 3 [(validate.rules).string = {min_len: 1, max_len: 100}]; // 英文名称(可选更新)
+  string code = 4 [(validate.rules).string = {min_len: 2, max_len: 10}]; // 国家代码(可选更新)
+  string continent = 5 [(validate.rules).string = {min_len: 2, max_len: 50}]; // 所属大洲(可选更新)
+}
+
+// 删除国家请求
+message DeleteCountryReq {
+  uint32 id = 1 [(validate.rules).uint32 = {gt: 0}]; // 国家ID
+}
+
+// 删除国家响应
+message DeleteCountryResp {
+  bool success = 1; // 是否删除成功
+  string message = 2; // 操作消息
+}
+
+// 查询单个国家请求
+message GetCountryReq {
+  uint32 id = 1 [(validate.rules).uint32 = {gt: 0}]; // 国家ID
+}
+
+// 分页查询国家请求
+message ListCountriesReq {
+  uint32 page = 1 [(validate.rules).uint32 = {gt: 0}]; // 页码
+  uint32 page_size = 2 [(validate.rules).uint32 = {gt: 0, lte: 100}]; // 每页条数
+  string keyword = 3; // 搜索关键词(匹配名称或代码)
+  string continent = 4; // 按大洲筛选
+}
+
+// 单个国家响应
+message CountryResp {
+  uint32 id = 1; // 国家ID
+  string name_zh = 2; // 中文名称
+  string name_en = 3; // 英文名称
+  string code = 4; // 国家代码
+  string continent = 5; // 所属大洲
+  string created_at = 6; // 创建时间(RFC3339)
+  string updated_at = 7; // 更新时间(RFC3339)
+}
+
+// 国家列表响应
+message ListCountriesResp {
+  repeated CountryResp items = 1; // 国家列表
+  uint32 total = 2; // 总记录数
+  uint32 page = 3; // 当前页码
+  uint32 page_size = 4; // 每页条数
+}

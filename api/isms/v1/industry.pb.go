@@ -347,10 +347,10 @@ const file_isms_v1_industry_proto_rawDesc = "" +
 	"\x10subcategory_name\x18\x05 \x01(\tR\x0fsubcategoryName\"\\\n" +
 	"\x10IndustryCategory\x12#\n" +
 	"\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\x12#\n" +
-	"\rcategory_name\x18\x02 \x01(\tR\fcategoryName2\x87\x02\n" +
-	"\bIndustry\x12\x8e\x01\n" +
-	"\x10GetSubcategories\x12\x1c.isms.v1.GetSubcategoriesReq\x1a\x1d.isms.v1.GetSubcategoriesResp\"=\x82\xd3\xe4\x93\x027\x125/industry/v1/categories/{category_code}/subcategories\x12j\n" +
-	"\x0eListCategories\x12\x1a.isms.v1.ListCategoriesReq\x1a\x1b.isms.v1.ListCategoriesResp\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/industry/v1/categoriesB\x15Z\x13isms/api/isms/v1;v1b\x06proto3"
+	"\rcategory_name\x18\x02 \x01(\tR\fcategoryName2\xf5\x01\n" +
+	"\bIndustry\x12\x85\x01\n" +
+	"\x10GetSubcategories\x12\x1c.isms.v1.GetSubcategoriesReq\x1a\x1d.isms.v1.GetSubcategoriesResp\"4\x82\xd3\xe4\x93\x02.\x12,/v1/categories/{category_code}/subcategories\x12a\n" +
+	"\x0eListCategories\x12\x1a.isms.v1.ListCategoriesReq\x1a\x1b.isms.v1.ListCategoriesResp\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/categoriesB\x15Z\x13isms/api/isms/v1;v1b\x06proto3"
 
 var (
 	file_isms_v1_industry_proto_rawDescOnce sync.Once

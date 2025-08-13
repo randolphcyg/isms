@@ -270,19 +270,24 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: category
-                  in: query
-                  schema:
-                    type: string
                 - name: countryId
-                  in: query
-                  schema:
-                    type: string
-                - name: status
                   in: query
                   schema:
                     type: integer
                     format: int32
+                - name: status
+                  in: query
+                  schema:
+                    type: string
+                - name: developerId
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: categoryCode
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -402,30 +407,61 @@ components:
         isms.v1.CreateSoftwareReq:
             type: object
             properties:
-                name:
+                nameZh:
                     type: string
                 nameEn:
                     type: string
-                developer:
-                    type: string
                 version:
                     type: string
-                category:
+                releaseYear:
+                    type: integer
+                    format: int32
+                releaseMonth:
+                    type: integer
+                    format: int32
+                releaseDay:
+                    type: integer
+                    format: int32
+                developerId:
+                    type: integer
+                    format: int32
+                countryId:
+                    type: integer
+                    format: int32
+                cpuReq:
                     type: string
+                memoryMinGb:
+                    type: number
+                    format: double
+                diskMinGb:
+                    type: number
+                    format: double
+                sysReqOther:
+                    type: string
+                description:
+                    type: string
+                sizeBytes:
+                    type: string
+                deploymentMethod:
+                    type: string
+                complianceInfo:
+                    type: string
+                securityInfo:
+                    type: string
+                intellectualProperty:
+                    type: string
+                status:
+                    type: string
+                industryIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
                 osIds:
                     type: array
                     items:
                         type: integer
                         format: int32
-                description:
-                    type: string
-                countryId:
-                    type: string
-                website:
-                    type: string
-                status:
-                    type: integer
-                    format: int32
             description: 创建软件请求
         isms.v1.CreateSoftwareResp:
             type: object
@@ -503,30 +539,65 @@ components:
             properties:
                 id:
                     type: string
-                name:
+                nameZh:
                     type: string
                 nameEn:
                     type: string
-                developer:
-                    type: string
                 version:
                     type: string
-                category:
+                releaseYear:
+                    type: integer
+                    format: int32
+                releaseMonth:
+                    type: integer
+                    format: int32
+                releaseDay:
+                    type: integer
+                    format: int32
+                developerId:
+                    type: integer
+                    format: int32
+                countryId:
+                    type: integer
+                    format: int32
+                countryName:
                     type: string
+                developerName:
+                    type: string
+                cpuReq:
+                    type: string
+                memoryMinGb:
+                    type: number
+                    format: double
+                diskMinGb:
+                    type: number
+                    format: double
+                sysReqOther:
+                    type: string
+                description:
+                    type: string
+                sizeBytes:
+                    type: string
+                deploymentMethod:
+                    type: string
+                complianceInfo:
+                    type: string
+                securityInfo:
+                    type: string
+                intellectualProperty:
+                    type: string
+                status:
+                    type: string
+                industryIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
                 osIds:
                     type: array
                     items:
                         type: integer
                         format: int32
-                description:
-                    type: string
-                countryId:
-                    type: string
-                website:
-                    type: string
-                status:
-                    type: integer
-                    format: int32
                 createdAt:
                     type: string
                 updatedAt:
@@ -628,30 +699,61 @@ components:
             properties:
                 id:
                     type: string
-                name:
+                nameZh:
                     type: string
                 nameEn:
                     type: string
-                developer:
-                    type: string
                 version:
                     type: string
-                category:
+                releaseYear:
+                    type: integer
+                    format: int32
+                releaseMonth:
+                    type: integer
+                    format: int32
+                releaseDay:
+                    type: integer
+                    format: int32
+                developerId:
+                    type: integer
+                    format: int32
+                countryId:
+                    type: integer
+                    format: int32
+                cpuReq:
                     type: string
+                memoryMinGb:
+                    type: number
+                    format: double
+                diskMinGb:
+                    type: number
+                    format: double
+                sysReqOther:
+                    type: string
+                description:
+                    type: string
+                sizeBytes:
+                    type: string
+                deploymentMethod:
+                    type: string
+                complianceInfo:
+                    type: string
+                securityInfo:
+                    type: string
+                intellectualProperty:
+                    type: string
+                status:
+                    type: string
+                industryIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
                 osIds:
                     type: array
                     items:
                         type: integer
                         format: int32
-                description:
-                    type: string
-                countryId:
-                    type: string
-                website:
-                    type: string
-                status:
-                    type: integer
-                    format: int32
             description: 更新软件请求
         isms.v1.UpdateSoftwareResp:
             type: object

@@ -12,60 +12,333 @@
         .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
         .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
         .error { background-color: #f8d7da; color: #721c24; }
+        .success { background-color: #d4edda; color: #155724; }
+        
+        /* 分页控件样式 */
+        .pagination { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            margin-top: 20px; 
+            gap: 10px;
+        }
+        .pagination button { 
+            padding: 8px 12px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        .pagination button:disabled { 
+            background-color: #ccc; 
+            cursor: not-allowed; 
+        }
+        .pagination input { 
+            width: 60px; 
+            padding: 6px; 
+            text-align: center; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        .pagination span { 
+            margin: 0 5px; 
+        }
+        
+        /* 新增按钮样式 */
+        .add-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .add-button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>工业软件列表</h1>
+        <a href="add_software.html" class="add-button">新增工业软件</a>
         <div id="message" class="message"></div>
         <table id="softwareTable">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>软件名称</th>
+                    <th>name</th>
+                    <th>中文名</th>
                     <th>版本</th>
                     <th>国家</th>
                     <th>厂商</th>
                     <th>描述</th>
+                    <th>发布日期</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>软件大小</th>
                 </tr>
             </thead>
             <tbody id="softwareTableBody"></tbody>
         </table>
+        
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination">
+            <button id="firstPage">首页</button>
+            <button id="prevPage">上一页</button>
+            <span>第 <input type="number" id="pageInput" min="1" value="1"> 页</span>
+            <span>/ 共 <span id="totalPages">1</span> 页</span>
+            <button id="nextPage">下一页</button>
+            <button id="lastPage">末页</button>
+            <span>每页 <input type="number" id="pageSizeInput" min="1" max="100" value="20"> 条</span>
+            <button id="goPage">跳转</button>
+        </div>
     </div>
 
     <script>
         // 后端API基础URL
         const API_BASE_URL = 'http://localhost:8000/v1';
+        
+        // 当前分页状态
+        let currentPage = 1;
+        let pageSize = 20;
+        let total = 0;
 
         // 页面加载时获取软件列表
-        document.addEventListener('DOMContentLoaded', fetchSoftwareList);
+        document.addEventListener('DOMContentLoaded', function() {
+            setupPagination();
+            fetchSoftwareList(currentPage, pageSize);
+        });
+
+        // 设置分页控件事件监听
+        function setupPagination() {
+            document.getElementById('firstPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    fetchSoftwareList(1, pageSize);
+                }
+            });
+            
+            document.getElementById('prevPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    fetchSoftwareList(currentPage - 1, pageSize);
+                }
+            });
+            
+            document.getElementById('nextPage').addEventListener('click', () => {
+                const totalPages = Math.ceil(total / pageSize);
+                if (currentPage < totalPages) {
+                    fetchSoftwareList(currentPage + 1, pageSize);
+                }
+            });
+            
+            document.getElementById('lastPage').addEventListener('click', () => {
+                const totalPages = Math.ceil(total / pageSize);
+                if (currentPage < totalPages) {
+                    fetchSoftwareList(totalPages, pageSize);
+                }
+            });
+            
+            document.getElementById('goPage').addEventListener('click', () => {
+                const pageInput = document.getElementById('pageInput');
+                const page = parseInt(pageInput.value);
+                const totalPages = Math.ceil(total / pageSize);
+                
+                if (page >= 1 && page <= totalPages) {
+                    fetchSoftwareList(page, pageSize);
+                } else {
+                    showMessage(`请输入有效的页码 (1-${totalPages})`, 'error');
+                }
+            });
+            
+            document.getElementById('pageSizeInput').addEventListener('change', (e) => {
+                const newSize = parseInt(e.target.value);
+                if (newSize >= 1 && newSize <= 100) {
+                    pageSize = newSize;
+                    fetchSoftwareList(1, pageSize); // 重置到第一页
+                } else {
+                    showMessage('每页条数应在1-100之间', 'error');
+                    e.target.value = pageSize;
+                }
+            });
+            
+            // 回车跳转页面
+            document.getElementById('pageInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('goPage').click();
+                }
+            });
+            
+            // 回车设置每页条数
+            document.getElementById('pageSizeInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('pageSizeInput').dispatchEvent(new Event('change'));
+                }
+            });
+        }
 
         // 获取软件列表
-        async function fetchSoftwareList() {
+        async function fetchSoftwareList(page = 1, pageSize = 20) {
             try {
-                const response = await fetch(`${API_BASE_URL}/software`);
-                if (!response.ok) throw new Error('获取软件列表失败');
-                const data = await response.json();
-                const tableBody = document.getElementById('softwareTableBody');
-                tableBody.innerHTML = '';
-
-                data.forEach(software => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${software.id}</td>
-                        <td>${software.name}</td>
-                        <td>${software.version}</td>
-                        <td>${software.country_name || '未知'}</td>
-                        <td>${software.manufacturer_name || '未知'}</td>
-                        <td>${software.description || '-'}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
+                const response = await fetch(`${API_BASE_URL}/software?page=${page}&page_size=${pageSize}`);
+                if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
+                
+                const result = await response.json();
+                
+                // 检查响应数据结构
+                if (!result || typeof result !== 'object') {
+                    throw new Error('服务器响应格式错误');
+                }
+                
+                // 提取数据数组
+                const data = Array.isArray(result.items) ? result.items : [];
+                total = result.total || 0;
+                currentPage = result.page || page;
+                
+                // 更新分页控件
+                updatePaginationControls();
+                
+                // 渲染表格
+                renderSoftwareTable(data);
+                
+                // 显示成功消息
+                showMessage(`成功加载 ${data.length} 条软件数据`, 'success');
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('获取软件列表错误:', error);
+                
+                // 渲染空表格
+                renderSoftwareTable([]);
             }
+        }
+
+        // 渲染软件表格
+        function renderSoftwareTable(data) {
+            const tableBody = document.getElementById('softwareTableBody');
+            tableBody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="9" style="text-align: center;">暂无数据</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+
+            data.forEach(software => {
+                // 数据存在性检查和默认值设置
+                const id = software.id || '-';
+                const nameEn = software.nameEn || 'default';
+                const nameZh = software.nameZh || '未设置';
+                const version = software.version || '-';
+                const countryName = software.countryName || '未知';
+                const developerName = software.developerName
+                    || '未知';
+                const description = software.description || '-';
+                
+                // 发布日期处理
+                let releaseDate = '-';
+                if (software.releaseYear) {
+                    if (software.releaseMonth && software.releaseDay) {
+                        releaseDate = `${software.releaseYear}-${String(software.releaseMonth).padStart(2, '0')}-${String(software.releaseDay).padStart(2, '0')}`;
+                    } else if (software.releaseMonth) {
+                        releaseDate = `${software.releaseYear}-${String(software.releaseMonth).padStart(2, '0')}`;
+                    } else {
+                        releaseDate = software.releaseYear;
+                    }
+                }
+                
+                // 状态处理
+                const statusMap = {
+                    'active': '有效',
+                    'inactive': '下架',
+                    'testing': '测试中',
+                    'discontinued': '已停产'
+                };
+                const status = statusMap[software.status] || software.status || '未知';
+                
+                const createdAt = formatDate(software.createdAt) || '-';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${id}</td>
+                    <td>${nameEn}</td>
+                    <td>${nameZh}</td>
+                    <td>${version}</td>
+                    <td>${countryName}</td>
+                    <td>${developerName}</td>
+                    <td>${description}</td>
+                    <td>${releaseDate}</td>
+                    <td>${status}</td>
+                    <td>${createdAt}</td>
+                    <td>${formatSize(software.sizeBytes)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 更新分页控件状态
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(total / pageSize);
+            
+            // 更新页码输入框
+            document.getElementById('pageInput').value = currentPage;
+            document.getElementById('pageInput').min = 1;
+            document.getElementById('pageInput').max = totalPages;
+            
+            // 更新总页数显示
+            document.getElementById('totalPages').textContent = totalPages || 1;
+            
+            // 更新按钮状态
+            document.getElementById('firstPage').disabled = currentPage <= 1;
+            document.getElementById('prevPage').disabled = currentPage <= 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+            document.getElementById('lastPage').disabled = currentPage >= totalPages;
+            
+            // 更新每页条数输入框
+            document.getElementById('pageSizeInput').value = pageSize;
+        }
+
+        // 格式化日期时间
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return '-'; // 无效日期
+                
+                // 使用中文格式化日期
+                return new Intl.DateTimeFormat('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).format(date);
+            } catch (error) {
+                console.error('日期格式化错误:', error);
+                return '-'; // 格式化失败时返回默认值
+            }
+        }
+
+        // 格式化文件大小
+        function formatSize(sizeBytes) {
+            if (!sizeBytes || sizeBytes <= 0) return '-';
+            
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            let size = sizeBytes;
+            let unitIndex = 0;
+            
+            while (size >= 1024 && unitIndex < units.length - 1) {
+                size /= 1024;
+                unitIndex++;
+            }
+            
+            return size.toFixed(2) + ' ' + units[unitIndex];
         }
 
         // 显示消息

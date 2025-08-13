@@ -59,9 +59,9 @@ func (m *IsmsSoftware) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if utf8.RuneCountInString(m.GetName()) < 1 {
+	if utf8.RuneCountInString(m.GetNameZh()) < 1 {
 		err := IsmsSoftwareValidationError{
-			field:  "Name",
+			field:  "NameZh",
 			reason: "value length must be at least 1 runes",
 		}
 		if !all {
@@ -72,17 +72,41 @@ func (m *IsmsSoftware) validate(all bool) error {
 
 	// no validation rules for NameEn
 
-	// no validation rules for Developer
-
 	// no validation rules for Version
 
-	// no validation rules for Category
+	// no validation rules for ReleaseYear
 
-	// no validation rules for Description
+	// no validation rules for ReleaseMonth
+
+	// no validation rules for ReleaseDay
+
+	// no validation rules for DeveloperId
 
 	// no validation rules for CountryId
 
-	// no validation rules for Website
+	// no validation rules for CountryName
+
+	// no validation rules for DeveloperName
+
+	// no validation rules for CpuReq
+
+	// no validation rules for MemoryMinGb
+
+	// no validation rules for DiskMinGb
+
+	// no validation rules for SysReqOther
+
+	// no validation rules for Description
+
+	// no validation rules for SizeBytes
+
+	// no validation rules for DeploymentMethod
+
+	// no validation rules for ComplianceInfo
+
+	// no validation rules for SecurityInfo
+
+	// no validation rules for IntellectualProperty
 
 	// no validation rules for Status
 
@@ -189,9 +213,9 @@ func (m *CreateSoftwareReq) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetName()) < 1 {
+	if utf8.RuneCountInString(m.GetNameZh()) < 1 {
 		err := CreateSoftwareReqValidationError{
-			field:  "Name",
+			field:  "NameZh",
 			reason: "value length must be at least 1 runes",
 		}
 		if !all {
@@ -201,17 +225,6 @@ func (m *CreateSoftwareReq) validate(all bool) error {
 	}
 
 	// no validation rules for NameEn
-
-	if utf8.RuneCountInString(m.GetDeveloper()) < 1 {
-		err := CreateSoftwareReqValidationError{
-			field:  "Developer",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
 
 	if utf8.RuneCountInString(m.GetVersion()) < 1 {
 		err := CreateSoftwareReqValidationError{
@@ -224,29 +237,22 @@ func (m *CreateSoftwareReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetCategory()) < 1 {
+	// no validation rules for ReleaseYear
+
+	// no validation rules for ReleaseMonth
+
+	// no validation rules for ReleaseDay
+
+	if m.GetDeveloperId() <= 0 {
 		err := CreateSoftwareReqValidationError{
-			field:  "Category",
-			reason: "value length must be at least 1 runes",
+			field:  "DeveloperId",
+			reason: "value must be greater than 0",
 		}
 		if !all {
 			return err
 		}
 		errors = append(errors, err)
 	}
-
-	if len(m.GetOsIds()) < 1 {
-		err := CreateSoftwareReqValidationError{
-			field:  "OsIds",
-			reason: "value must contain at least 1 item(s)",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Description
 
 	if m.GetCountryId() <= 0 {
 		err := CreateSoftwareReqValidationError{
@@ -259,20 +265,32 @@ func (m *CreateSoftwareReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if uri, err := url.Parse(m.GetWebsite()); err != nil {
-		err = CreateSoftwareReqValidationError{
-			field:  "Website",
-			reason: "value must be a valid URI",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	} else if !uri.IsAbs() {
+	// no validation rules for CpuReq
+
+	// no validation rules for MemoryMinGb
+
+	// no validation rules for DiskMinGb
+
+	// no validation rules for SysReqOther
+
+	// no validation rules for Description
+
+	// no validation rules for SizeBytes
+
+	// no validation rules for DeploymentMethod
+
+	// no validation rules for ComplianceInfo
+
+	// no validation rules for SecurityInfo
+
+	// no validation rules for IntellectualProperty
+
+	// no validation rules for Status
+
+	if len(m.GetIndustryIds()) < 1 {
 		err := CreateSoftwareReqValidationError{
-			field:  "Website",
-			reason: "value must be absolute",
+			field:  "IndustryIds",
+			reason: "value must contain at least 1 item(s)",
 		}
 		if !all {
 			return err
@@ -280,10 +298,10 @@ func (m *CreateSoftwareReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if _, ok := _CreateSoftwareReq_Status_InLookup[m.GetStatus()]; !ok {
+	if len(m.GetOsIds()) < 1 {
 		err := CreateSoftwareReqValidationError{
-			field:  "Status",
-			reason: "value must be in list [0 1]",
+			field:  "OsIds",
+			reason: "value must contain at least 1 item(s)",
 		}
 		if !all {
 			return err
@@ -370,11 +388,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateSoftwareReqValidationError{}
-
-var _CreateSoftwareReq_Status_InLookup = map[int32]struct{}{
-	0: {},
-	1: {},
-}
 
 // Validate checks the field values on CreateSoftwareResp with the rules
 // defined in the proto definition for this message. If any rules are
@@ -515,21 +528,41 @@ func (m *UpdateSoftwareReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for Name
+	// no validation rules for NameZh
 
 	// no validation rules for NameEn
 
-	// no validation rules for Developer
-
 	// no validation rules for Version
 
-	// no validation rules for Category
+	// no validation rules for ReleaseYear
 
-	// no validation rules for Description
+	// no validation rules for ReleaseMonth
+
+	// no validation rules for ReleaseDay
+
+	// no validation rules for DeveloperId
 
 	// no validation rules for CountryId
 
-	// no validation rules for Website
+	// no validation rules for CpuReq
+
+	// no validation rules for MemoryMinGb
+
+	// no validation rules for DiskMinGb
+
+	// no validation rules for SysReqOther
+
+	// no validation rules for Description
+
+	// no validation rules for SizeBytes
+
+	// no validation rules for DeploymentMethod
+
+	// no validation rules for ComplianceInfo
+
+	// no validation rules for SecurityInfo
+
+	// no validation rules for IntellectualProperty
 
 	// no validation rules for Status
 
@@ -765,11 +798,13 @@ func (m *ListSoftwareReq) validate(all bool) error {
 
 	// no validation rules for Keyword
 
-	// no validation rules for Category
-
 	// no validation rules for CountryId
 
 	// no validation rules for Status
+
+	// no validation rules for DeveloperId
+
+	// no validation rules for CategoryCode
 
 	if len(errors) > 0 {
 		return ListSoftwareReqMultiError(errors)

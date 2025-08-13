@@ -16,15 +16,19 @@ type IsmsSoftware struct {
 	Version              string             `json:"version"`                         // 版本号
 	DeveloperID          int32              `json:"developer_id"`                    // 开发商ID
 	CountryID            int32              `json:"country_id"`                      // 产地国家ID
-	ReleaseDate          *time.Time         `json:"release_date,omitempty"`          // 发布日期
+	CountryName          string             `json:"country_name,omitempty"`          // 国家名称
+	DeveloperName        string             `json:"developer_name,omitempty"`        // 开发商名称
+	ReleaseYear          *int32             `json:"release_year,omitempty"`          // 发布年份
+	ReleaseMonth         *int32             `json:"release_month,omitempty"`         // 发布月份
+	ReleaseDay           *int32             `json:"release_day,omitempty"`           // 发布日
 	SysReq               *string            `json:"sys_req,omitempty"`               // 系统要求
 	Description          *string            `json:"description,omitempty"`           // 软件描述
-	SizeGb               *float64           `json:"size_gb,omitempty"`               // 软件大小（GB）
+	SizeBytes            *int64             `json:"size_bytes,omitempty"`            // 软件实际大小（字节，用于计算和存储，1KB=1024字节）
 	DeploymentMethod     *string            `json:"deployment_method,omitempty"`     // 部署方式
 	ComplianceInfo       *string            `json:"compliance_info,omitempty"`       // 合规性信息
 	SecurityInfo         *string            `json:"security_info,omitempty"`         // 安全信息
 	IntellectualProperty *string            `json:"intellectual_property,omitempty"` // 知识产权信息
-	Status               int32              `json:"status"`                          // 状态（1：有效，0：下架）
+	Status               string             `json:"status"`                          // 状态（"active"：有效；"inactive"：下架；"testing"：测试中；"discontinued"：停止维护）
 	IndustryIDs          []int32            `json:"industry_ids"`                    // 适用行业小类ID列表
 	OsIDs                []int32            `json:"os_ids"`                          // 支持的操作系统ID列表
 	IndustryDetails      []*v1.IsmsIndustry `json:"industry_details,omitempty"`      // 适用行业详情
@@ -34,9 +38,6 @@ type IsmsSoftware struct {
 
 // Validate 业务校验方法
 func (s *IsmsSoftware) Validate() error {
-	if len(s.NameZh) == 0 || len(s.NameZh) > 500 {
-		return fmt.Errorf("软件中文名称长度必须为1-500字符")
-	}
 	if len(s.NameEn) == 0 || len(s.NameEn) > 500 {
 		return fmt.Errorf("软件英文名称长度必须为1-500字符")
 	}
@@ -52,8 +53,18 @@ func (s *IsmsSoftware) Validate() error {
 	if len(s.IndustryIDs) == 0 {
 		return fmt.Errorf("至少需要选择一个适用行业")
 	}
-	if len(s.OsIDs) == 0 {
-		return fmt.Errorf("至少需要选择一个支持的操作系统")
+	//if len(s.OsIDs) == 0 {
+	//	return fmt.Errorf("至少需要选择一个支持的操作系统")
+	//}
+	// Status字段校验
+	switch s.Status {
+	case "active", "inactive", "testing", "discontinued":
+		// 有效值，无需处理
+	case "":
+		// 空值，设置默认值为"active"
+		s.Status = "active"
+	default:
+		return fmt.Errorf("状态值无效，必须是active、inactive、testing或discontinued之一")
 	}
 	return nil
 }
@@ -64,7 +75,7 @@ type ListSoftwareOptions struct {
 	PageSize     int32   `json:"page_size"`
 	Keyword      string  `json:"keyword"`
 	CountryID    int32   `json:"country_id"`
-	Status       int32   `json:"status"`
+	Status       string  `json:"status"`
 	DeveloperID  int32   `json:"developer_id,omitempty"`
 	IndustryIDs  []int32 `json:"industry_ids,omitempty"`
 	CategoryCode string  `json:"category_code,omitempty"`

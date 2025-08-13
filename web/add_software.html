@@ -7,35 +7,367 @@
     <style>
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         .form-group { margin-bottom: 15px; }
+
+        /* 同行布局样式 */
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
         label { display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        input, select, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; }
         button:hover { background-color: #0056b3; }
+        .cancel-btn { background-color: #6c757d; }
+        .cancel-btn:hover { background-color: #5a6268; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
         .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
         .success { background-color: #d4edda; color: #155724; }
         .error { background-color: #f8d7da; color: #721c24; }
+        .size-group { display: flex; gap: 10px; }
+        .size-group input { flex: 3; }
+        .size-group select { flex: 1; }
+
+        .date-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .date-group input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .industry-group { margin-bottom: 10px; }
+        .subcategory-container { margin-top: 10px; display: none; }
+        .subcategory-checkboxes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+        .subcategory-checkboxes label { display: flex; align-items: center; font-weight: normal; }
+        .subcategory-checkboxes input { margin-right: 5px; }
+        
+        /* 行业小类标签样式 */
+        .subcategory-label {
+            display: inline-block;
+            width: calc(50% - 10px);
+            margin-right: 10px;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* 在较小屏幕上每行显示一个 */
+        @media (max-width: 768px) {
+            .subcategory-label {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+        
+        /* 行业分类标签样式 */
+        .industry-tags-container {
+            margin-top: 10px;
+            min-height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        
+        .industry-tag {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        
+        .industry-tag .remove-tag {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        
+        /* 小类选择弹窗样式 */
+        .subcategory-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        .subcategory-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        
+        .subcategory-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .select-all {
+            margin-bottom: 10px;
+        }
+        
+        /* 行业分类树状选择器样式 */
+        .tree-selector {
+            position: relative;
+            width: 100%;
+        }
+        
+        .tree-selector-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: white;
+        }
+        
+        .tree-selector-input:hover {
+            border-color: #007bff;
+        }
+        
+        .tree-selector-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            /* 移除width: 80%这一行，避免影响其他表单字段 */
+            max-width: 500px; /* 保持最大宽度限制 */
+        }
+        
+        .tree-selector-dropdown.show {
+            display: block;
+        }
+        
+        /* 其他样式保持不变 */
+        .tree-node {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .tree-node:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 用颜色区分展开/收起状态 */
+        .tree-node.parent > .node-content::before {
+            content: "▶ ";
+            color: #999;
+            transition: transform 0.2s;
+        }
+        
+        .tree-node.parent.expanded > .node-content::before {
+            content: "▼ ";
+            color: #007bff;
+        }
+        
+        /* 大类和小类的颜色区分 */
+        .tree-node.parent {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .tree-node-children .tree-node {
+            background-color: white;
+            font-weight: normal;
+        }
+        
+        .tree-node-children {
+            padding-left: 20px;
+            display: none;
+        }
+        
+        .tree-node-children.show {
+            display: block;
+        }
+        
+        /* 小类两列布局 */
+        .subcategory-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+        
+        /* 已选择的行业标签样式 */
+        .selected-industries-container {
+            margin-bottom: 10px;
+            min-height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .selected-industry-tag {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        
+        .selected-industry-tag .remove-tag {
+            margin-left: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .placeholder-text {
+            color: #999;
+            font-style: italic;
+        }
+        
+        .tree-node.parent > .node-content::before {
+            content: "▶ ";
+            transition: transform 0.2s;
+        }
+        
+        .tree-node.parent.expanded > .node-content::before {
+            content: "▼ ";
+        }
+        
+        .tree-node.children-hidden > .node-content::before {
+            content: "▶ ";
+        }
+        
+        .tree-node-children {
+            padding-left: 20px;
+            display: none;
+        }
+        
+        .tree-node-children.show {
+            display: block;
+        }
+        
+        .tree-node input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        /* 已选择的行业标签样式 */
+        .selected-industries-container {
+            margin-top: 10px;
+            min-height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .selected-industry-tag {
+            display: inline-block;
+            background-color: #007bff !important;
+            color: white;
+        }
+        
+        .selected-industry-tag .remove-tag {
+            margin-left: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .placeholder-text {
+            color: #999;
+            font-style: italic;
+        }
+        </style>
     </style>
 </head>
 <body>
     <div class="container">
+        <a href="software_list.html" class="back-link">← 返回软件列表</a>
         <h1>新增工业软件</h1>
         <form id="softwareForm">
-            <div class="form-group">
-                <label for="name">软件名称*</label>
-                <input type="text" id="name" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nameEn">软件英文名称*</label>
+                    <input type="text" id="nameEn" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nameZh">软件中文名称</label>
+                    <input type="text" id="nameZh">
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="version">版本*</label>
-                <input type="text" id="version" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="version">版本*</label>
+                    <input type="text" id="version" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>发布日期</label>
+                    <div class="date-group">
+                        <input type="number" id="releaseYear" placeholder="年(YYYY)" min="1900" max="2100" style="width: 80px;">
+                        <input type="number" id="releaseMonth" placeholder="月(MM)" min="1" max="12" style="width: 60px;">
+                        <input type="number" id="releaseDay" placeholder="日(DD)" min="1" max="31" style="width: 60px;">
+                    </div>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="country">国家*</label>
-                <select id="country" required>
-                    <option value="">请选择国家</option>
-                </select>
-            </div>
+
             
             <div class="form-group">
                 <label for="manufacturer">厂商*</label>
@@ -45,11 +377,92 @@
             </div>
             
             <div class="form-group">
+                <label for="sysReq">系统要求</label>
+                <textarea id="sysReq" rows="4"></textarea>
+            </div>
+            
+            <div class="form-group">
                 <label for="description">描述</label>
                 <textarea id="description" rows="4"></textarea>
             </div>
             
-            <button type="submit">提交</button>
+            <div class="form-group">
+                <label for="sizeValue">软件大小</label>
+                <div class="size-group">
+                    <input type="number" id="sizeValue" step="0.01" placeholder="请输入软件大小">
+                    <select id="sizeUnit">
+                        <option value="GB">GB</option>
+                        <option value="MB">MB</option>
+                        <option value="KB">KB</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="industryCategory">行业分类*</label>
+                
+                <!-- 已选择的行业标签和按钮 -->
+                <div class="industry-selection-header">
+                    <div id="selectedIndustriesContainer" class="selected-industries-container">
+                        <div class="placeholder-text">已选择所属行业</div>
+                    </div>
+                    <div class="industry-buttons">
+                        <button type="button" class="industry-select-btn" id="industryTreeSelector">选择行业分类</button>
+                        <button type="button" class="clear-industry-btn" id="clearIndustryBtn">清空</button>
+                    </div>
+                </div>
+                
+                <!-- 树状选择器 -->
+                <div class="tree-selector">
+                    <div class="tree-selector-dropdown" id="industryTreeDropdown">
+                        <div id="industryTreeContent">
+                            <!-- 树状结构将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+                
+            <div class="form-group">
+                <label for="osIds">操作系统（暂未实现数据加载）</label>
+                <select id="osIds" multiple>
+                    <option value="">请选择操作系统</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="deploymentMethod">部署方式</label>
+                <input type="text" id="deploymentMethod">
+            </div>
+            
+            <div class="form-group">
+                <label for="complianceInfo">合规性信息</label>
+                <textarea id="complianceInfo" rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="securityInfo">安全信息</label>
+                <textarea id="securityInfo" rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="intellectualProperty">知识产权信息</label>
+                <textarea id="intellectualProperty" rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="status">状态*</label>
+                <select id="status" required>
+                    <option value="active" selected>有效</option>
+                    <option value="inactive">下架</option>
+                    <option value="testing">测试中</option>
+                    <option value="discontinued">已停产</option>
+                </select>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit">提交</button>
+                <button type="button" class="cancel-btn" id="cancelBtn">取消</button>
+            </div>
             <div id="message" class="message"></div>
         </form>
     </div>
@@ -58,45 +471,55 @@
         // 后端API基础URL
         const API_BASE_URL = 'http://localhost:8000/v1';
 
-        // 页面加载时获取国家和厂商列表
+        // 保存已选择的行业分类
+        let selectedIndustries = new Map(); // Map<categoryCode, {categoryName, subcategories: Map<subcategoryId, subcategoryName>}>
+        
+        // 保存行业分类数据
+        let industryCategories = [];
+        let industrySubcategories = new Map(); // Map<categoryCode, subcategories[]>
+        
+        // 页面加载时获取厂商列表
         document.addEventListener('DOMContentLoaded', function() {
-            fetchCountries();
             fetchManufacturers();
+            fetchIndustryCategories();
             document.getElementById('softwareForm').addEventListener('submit', handleSubmit);
+            document.getElementById('cancelBtn').addEventListener('click', handleCancel);
+            
+            // 添加厂商选择变化事件监听器
+            document.getElementById('manufacturer').addEventListener('change', handleManufacturerChange);
+            
+            // 行业分类相关事件监听
+            document.getElementById('industryTreeSelector').addEventListener('click', toggleIndustryTree);
+            document.getElementById('clearIndustryBtn').addEventListener('click', clearIndustrySelection);
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('industryTreeDropdown');
+                const selector = document.getElementById('industryTreeSelector');
+                
+                if (!selector.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
         });
 
-        // 获取国家列表
-        async function fetchCountries() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/countries`);
-                if (!response.ok) throw new Error('获取国家列表失败');
-                const data = await response.json();
-                const select = document.getElementById('country');
-                
-                data.forEach(country => {
-                    const option = document.createElement('option');
-                    option.value = country.id;
-                    option.textContent = country.name;
-                    select.appendChild(option);
-                });
-            } catch (error) {
-                showMessage(error.message, 'error');
-                console.error('获取国家列表错误:', error);
-            }
-        }
-
+        // 添加全局变量来存储厂商数据
+        let manufacturerData = [];
+        
         // 获取厂商列表
         async function fetchManufacturers() {
             try {
-                const response = await fetch(`${API_BASE_URL}/manufacturers`);
+                const response = await fetch(`${API_BASE_URL}/developers?page=1&page_size=100`);
                 if (!response.ok) throw new Error('获取厂商列表失败');
-                const data = await response.json();
+                const result = await response.json();
+                
+                manufacturerData = Array.isArray(result.items) ? result.items : [];
                 const select = document.getElementById('manufacturer');
                 
-                data.forEach(manufacturer => {
+                select.innerHTML = '<option value="">请选择厂商</option>';
+                
+                manufacturerData.forEach(manufacturer => {
                     const option = document.createElement('option');
                     option.value = manufacturer.id;
-                    option.textContent = manufacturer.name;
+                    option.textContent = manufacturer.nameZh || manufacturer.name || '未知厂商';
                     select.appendChild(option);
                 });
             } catch (error) {
@@ -104,38 +527,544 @@
                 console.error('获取厂商列表错误:', error);
             }
         }
+        
+        // 处理厂商选择变化
+        function handleManufacturerChange() {
+            const manufacturerSelect = document.getElementById('manufacturer');
+            const selectedManufacturerId = parseInt(manufacturerSelect.value);
+            const selectedManufacturer = manufacturerData.find(m => m.id === selectedManufacturerId);
+            
+            if (selectedManufacturer && selectedManufacturer.country_id) {
+                console.log('Selected manufacturer country ID:', selectedManufacturer.country_id);
+            }
+        }
+
+        // 获取行业大类列表
+        async function fetchIndustryCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories`);
+                if (!response.ok) throw new Error('获取行业大类列表失败');
+                const result = await response.json();
+                
+                industryCategories = Array.isArray(result.categories) ? result.categories : [];
+                
+                // 为每个大类预加载小类
+                for (const category of industryCategories) {
+                    await fetchIndustrySubcategories(category.categoryCode);
+                }
+                
+                // 构建树状结构
+                buildIndustryTree();
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('获取行业大类列表错误:', error);
+            }
+        }
+
+        // 获取行业小类列表
+        async function fetchIndustrySubcategories(categoryCode) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories/${categoryCode}/subcategories`);
+                if (!response.ok) throw new Error('获取行业小类列表失败');
+                const result = await response.json();
+                
+                const data = Array.isArray(result.subcategories) ? result.subcategories : [];
+                industrySubcategories.set(categoryCode, data);
+            } catch (error) {
+                console.error('获取行业小类列表错误:', error);
+            }
+        }
+
+        // 构建行业分类树状结构
+        function buildIndustryTree() {
+            const treeContent = document.getElementById('industryTreeContent');
+            treeContent.innerHTML = '';
+            
+            industryCategories.forEach(category => {
+                // 创建大类节点
+                const categoryNode = document.createElement('div');
+                categoryNode.className = 'tree-node parent';
+                categoryNode.dataset.categoryCode = category.categoryCode;
+                
+                const categoryContent = document.createElement('div');
+                categoryContent.className = 'node-content';
+                categoryContent.innerHTML = `
+                    ${category.categoryName}
+                `;
+                
+                categoryNode.appendChild(categoryContent);
+                
+                // 创建小类容器
+                const childrenContainer = document.createElement('div');
+                childrenContainer.className = 'tree-node-children';
+                
+                // 创建小类网格容器
+                const subcategoryGrid = document.createElement('div');
+                subcategoryGrid.className = 'subcategory-grid';
+                
+                // 添加小类
+                const subcategories = industrySubcategories.get(category.categoryCode) || [];
+                subcategories.forEach(subcategory => {
+                    const subcategoryNode = document.createElement('div');
+                    subcategoryNode.className = 'tree-node';
+                    subcategoryNode.dataset.categoryCode = category.categoryCode;
+                    subcategoryNode.dataset.subcategoryId = subcategory.id;
+                    subcategoryNode.textContent = `${subcategory.subcategoryName} (${subcategory.subcategoryCode})`;
+                    subcategoryGrid.appendChild(subcategoryNode);
+                });
+                
+                childrenContainer.appendChild(subcategoryGrid);
+                categoryNode.appendChild(childrenContainer);
+                treeContent.appendChild(categoryNode);
+                
+                // 添加事件监听器
+                categoryContent.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleCategoryNode(categoryNode);
+                });
+                
+                // 为小类节点添加事件监听器
+                subcategoryGrid.querySelectorAll('.tree-node').forEach(node => {
+                    node.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const categoryCode = node.dataset.categoryCode;
+                        const subcategoryId = parseInt(node.dataset.subcategoryId);
+                        
+                        // 获取大类信息
+                        const category = industryCategories.find(c => c.categoryCode === categoryCode);
+                        const categoryName = category ? category.categoryName : '';
+                        
+                        // 获取小类信息
+                        const subcategories = industrySubcategories.get(categoryCode) || [];
+                        const subcategory = subcategories.find(s => s.id === subcategoryId);
+                        const subcategoryName = subcategory ? `${subcategory.subcategoryName} (${subcategory.subcategoryCode})` : '';
+                        
+                        // 切换小类选择状态
+                        toggleSubcategorySelection(
+                            categoryCode, 
+                            categoryName,
+                            subcategoryId,
+                            subcategoryName,
+                            !node.classList.contains('selected') // 反转当前选择状态
+                        );
+                    });
+                });
+            });
+            
+            // 根据小类数量调整下拉框高度
+            adjustTreeDropdownHeight();
+        }
+        
+        // 根据小类数量调整下拉框高度
+        function adjustTreeDropdownHeight() {
+            const treeContent = document.getElementById('industryTreeContent');
+            const dropdown = document.getElementById('industryTreeDropdown');
+            
+            // 计算总的小类数量
+            let totalSubcategories = 0;
+            industryCategories.forEach(category => {
+                const subcategories = industrySubcategories.get(category.categoryCode) || [];
+                totalSubcategories += subcategories.length;
+            });
+            
+            // 根据小类数量调整高度，每个小类大约30px高度
+            const estimatedHeight = totalSubcategories * 30;
+            
+            // 限制最大高度为300px，最小高度为150px
+            const adjustedHeight = Math.min(Math.max(estimatedHeight, 150), 300);
+            dropdown.style.maxHeight = adjustedHeight + 'px';
+        }
+        
+        // 切换小类选择
+        function toggleSubcategorySelection(categoryCode, categoryName, subcategoryId, subcategoryName, selected) {
+            // 确保大类条目存在
+            if (!selectedIndustries.has(categoryCode)) {
+                selectedIndustries.set(categoryCode, {
+                    categoryName: categoryName,
+                    subcategories: new Map()
+                });
+            }
+            
+            const categoryData = selectedIndustries.get(categoryCode);
+            
+            if (selected) {
+                // 添加小类
+                categoryData.subcategories.set(subcategoryId, subcategoryName);
+                
+                // 更新UI状态
+                updateSubcategoryNodeUI(categoryCode, subcategoryId, true);
+            } else {
+                // 移除小类
+                categoryData.subcategories.delete(subcategoryId);
+                
+                // 更新UI状态
+                updateSubcategoryNodeUI(categoryCode, subcategoryId, false);
+                
+                // 如果该大类下没有小类了，则移除大类
+                if (categoryData.subcategories.size === 0) {
+                    selectedIndustries.delete(categoryCode);
+                }
+            }
+            
+            // 更新UI
+            updateIndustrySelectionUI();
+        }
+        
+        // 更新小类节点UI状态
+        function updateSubcategoryNodeUI(categoryCode, subcategoryId, selected) {
+            const treeContent = document.getElementById('industryTreeContent');
+            const node = treeContent.querySelector(`.tree-node[data-category-code="${categoryCode}"][data-subcategory-id="${subcategoryId}"]`);
+            
+            if (node) {
+                if (selected) {
+                    node.classList.add('selected');
+                    node.style.backgroundColor = '#e6f3ff';
+                } else {
+                    node.classList.remove('selected');
+                    node.style.backgroundColor = '';
+                }
+            }
+        }
+
+        // 切换大类节点展开/收起
+        function toggleCategoryNode(node) {
+            node.classList.toggle('expanded');
+            const children = node.querySelector('.tree-node-children');
+            children.classList.toggle('show');
+        }
+
+        // 切换大类选择
+        function toggleCategorySelection(categoryCode, categoryName, selected) {
+            // 如果选择大类，则选择所有小类
+            if (selected) {
+                if (!selectedIndustries.has(categoryCode)) {
+                    selectedIndustries.set(categoryCode, {
+                        categoryName: categoryName,
+                        subcategories: new Map()
+                    });
+                }
+                
+                const categoryData = selectedIndustries.get(categoryCode);
+                
+                // 选择所有小类
+                const subcategories = industrySubcategories.get(categoryCode) || [];
+                subcategories.forEach(sub => {
+                    categoryData.subcategories.set(sub.id, `${sub.subcategoryName} (${sub.subcategoryCode})`);
+                });
+            } else {
+                // 如果取消选择大类，则取消选择所有小类
+                selectedIndustries.delete(categoryCode);
+            }
+            
+            // 更新UI
+            updateIndustrySelectionUI();
+            updateIndustryTreeCheckboxes();
+        }
+
+        // 切换小类选择
+        function toggleSubcategorySelection(categoryCode, categoryName, subcategoryId, subcategoryName, selected) {
+            // 确保大类条目存在
+            if (!selectedIndustries.has(categoryCode)) {
+                selectedIndustries.set(categoryCode, {
+                    categoryName: categoryName,
+                    subcategories: new Map()
+                });
+            }
+            
+            const categoryData = selectedIndustries.get(categoryCode);
+            
+            if (selected) {
+                // 添加小类
+                categoryData.subcategories.set(subcategoryId, subcategoryName);
+            } else {
+                // 移除小类
+                categoryData.subcategories.delete(subcategoryId);
+                
+                // 如果该大类下没有小类了，则移除大类
+                if (categoryData.subcategories.size === 0) {
+                    selectedIndustries.delete(categoryCode);
+                }
+            }
+            
+            // 更新UI
+            updateIndustrySelectionUI();
+            updateIndustryTreeCheckboxes();
+        }
+
+        // 更新行业分类选择UI
+        function updateIndustrySelectionUI() {
+            const container = document.getElementById('selectedIndustriesContainer');
+            container.innerHTML = '';
+            
+            let hasSelection = false;
+            
+            // 遍历所有已选择的行业
+            for (const [categoryCode, categoryData] of selectedIndustries.entries()) {
+                if (categoryData.subcategories.size > 0) {
+                    hasSelection = true;
+                    
+                    // 为每个小类创建标签
+                    for (const [subcategoryId, subcategoryName] of categoryData.subcategories.entries()) {
+                        const tag = document.createElement('div');
+                        tag.className = 'selected-industry-tag';
+                        tag.innerHTML = `
+                            ${categoryData.categoryName}: ${subcategoryName}
+                            <span class="remove-tag" data-category="${categoryCode}" data-id="${subcategoryId}">×
+                        `;
+                        
+                        // 添加删除事件
+                        tag.querySelector('.remove-tag').addEventListener('click', function() {
+                            removeIndustryTag(categoryCode, subcategoryId);
+                        });
+                        
+                        container.appendChild(tag);
+                    }
+                }
+            }
+            
+            // 如果没有选择，显示提示文字
+            if (!hasSelection) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder-text';
+                placeholder.textContent = '请选择行业分类';
+                container.appendChild(placeholder);
+            }
+        }
+
+        // 更新树状选择器中的复选框状态
+        function updateIndustryTreeCheckboxes() {
+            // 更新大类复选框
+            document.querySelectorAll('.category-checkbox').forEach(checkbox => {
+                const categoryCode = checkbox.dataset.categoryCode;
+                const categoryData = selectedIndustries.get(categoryCode);
+                
+                if (categoryData && categoryData.subcategories.size > 0) {
+                    // 检查是否选择了所有小类
+                    const totalSubcategories = industrySubcategories.get(categoryCode) || [];
+                    checkbox.checked = categoryData.subcategories.size === totalSubcategories.length && totalSubcategories.length > 0;
+                    checkbox.indeterminate = categoryData.subcategories.size > 0 && categoryData.subcategories.size < totalSubcategories.length;
+                } else {
+                    checkbox.checked = false;
+                    checkbox.indeterminate = false;
+                }
+            });
+            
+            // 更新小类复选框
+            document.querySelectorAll('.subcategory-checkbox').forEach(checkbox => {
+                const categoryCode = checkbox.dataset.categoryCode;
+                const subcategoryId = parseInt(checkbox.dataset.subcategoryId);
+                const categoryData = selectedIndustries.get(categoryCode);
+                
+                checkbox.checked = categoryData && categoryData.subcategories.has(subcategoryId);
+            });
+        }
+
+        // 删除行业标签
+        function removeIndustryTag(categoryCode, subcategoryId) {
+            const categoryData = selectedIndustries.get(categoryCode);
+            if (categoryData) {
+                // 移除小类
+                categoryData.subcategories.delete(subcategoryId);
+                
+                // 如果该大类下没有小类了，则移除大类
+                if (categoryData.subcategories.size === 0) {
+                    selectedIndustries.delete(categoryCode);
+                }
+                
+                // 更新UI
+                updateIndustrySelectionUI();
+                updateIndustryTreeCheckboxes();
+            }
+        }
+
+        // 清空行业选择
+        function clearIndustrySelection() {
+            selectedIndustries.clear();
+            updateIndustrySelectionUI();
+            updateIndustryTreeCheckboxes();
+        }
+
+        // 切换行业分类树状选择器
+        function toggleIndustryTree() {
+            const dropdown = document.getElementById('industryTreeDropdown');
+            dropdown.classList.toggle('show');
+        }
 
         // 处理表单提交
         async function handleSubmit(event) {
             event.preventDefault();
 
-            const formData = {
-                name: document.getElementById('name').value,
-                version: document.getElementById('version').value,
-                country_id: document.getElementById('country').value,
-                manufacturer_id: document.getElementById('manufacturer').value,
-                description: document.getElementById('description').value
-            };
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/software`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || '提交失败，请重试');
+            // 获取所有选中的行业小类ID
+            let allSelectedSubcategories = [];
+            for (const [categoryCode, categoryData] of selectedIndustries.entries()) {
+                for (const subcategoryId of categoryData.subcategories.keys()) {
+                    allSelectedSubcategories.push(subcategoryId);
                 }
+            }
+            
+            // 获取软件大小
+            const sizeValue = document.getElementById('sizeValue').value;
+            const sizeUnit = document.getElementById('sizeUnit').value;
+            let sizeBytes = null;
+            
+            if (sizeValue) {
+                const sizeNum = parseFloat(sizeValue);
+                switch (sizeUnit) {
+                    case 'GB':
+                        sizeBytes = Math.round(sizeNum * 1024 * 1024 * 1024); // GB to bytes
+                        break;
+                    case 'MB':
+                        sizeBytes = Math.round(sizeNum * 1024 * 1024); // MB to bytes
+                        break;
+                    case 'KB':
+                        sizeBytes = Math.round(sizeNum * 1024); // KB to bytes
+                        break;
+                    default:
+                        sizeBytes = Math.round(sizeNum); // bytes
+                }
+            }
 
-                showMessage('工业软件添加成功！', 'success');
-                document.getElementById('softwareForm').reset();
+            // 获取发布日期字段
+            const releaseYear = document.getElementById('releaseYear').value;
+            const releaseMonth = document.getElementById('releaseMonth').value;
+            const releaseDay = document.getElementById('releaseDay').value;
+            
+            // 验证发布日期
+            let releaseDate = null;
+            if (releaseYear) {
+                if (!/^\d{4}$/.test(releaseYear)) {
+                    showMessage('请输入有效的年份(4位数字)', 'error');
+                    return;
+                }
+                
+                if (releaseMonth && !/^\d{1,2}$/.test(releaseMonth)) {
+                    showMessage('请输入有效的月份(1-12)', 'error');
+                    return;
+                }
+                
+                if (releaseDay && !/^\d{1,2}$/.test(releaseDay)) {
+                    showMessage('请输入有效的日期(1-31)', 'error');
+                    return;
+                }
+                
+                // 构建日期字符串
+                if (releaseMonth && releaseDay) {
+                    // 完整日期
+                    const month = releaseMonth.padStart(2, '0');
+                    const day = releaseDay.padStart(2, '0');
+                    releaseDate = `${releaseYear}-${month}-${day}`;
+                    
+                    // 验证日期有效性
+                    const date = new Date(releaseDate);
+                    if (date instanceof Date && !isNaN(date)) {
+                        // 确保日期与输入一致（防止自动调整）
+                        if (date.getFullYear() !== releaseYear || date.getMonth() + 1 !== releaseMonth || date.getDate() !== releaseDay) {
+                            showMessage('请输入有效的日期', 'error');
+                            return;
+                        }
+                    } else {
+                        showMessage('请输入有效的日期', 'error');
+                        return;
+                    }
+                } else if (releaseMonth) {
+                    // 只有年和月
+                    const month = releaseMonth.padStart(2, '0');
+                    releaseDate = `${releaseYear}-${month}`;
+                } else {
+                    // 只有年
+                    releaseDate = releaseYear;
+                }
+            }
+            
+            // 查找选中的厂商信息
+        const manufacturerSelect = document.getElementById('manufacturer');
+        const selectedManufacturerId = parseInt(manufacturerSelect.value);
+        const selectedManufacturer = manufacturerData.find(m => m.id === selectedManufacturerId);
+        
+        // 在formData对象中更新release_date字段
+        const formData = {
+            nameEn: document.getElementById('nameEn').value,
+            nameZh: document.getElementById('nameZh').value,
+            version: document.getElementById('version').value,
+            // 从选中的厂商信息中获取国家ID
+            countryId: selectedManufacturer ? selectedManufacturer.countryId : null,
+            developerId: selectedManufacturerId,
+            release_date: releaseDate,
+            release_year: releaseYear ? parseInt(releaseYear) : null,
+            release_month: releaseMonth ? parseInt(releaseMonth) : null,
+            release_day: releaseDay ? parseInt(releaseDay) : null,
+            sys_req: document.getElementById('sysReq').value || null,
+            description: document.getElementById('description').value || null,
+            size_bytes: sizeBytes, // 修改为size_bytes
+            industry_ids: allSelectedSubcategories,
+            os_ids: [], // 暂时留空，因为没有API接口
+            deployment_method: document.getElementById('deploymentMethod').value || null,
+            compliance_info: document.getElementById('complianceInfo').value || null,
+            security_info: document.getElementById('securityInfo').value || null,
+            intellectual_property: document.getElementById('intellectualProperty').value || null,
+            status: document.getElementById('status').value
+        };
+
+        // 验证必填字段
+        if (!formData.nameEn || !formData.version || !formData.countryId || !formData.developerId || !formData.status || allSelectedSubcategories.length === 0) {
+            showMessage('请填写所有必填字段', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/software`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || '提交失败，请重试');
+            }
+
+            showMessage('工业软件添加成功！', 'success');
+            document.getElementById('softwareForm').reset();
+            
+            // 重置行业分类选择
+            selectedIndustries.clear();
+            updateIndustrySelectionUI();
+            updateIndustryTreeCheckboxes();
+            
+            // 重置选择框为默认选项
+            document.getElementById('manufacturer').innerHTML = '<option value="">请选择厂商</option>';
+            
+            // 重新加载厂商列表
+            fetchManufacturers();
+            fetchIndustryCategories();
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('提交表单错误:', error);
+            }
+        }
+
+        // 处理取消操作
+        function handleCancel() {
+            if (confirm('确定要取消添加工业软件吗？未保存的数据将会丢失。')) {
+                document.getElementById('softwareForm').reset();
+                
+                // 重置行业分类选择
+                selectedIndustries.clear();
+                updateIndustrySelectionUI();
+                updateIndustryTreeCheckboxes();
+                
+                // 重置选择框为默认选项
+                document.getElementById('manufacturer').innerHTML = '<option value="">请选择厂商</option>';
+                
+                // 清除消息
+                document.getElementById('message').className = 'message';
+                document.getElementById('message').textContent = '';
+                
+                // 重新加载厂商列表
+                fetchManufacturers();
+                fetchIndustryCategories();
             }
         }
 

@@ -10,32 +10,56 @@ option go_package = "isms/api/isms/v1;v1";
 // 工业软件主表数据结构
 message IsmsSoftware {
   int64 id = 1; // 自增ID
-  string name = 2 [(validate.rules).string.min_len = 1]; // 软件名称
-  string name_en = 3; // 英文名称
-  string developer = 4; // 开发商（关联开发商表ID或名称）
-  string version = 5; // 软件版本
-  string category = 6; // 软件类别（如CAD、CAE、MES等）
-  repeated int32 os_ids = 7; // 支持的操作系统ID列表（关联操作系统表）
-  string description = 8; // 软件描述
-  int64 country_id = 9; // 所属国家ID（关联国家表）
-  string website = 10; // 官网地址
-  int32 status = 11; // 状态（1=正常，0=停用）
-  string created_at = 12; // 创建时间
-  string updated_at = 13; // 更新时间
+  string name_zh = 2 [(validate.rules).string.min_len = 1]; // 软件中文名称
+  string name_en = 3; // 软件英文名称
+  string version = 4; // 版本号
+  int32 release_year = 5; // 发布年份（如2023）
+  int32 release_month = 6; // 发布月份（1-12，0表示仅精确到年）
+  int32 release_day = 7; // 发布日（1-31，0表示仅精确到年或月）
+  int32 developer_id = 8; // 开发商ID
+  int32 country_id = 9; // 产地国家ID
+  string countryName = 10; // 国家名称
+  string developerName = 11; // 生产商名称
+  string cpu_req = 12; // 处理器要求
+  double memory_min_gb = 13; // 最小内存要求（GB）
+  double disk_min_gb = 14; // 最小磁盘空间（GB）
+  string sys_req_other = 15; // 其他系统要求
+  string description = 16; // 软件描述
+  int64 size_bytes = 17; // 软件大小（KB）
+  string deployment_method = 18; // 部署方式
+  string compliance_info = 19; // 合规性信息
+  string security_info = 20; // 安全信息
+  string intellectual_property = 21; // 知识产权信息
+  string status = 22; // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
+  repeated int32 industry_ids = 23; // 适用行业小类ID列表
+  repeated int32 os_ids = 24; // 支持的操作系统ID列表
+  string created_at = 25; // 创建时间
+  string updated_at = 26; // 更新时间
 }
 
 // 创建软件请求
 message CreateSoftwareReq {
-  string name = 1 [(validate.rules).string.min_len = 1];
-  string name_en = 2;
-  string developer = 3 [(validate.rules).string.min_len = 1];
-  string version = 4 [(validate.rules).string.min_len = 1];
-  string category = 5 [(validate.rules).string.min_len = 1];
-  repeated int32 os_ids = 6 [(validate.rules).repeated.min_items = 1]; // 至少支持一个操作系统（修正：补充校验规则）
-  string description = 7;
-  int64 country_id = 8 [(validate.rules).int64.gt = 0];
-  string website = 9 [(validate.rules).string.uri = true];
-  int32 status = 10 [(validate.rules).int32 = {in: [0, 1]}]; // 状态（1=正常，0=停用）
+  string name_zh = 1 [(validate.rules).string.min_len = 1]; // 软件中文名称
+  string name_en = 2; // 软件英文名称
+  string version = 3 [(validate.rules).string.min_len = 1]; // 版本号
+  int32 release_year = 4; // 发布年份（如2023）
+  int32 release_month = 5; // 发布月份（1-12，0表示仅精确到年）
+  int32 release_day = 6; // 发布日（1-31，0表示仅精确到年或月）
+  int32 developer_id = 7 [(validate.rules).int32.gt = 0]; // 开发商ID
+  int32 country_id = 8 [(validate.rules).int32.gt = 0]; // 产地国家ID
+  string cpu_req = 9; // 处理器要求
+  double memory_min_gb = 10; // 最小内存要求（GB）
+  double disk_min_gb = 11; // 最小磁盘空间（GB）
+  string sys_req_other = 12; // 其他系统要求
+  string description = 13; // 软件描述
+  int64 size_bytes = 14; // 软件大小（KB）
+  string deployment_method = 15; // 部署方式
+  string compliance_info = 16; // 合规性信息
+  string security_info = 17; // 安全信息
+  string intellectual_property = 18; // 知识产权信息
+  string status = 19; // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
+  repeated int32 industry_ids = 20 [(validate.rules).repeated.min_items = 1]; // 适用行业小类ID列表
+  repeated int32 os_ids = 21 [(validate.rules).repeated.min_items = 1]; // 支持的操作系统ID列表
 }
 
 // 创建软件响应
@@ -47,16 +71,27 @@ message CreateSoftwareResp {
 // 更新软件请求
 message UpdateSoftwareReq {
   int64 id = 1 [(validate.rules).int64.gt = 0]; // 必须指定ID
-  string name = 2; // 可选更新字段
-  string name_en = 3;
-  string developer = 4;
-  string version = 5;
-  string category = 6;
-  repeated int32 os_ids = 7;
-  string description = 8;
-  int64 country_id = 9;
-  string website = 10;
-  int32 status = 11;
+  string name_zh = 2; // 软件中文名称
+  string name_en = 3; // 软件英文名称
+  string version = 4; // 版本号
+  int32 release_year = 5; // 发布年份（如2023）
+  int32 release_month = 6; // 发布月份（1-12，0表示仅精确到年）
+  int32 release_day = 7; // 发布日（1-31，0表示仅精确到年或月）
+  int32 developer_id = 8; // 开发商ID
+  int32 country_id = 9; // 产地国家ID
+  string cpu_req = 10; // 处理器要求
+  double memory_min_gb = 11; // 最小内存要求（GB）
+  double disk_min_gb = 12; // 最小磁盘空间（GB）
+  string sys_req_other = 13; // 其他系统要求
+  string description = 14; // 软件描述
+  int64 size_bytes = 15; // 软件大小（KB）
+  string deployment_method = 16; // 部署方式
+  string compliance_info = 17; // 合规性信息
+  string security_info = 18; // 安全信息
+  string intellectual_property = 19; // 知识产权信息
+  string status = 20; // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
+  repeated int32 industry_ids = 21; // 适用行业小类ID列表
+  repeated int32 os_ids = 22; // 支持的操作系统ID列表
 }
 
 // 更新软件响应
@@ -71,9 +106,10 @@ message ListSoftwareReq {
   int32 page = 1 [(validate.rules).int32.gte = 1]; // 页码，默认第1页
   int32 page_size = 2 [(validate.rules).int32.gte = 10]; // 每页条数，默认20（修正：移除 "= 20"）
   string keyword = 3; // 搜索关键词（名称、开发商）
-  string category = 4; // 按类别筛选
-  int64 country_id = 5; // 按国家筛选
-  int32 status = 6; // 按状态筛选
+  int32 country_id = 4; // 按国家筛选
+  string status = 5; // 按状态筛选
+  int32 developer_id = 6; // 按开发商筛选
+  string category_code = 7; // 按类别筛选
 }
 
 // 查询软件响应

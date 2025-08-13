@@ -27,17 +27,20 @@ func NewSoftwareRepo(db *gorm.DB, logger log.Logger) domain.SoftwareRepo {
 	}
 }
 
-// 实现Create方法
 func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware) (*domain.IsmsSoftware, error) {
 	// 领域模型转数据模型
 	dataModel := &model.IsmsSoftware{
-		NameZh:      software.NameZh,
-		NameEn:      software.NameEn,
-		DeveloperID: software.DeveloperID,
-		Version:     software.Version,
-		Description: software.Description,
-		CountryID:   software.CountryID,
-		Status:      software.Status,
+		NameZh:       software.NameZh,
+		NameEn:       software.NameEn,
+		Version:      software.Version,
+		ReleaseYear:  software.ReleaseYear,
+		ReleaseMonth: software.ReleaseMonth,
+		ReleaseDay:   software.ReleaseDay,
+		Description:  software.Description,
+		CountryID:    software.CountryID,
+		DeveloperID:  software.DeveloperID,
+		SizeBytes:    software.SizeBytes,
+		Status:       software.Status,
 	}
 
 	// 插入数据
@@ -79,18 +82,21 @@ func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware
 	return software, nil
 }
 
-// 实现Update方法
 func (s *softwareRepo) Update(ctx context.Context, software *domain.IsmsSoftware) error {
 	// 领域模型转数据模型
 	dataModel := &model.IsmsSoftware{
-		ID:          software.ID,
-		NameZh:      software.NameZh,
-		NameEn:      software.NameEn,
-		DeveloperID: software.DeveloperID,
-		Version:     software.Version,
-		Description: software.Description,
-		CountryID:   software.CountryID,
-		Status:      software.Status,
+		ID:           software.ID,
+		NameZh:       software.NameZh,
+		NameEn:       software.NameEn,
+		Version:      software.Version,
+		ReleaseYear:  software.ReleaseYear,
+		ReleaseMonth: software.ReleaseMonth,
+		ReleaseDay:   software.ReleaseDay,
+		Description:  software.Description,
+		CountryID:    software.CountryID,
+		DeveloperID:  software.DeveloperID,
+		SizeBytes:    software.SizeBytes,
+		Status:       software.Status,
 	}
 
 	// 更新数据
@@ -187,18 +193,22 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 
 	// 转换数据模型到领域模型
 	return &domain.IsmsSoftware{
-		ID:          dataModel.ID,
-		NameZh:      dataModel.NameZh,
-		NameEn:      dataModel.NameEn,
-		DeveloperID: dataModel.DeveloperID,
-		Version:     dataModel.Version,
-		Description: dataModel.Description,
-		CountryID:   dataModel.CountryID,
-		Status:      dataModel.Status,
-		IndustryIDs: industryIDs,
-		OsIDs:       osIDs,
-		CreatedAt:   dataModel.CreatedAt,
-		UpdatedAt:   dataModel.UpdatedAt,
+		ID:           dataModel.ID,
+		NameZh:       dataModel.NameZh,
+		NameEn:       dataModel.NameEn,
+		DeveloperID:  dataModel.DeveloperID,
+		Version:      dataModel.Version,
+		ReleaseYear:  dataModel.ReleaseYear,
+		ReleaseMonth: dataModel.ReleaseMonth,
+		ReleaseDay:   dataModel.ReleaseDay,
+		Description:  dataModel.Description,
+		CountryID:    dataModel.CountryID,
+		Status:       dataModel.Status,
+		SizeBytes:    dataModel.SizeBytes,
+		IndustryIDs:  industryIDs,
+		OsIDs:        osIDs,
+		CreatedAt:    dataModel.CreatedAt,
+		UpdatedAt:    dataModel.UpdatedAt,
 	}, nil
 }
 
@@ -216,7 +226,7 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 		db = db.Joins("JOIN isms_industry ON isms_software_industry.industry_id = isms_industry.id")
 		db = db.Where("isms_industry.category_code = ?", opts.CategoryCode)
 	}
-	if opts.Status > 0 {
+	if opts.Status != "" {
 		db = db.Where("status = ?", opts.Status)
 	}
 	if opts.Keyword != "" {
@@ -241,28 +251,47 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 	domainSoftwares := make([]*domain.IsmsSoftware, 0, len(modelSoftwares))
 	for _, m := range modelSoftwares {
 		domainSoftwares = append(domainSoftwares, &domain.IsmsSoftware{
-			ID:          m.ID,
-			NameZh:      m.NameZh,
-			NameEn:      m.NameEn,
-			DeveloperID: m.DeveloperID,
-			Version:     m.Version,
-			Description: m.Description,
-			CountryID:   m.CountryID,
-			Status:      m.Status,
-			CreatedAt:   m.CreatedAt,
-			UpdatedAt:   m.UpdatedAt,
+			ID:           m.ID,
+			NameZh:       m.NameZh,
+			NameEn:       m.NameEn,
+			DeveloperID:  m.DeveloperID,
+			Version:      m.Version,
+			ReleaseYear:  m.ReleaseYear,
+			ReleaseMonth: m.ReleaseMonth,
+			ReleaseDay:   m.ReleaseDay,
+			Description:  m.Description,
+			SizeBytes:    m.SizeBytes,
+			CountryID:    m.CountryID,
+			Status:       m.Status,
+			CreatedAt:    m.CreatedAt,
+			UpdatedAt:    m.UpdatedAt,
 		})
 	}
 
 	return domainSoftwares, total, nil
 }
 
+// ExistByNameAndVersion 检查具有指定名称和版本的软件是否存在
 func (s *softwareRepo) ExistByNameAndVersion(ctx context.Context, name, version string) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+	var count int64
+	count, err := s.query.IsmsSoftware.WithContext(ctx).
+		Where(s.query.IsmsSoftware.NameZh.Eq(name)).
+		Where(s.query.IsmsSoftware.Version.Eq(version)).
+		Count()
+	if err != nil {
+		return false, fmt.Errorf("检查软件名称和版本是否存在失败: %w", err)
+	}
+	return count > 0, nil
 }
 
+// ExistByID 检查具有指定ID的软件是否存在
 func (s *softwareRepo) ExistByID(ctx context.Context, id uint32) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+	var count int64
+	count, err := s.query.IsmsSoftware.WithContext(ctx).
+		Where(s.query.IsmsSoftware.ID.Eq(int32(id))).
+		Count()
+	if err != nil {
+		return false, fmt.Errorf("检查软件ID是否存在失败: %w", err)
+	}
+	return count > 0, nil
 }

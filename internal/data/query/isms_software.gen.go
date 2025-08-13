@@ -32,17 +32,22 @@ func newIsmsSoftware(db *gorm.DB, opts ...gen.DOOption) ismsSoftware {
 	_ismsSoftware.NameZh = field.NewString(tableName, "name_zh")
 	_ismsSoftware.NameEn = field.NewString(tableName, "name_en")
 	_ismsSoftware.Version = field.NewString(tableName, "version")
-	_ismsSoftware.ReleaseDate = field.NewTime(tableName, "release_date")
+	_ismsSoftware.ReleaseYear = field.NewInt32(tableName, "release_year")
+	_ismsSoftware.ReleaseMonth = field.NewInt32(tableName, "release_month")
+	_ismsSoftware.ReleaseDay = field.NewInt32(tableName, "release_day")
 	_ismsSoftware.DeveloperID = field.NewInt32(tableName, "developer_id")
 	_ismsSoftware.CountryID = field.NewInt32(tableName, "country_id")
-	_ismsSoftware.SysReq = field.NewString(tableName, "sys_req")
+	_ismsSoftware.CPUReq = field.NewString(tableName, "cpu_req")
+	_ismsSoftware.MemoryMinGb = field.NewFloat64(tableName, "memory_min_gb")
+	_ismsSoftware.DiskMinGb = field.NewFloat64(tableName, "disk_min_gb")
+	_ismsSoftware.SysReqOther = field.NewString(tableName, "sys_req_other")
 	_ismsSoftware.Description = field.NewString(tableName, "description")
-	_ismsSoftware.SizeGb = field.NewFloat64(tableName, "size_gb")
+	_ismsSoftware.SizeBytes = field.NewInt64(tableName, "size_bytes")
 	_ismsSoftware.DeploymentMethod = field.NewString(tableName, "deployment_method")
 	_ismsSoftware.ComplianceInfo = field.NewString(tableName, "compliance_info")
 	_ismsSoftware.SecurityInfo = field.NewString(tableName, "security_info")
 	_ismsSoftware.IntellectualProperty = field.NewString(tableName, "intellectual_property")
-	_ismsSoftware.Status = field.NewInt32(tableName, "status")
+	_ismsSoftware.Status = field.NewString(tableName, "status")
 	_ismsSoftware.CreatedAt = field.NewTime(tableName, "created_at")
 	_ismsSoftware.UpdatedAt = field.NewTime(tableName, "updated_at")
 
@@ -57,20 +62,25 @@ type ismsSoftware struct {
 
 	ALL                  field.Asterisk
 	ID                   field.Int32   // 自增ID
-	NameZh               field.String  // 软件中文名称
-	NameEn               field.String  // 软件英文名称
-	Version              field.String  // 版本号（如v6.2.10.23 SP10）
-	ReleaseDate          field.Time    // 发布日期
-	DeveloperID          field.Int32   // 开发商ID（关联isms_developer.id，代码逻辑维护）
-	CountryID            field.Int32   // 产地国家ID（关联isms_country.id，代码逻辑维护）
-	SysReq               field.String  // 系统要求（处理器/内存等）
-	Description          field.String  // 软件描述
-	SizeGb               field.Float64 // 软件大小（GB）
-	DeploymentMethod     field.String  // 部署方式（如单机/云端）
-	ComplianceInfo       field.String  // 合规性信息
-	SecurityInfo         field.String  // 安全信息
-	IntellectualProperty field.String  // 知识产权信息
-	Status               field.Int32   // 状态（1：有效，0：下架）
+	NameZh               field.String  // 软件中文名称（不含特殊符号，如：中望CAD）
+	NameEn               field.String  // 软件英文名称（不含特殊符号，如：ZWCAD）
+	Version              field.String  // 版本号（统一小写，前缀v可选，如v6.2.10、6.2）
+	ReleaseYear          field.Int32   // 发布年份（如2023）
+	ReleaseMonth         field.Int32   // 发布月份（1-12，NULL表示仅精确到年）
+	ReleaseDay           field.Int32   // 发布日（1-31，NULL表示仅精确到年或月）
+	DeveloperID          field.Int32   // 开发商ID（关联isms_developer.id）
+	CountryID            field.Int32   // 产地国家ID（关联isms_country.id，由developer_id同步）
+	CPUReq               field.String  // 处理器要求（如：Intel i5及以上）
+	MemoryMinGb          field.Float64 // 最小内存要求（GB）
+	DiskMinGb            field.Float64 // 最小磁盘空间（GB）
+	SysReqOther          field.String  // 其他系统要求（如显卡、网络）
+	Description          field.String  // 软件描述（功能、应用场景等）
+	SizeBytes            field.Int64   // 软件实际大小（字节，用于计算和存储，1KB=1024字节）
+	DeploymentMethod     field.String  // 部署方式（standalone：单机；cloud：云端；hybrid：混合）
+	ComplianceInfo       field.String  // 合规性信息（如认证标准、行业规范）
+	SecurityInfo         field.String  // 安全信息（如加密方式、漏洞修复记录）
+	IntellectualProperty field.String  // 知识产权信息（如专利号、著作权登记号）
+	Status               field.String  // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
 	CreatedAt            field.Time    // 创建时间
 	UpdatedAt            field.Time    // 更新时间
 
@@ -93,17 +103,22 @@ func (i *ismsSoftware) updateTableName(table string) *ismsSoftware {
 	i.NameZh = field.NewString(table, "name_zh")
 	i.NameEn = field.NewString(table, "name_en")
 	i.Version = field.NewString(table, "version")
-	i.ReleaseDate = field.NewTime(table, "release_date")
+	i.ReleaseYear = field.NewInt32(table, "release_year")
+	i.ReleaseMonth = field.NewInt32(table, "release_month")
+	i.ReleaseDay = field.NewInt32(table, "release_day")
 	i.DeveloperID = field.NewInt32(table, "developer_id")
 	i.CountryID = field.NewInt32(table, "country_id")
-	i.SysReq = field.NewString(table, "sys_req")
+	i.CPUReq = field.NewString(table, "cpu_req")
+	i.MemoryMinGb = field.NewFloat64(table, "memory_min_gb")
+	i.DiskMinGb = field.NewFloat64(table, "disk_min_gb")
+	i.SysReqOther = field.NewString(table, "sys_req_other")
 	i.Description = field.NewString(table, "description")
-	i.SizeGb = field.NewFloat64(table, "size_gb")
+	i.SizeBytes = field.NewInt64(table, "size_bytes")
 	i.DeploymentMethod = field.NewString(table, "deployment_method")
 	i.ComplianceInfo = field.NewString(table, "compliance_info")
 	i.SecurityInfo = field.NewString(table, "security_info")
 	i.IntellectualProperty = field.NewString(table, "intellectual_property")
-	i.Status = field.NewInt32(table, "status")
+	i.Status = field.NewString(table, "status")
 	i.CreatedAt = field.NewTime(table, "created_at")
 	i.UpdatedAt = field.NewTime(table, "updated_at")
 
@@ -134,17 +149,22 @@ func (i *ismsSoftware) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (i *ismsSoftware) fillFieldMap() {
-	i.fieldMap = make(map[string]field.Expr, 17)
+	i.fieldMap = make(map[string]field.Expr, 22)
 	i.fieldMap["id"] = i.ID
 	i.fieldMap["name_zh"] = i.NameZh
 	i.fieldMap["name_en"] = i.NameEn
 	i.fieldMap["version"] = i.Version
-	i.fieldMap["release_date"] = i.ReleaseDate
+	i.fieldMap["release_year"] = i.ReleaseYear
+	i.fieldMap["release_month"] = i.ReleaseMonth
+	i.fieldMap["release_day"] = i.ReleaseDay
 	i.fieldMap["developer_id"] = i.DeveloperID
 	i.fieldMap["country_id"] = i.CountryID
-	i.fieldMap["sys_req"] = i.SysReq
+	i.fieldMap["cpu_req"] = i.CPUReq
+	i.fieldMap["memory_min_gb"] = i.MemoryMinGb
+	i.fieldMap["disk_min_gb"] = i.DiskMinGb
+	i.fieldMap["sys_req_other"] = i.SysReqOther
 	i.fieldMap["description"] = i.Description
-	i.fieldMap["size_gb"] = i.SizeGb
+	i.fieldMap["size_bytes"] = i.SizeBytes
 	i.fieldMap["deployment_method"] = i.DeploymentMethod
 	i.fieldMap["compliance_info"] = i.ComplianceInfo
 	i.fieldMap["security_info"] = i.SecurityInfo

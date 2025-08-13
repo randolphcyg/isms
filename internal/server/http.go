@@ -28,7 +28,9 @@ func NewHTTPServer(c *conf.Server, data *conf.Data,
 		),
 		http.Filter(handlers.CORS(
 			handlers.AllowedOrigins([]string{"*"}),
-			handlers.AllowedMethods([]string{"GET", "POST"}),
+			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+			handlers.AllowedHeaders([]string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"}),
+			handlers.AllowCredentials(),
 		)),
 	}
 	if c.Http.Network != "" {

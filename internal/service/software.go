@@ -29,22 +29,42 @@ func NewSoftwareService(uc *biz.SoftwareUsecase, logger log.Logger) *SoftwareSer
 }
 
 func (s *SoftwareService) CreateSoftware(ctx context.Context, req *pb.CreateSoftwareReq) (*pb.CreateSoftwareResp, error) {
-	//s.log.WithContext(ctx).Infof("收到创建软件请求: 名称=%s, 开发商ID=%d", req.Name, req.DeveloperId)
-
 	// 参数校验
-	if req.Name == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "软件名称不能为空")
+	if req.NameEn == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "软件英文名称不能为空")
+	}
+
+	// 转换API请求到领域模型
+	var releaseYear, releaseMonth, releaseDay *int32
+	var sizeBytes *int64
+	if req.ReleaseYear != 0 {
+		releaseYear = &req.ReleaseYear
+	}
+	if req.ReleaseMonth != 0 {
+		releaseMonth = &req.ReleaseMonth
+	}
+	if req.ReleaseDay != 0 {
+		releaseDay = &req.ReleaseDay
+	}
+	if req.SizeBytes != 0 {
+		sizeBytes = &req.SizeBytes
 	}
 
 	// 转换API请求到领域模型
 	domainSoftware := &domain.IsmsSoftware{
-		NameZh:      req.Name,
-		NameEn:      req.NameEn,
-		Version:     req.Version,
-		Description: &req.Description,
-		CountryID:   int32(req.CountryId),
-		Status:      req.Status,
-		OsIDs:       req.OsIds,
+		NameZh:       req.NameZh,
+		NameEn:       req.NameEn,
+		Version:      req.Version,
+		ReleaseYear:  releaseYear,
+		ReleaseMonth: releaseMonth,
+		ReleaseDay:   releaseDay,
+		Description:  &req.Description,
+		CountryID:    req.CountryId,
+		DeveloperID:  req.DeveloperId,
+		IndustryIDs:  req.IndustryIds,
+		SizeBytes:    sizeBytes,
+		Status:       req.Status,
+		OsIDs:        req.OsIds,
 	}
 
 	// 调用biz层核心业务逻辑
@@ -55,7 +75,8 @@ func (s *SoftwareService) CreateSoftware(ctx context.Context, req *pb.CreateSoft
 	}
 
 	return &pb.CreateSoftwareResp{
-		Id: int64(createdSoftware.ID),
+		Id:      int64(createdSoftware.ID),
+		Message: "软件创建成功",
 	}, nil
 }
 
@@ -68,15 +89,31 @@ func (s *SoftwareService) UpdateSoftware(ctx context.Context, req *pb.UpdateSoft
 	}
 
 	// 转换API请求到领域模型
+	var releaseYear, releaseMonth, releaseDay *int32
+	if req.ReleaseYear != 0 {
+		releaseYear = &req.ReleaseYear
+	}
+	if req.ReleaseMonth != 0 {
+		releaseMonth = &req.ReleaseMonth
+	}
+	if req.ReleaseDay != 0 {
+		releaseDay = &req.ReleaseDay
+	}
+
+	// 转换API请求到领域模型
 	domainSoftware := &domain.IsmsSoftware{
-		ID:          int32(req.Id),
-		NameZh:      req.Name,
-		NameEn:      req.NameEn,
-		Version:     req.Version,
-		Description: &req.Description,
-		CountryID:   int32(req.CountryId),
-		Status:      req.Status,
-		OsIDs:       req.OsIds,
+		ID:           int32(req.Id),
+		NameZh:       req.NameZh,
+		NameEn:       req.NameEn,
+		Version:      req.Version,
+		ReleaseYear:  releaseYear,
+		ReleaseMonth: releaseMonth,
+		ReleaseDay:   releaseDay,
+		Description:  &req.Description,
+		CountryID:    int32(req.CountryId),
+		Status:       req.Status,
+		OsIDs:        req.OsIds,
+		SizeBytes:    &req.SizeBytes,
 	}
 
 	// 调用biz层核心业务逻辑
@@ -86,7 +123,7 @@ func (s *SoftwareService) UpdateSoftware(ctx context.Context, req *pb.UpdateSoft
 		return nil, status.Errorf(codes.Internal, "更新软件失败: %v", err)
 	}
 
-	return &pb.UpdateSoftwareResp{Success: true}, nil
+	return &pb.UpdateSoftwareResp{Success: true, Message: "软件更新成功"}, nil
 }
 
 func (s *SoftwareService) ListSoftware(ctx context.Context, req *pb.ListSoftwareReq) (*pb.ListSoftwareResp, error) {
@@ -96,7 +133,7 @@ func (s *SoftwareService) ListSoftware(ctx context.Context, req *pb.ListSoftware
 	opts := domain.ListSoftwareOptions{
 		Page:         req.Page,
 		PageSize:     req.PageSize,
-		CategoryCode: req.Category,
+		CategoryCode: req.CategoryCode,
 		Status:       req.Status,
 		Keyword:      req.Keyword,
 	}
@@ -110,18 +147,42 @@ func (s *SoftwareService) ListSoftware(ctx context.Context, req *pb.ListSoftware
 
 	// 转换领域模型列表到API响应
 	respSoftwares := make([]*pb.IsmsSoftware, 0, len(softwares))
+
 	for _, sw := range softwares {
+		// 安全处理可选的日期字段
+		var releaseYear, releaseMonth, releaseDay int32
+		var sizeBytes int64
+		if sw.ReleaseYear != nil {
+			releaseYear = *sw.ReleaseYear
+		}
+		if sw.ReleaseMonth != nil {
+			releaseMonth = *sw.ReleaseMonth
+		}
+		if sw.ReleaseDay != nil {
+			releaseDay = *sw.ReleaseDay
+		}
+		if sw.SizeBytes != nil {
+			sizeBytes = *sw.SizeBytes
+		}
+
 		respSoftwares = append(respSoftwares, &pb.IsmsSoftware{
-			Id:          int64(sw.ID),
-			Name:        sw.NameZh,
-			NameEn:      sw.NameEn,
-			Version:     sw.Version,
-			Description: *sw.Description,
-			CountryId:   int64(sw.CountryID),
-			Status:      sw.Status,
-			OsIds:       sw.OsIDs,
-			CreatedAt:   sw.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:   sw.UpdatedAt.Format(time.RFC3339),
+			Id:            int64(sw.ID),
+			NameZh:        sw.NameZh,
+			NameEn:        sw.NameEn,
+			Version:       sw.Version,
+			ReleaseYear:   releaseYear,
+			ReleaseMonth:  releaseMonth,
+			ReleaseDay:    releaseDay,
+			Description:   *sw.Description,
+			CountryId:     sw.CountryID,
+			CountryName:   sw.CountryName,
+			DeveloperId:   sw.DeveloperID,
+			DeveloperName: sw.DeveloperName,
+			SizeBytes:     sizeBytes,
+			Status:        sw.Status,
+			OsIds:         sw.OsIDs,
+			CreatedAt:     sw.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:     sw.UpdatedAt.Format(time.RFC3339),
 		})
 	}
 
@@ -137,23 +198,46 @@ func (s *SoftwareService) GetSoftwareById(ctx context.Context, req *pb.GetSoftwa
 	s.log.WithContext(ctx).Infof("收到查询软件请求: ID=%d", req.Id)
 
 	// 调用biz层核心业务逻辑
-	software, err := s.uc.GetSoftwareByID(ctx, uint32(req.Id))
+	sw, err := s.uc.GetSoftwareByID(ctx, uint32(req.Id))
 	if err != nil {
 		s.log.WithContext(ctx).Errorf("查询软件失败: %v", err)
 		return nil, status.Errorf(codes.NotFound, "软件不存在")
 	}
 
+	// 安全处理可选的日期字段
+	var releaseYear, releaseMonth, releaseDay int32
+	var sizeBytes int64
+	if sw.ReleaseYear != nil {
+		releaseYear = *sw.ReleaseYear
+	}
+	if sw.ReleaseMonth != nil {
+		releaseMonth = *sw.ReleaseMonth
+	}
+	if sw.ReleaseDay != nil {
+		releaseDay = *sw.ReleaseDay
+	}
+	if sw.SizeBytes != nil {
+		sizeBytes = *sw.SizeBytes
+	}
+
 	// 转换领域模型到API响应
 	return &pb.IsmsSoftware{
-		Id:          int64(software.ID),
-		Name:        software.NameZh,
-		NameEn:      software.NameEn,
-		Version:     software.Version,
-		Description: *software.Description,
-		CountryId:   int64(software.CountryID),
-		Status:      software.Status,
-		OsIds:       software.OsIDs,
-		CreatedAt:   software.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   software.UpdatedAt.Format(time.RFC3339),
+		Id:            int64(sw.ID),
+		NameZh:        sw.NameZh,
+		NameEn:        sw.NameEn,
+		Version:       sw.Version,
+		ReleaseYear:   releaseYear,
+		ReleaseMonth:  releaseMonth,
+		ReleaseDay:    releaseDay,
+		Description:   *sw.Description,
+		CountryId:     sw.CountryID,
+		CountryName:   sw.CountryName,
+		DeveloperId:   sw.DeveloperID,
+		DeveloperName: sw.DeveloperName,
+		SizeBytes:     sizeBytes,
+		Status:        sw.Status,
+		OsIds:         sw.OsIDs,
+		CreatedAt:     sw.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:     sw.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }

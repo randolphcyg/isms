@@ -25,22 +25,35 @@ const (
 
 // 工业软件主表数据结构
 type IsmsSoftware struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 自增ID
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                             // 软件名称
-	NameEn        string                 `protobuf:"bytes,3,opt,name=name_en,json=nameEn,proto3" json:"name_en,omitempty"`           // 英文名称
-	Developer     string                 `protobuf:"bytes,4,opt,name=developer,proto3" json:"developer,omitempty"`                   // 开发商（关联开发商表ID或名称）
-	Version       string                 `protobuf:"bytes,5,opt,name=version,proto3" json:"version,omitempty"`                       // 软件版本
-	Category      string                 `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`                     // 软件类别（如CAD、CAE、MES等）
-	OsIds         []int32                `protobuf:"varint,7,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`      // 支持的操作系统ID列表（关联操作系统表）
-	Description   string                 `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`               // 软件描述
-	CountryId     int64                  `protobuf:"varint,9,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"` // 所属国家ID（关联国家表）
-	Website       string                 `protobuf:"bytes,10,opt,name=website,proto3" json:"website,omitempty"`                      // 官网地址
-	Status        int32                  `protobuf:"varint,11,opt,name=status,proto3" json:"status,omitempty"`                       // 状态（1=正常，0=停用）
-	CreatedAt     string                 `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Id                   int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                 // 自增ID
+	NameZh               string                 `protobuf:"bytes,2,opt,name=name_zh,json=nameZh,proto3" json:"name_zh,omitempty"`                                            // 软件中文名称
+	NameEn               string                 `protobuf:"bytes,3,opt,name=name_en,json=nameEn,proto3" json:"name_en,omitempty"`                                            // 软件英文名称
+	Version              string                 `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`                                                        // 版本号
+	ReleaseYear          int32                  `protobuf:"varint,5,opt,name=release_year,json=releaseYear,proto3" json:"release_year,omitempty"`                            // 发布年份（如2023）
+	ReleaseMonth         int32                  `protobuf:"varint,6,opt,name=release_month,json=releaseMonth,proto3" json:"release_month,omitempty"`                         // 发布月份（1-12，0表示仅精确到年）
+	ReleaseDay           int32                  `protobuf:"varint,7,opt,name=release_day,json=releaseDay,proto3" json:"release_day,omitempty"`                               // 发布日（1-31，0表示仅精确到年或月）
+	DeveloperId          int32                  `protobuf:"varint,8,opt,name=developer_id,json=developerId,proto3" json:"developer_id,omitempty"`                            // 开发商ID
+	CountryId            int32                  `protobuf:"varint,9,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"`                                  // 产地国家ID
+	CountryName          string                 `protobuf:"bytes,10,opt,name=countryName,proto3" json:"countryName,omitempty"`                                               // 国家名称
+	DeveloperName        string                 `protobuf:"bytes,11,opt,name=developerName,proto3" json:"developerName,omitempty"`                                           // 生产商名称
+	CpuReq               string                 `protobuf:"bytes,12,opt,name=cpu_req,json=cpuReq,proto3" json:"cpu_req,omitempty"`                                           // 处理器要求
+	MemoryMinGb          float64                `protobuf:"fixed64,13,opt,name=memory_min_gb,json=memoryMinGb,proto3" json:"memory_min_gb,omitempty"`                        // 最小内存要求（GB）
+	DiskMinGb            float64                `protobuf:"fixed64,14,opt,name=disk_min_gb,json=diskMinGb,proto3" json:"disk_min_gb,omitempty"`                              // 最小磁盘空间（GB）
+	SysReqOther          string                 `protobuf:"bytes,15,opt,name=sys_req_other,json=sysReqOther,proto3" json:"sys_req_other,omitempty"`                          // 其他系统要求
+	Description          string                 `protobuf:"bytes,16,opt,name=description,proto3" json:"description,omitempty"`                                               // 软件描述
+	SizeBytes            int64                  `protobuf:"varint,17,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`                                 // 软件大小（KB）
+	DeploymentMethod     string                 `protobuf:"bytes,18,opt,name=deployment_method,json=deploymentMethod,proto3" json:"deployment_method,omitempty"`             // 部署方式
+	ComplianceInfo       string                 `protobuf:"bytes,19,opt,name=compliance_info,json=complianceInfo,proto3" json:"compliance_info,omitempty"`                   // 合规性信息
+	SecurityInfo         string                 `protobuf:"bytes,20,opt,name=security_info,json=securityInfo,proto3" json:"security_info,omitempty"`                         // 安全信息
+	IntellectualProperty string                 `protobuf:"bytes,21,opt,name=intellectual_property,json=intellectualProperty,proto3" json:"intellectual_property,omitempty"` // 知识产权信息
+	Status               string                 `protobuf:"bytes,22,opt,name=status,proto3" json:"status,omitempty"`                                                         // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
+	IndustryIds          []int32                `protobuf:"varint,23,rep,packed,name=industry_ids,json=industryIds,proto3" json:"industry_ids,omitempty"`                    // 适用行业小类ID列表
+	OsIds                []int32                `protobuf:"varint,24,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`                                      // 支持的操作系统ID列表
+	CreatedAt            string                 `protobuf:"bytes,25,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                  // 创建时间
+	UpdatedAt            string                 `protobuf:"bytes,26,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                  // 更新时间
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *IsmsSoftware) Reset() {
@@ -80,9 +93,9 @@ func (x *IsmsSoftware) GetId() int64 {
 	return 0
 }
 
-func (x *IsmsSoftware) GetName() string {
+func (x *IsmsSoftware) GetNameZh() string {
 	if x != nil {
-		return x.Name
+		return x.NameZh
 	}
 	return ""
 }
@@ -94,13 +107,6 @@ func (x *IsmsSoftware) GetNameEn() string {
 	return ""
 }
 
-func (x *IsmsSoftware) GetDeveloper() string {
-	if x != nil {
-		return x.Developer
-	}
-	return ""
-}
-
 func (x *IsmsSoftware) GetVersion() string {
 	if x != nil {
 		return x.Version
@@ -108,18 +114,81 @@ func (x *IsmsSoftware) GetVersion() string {
 	return ""
 }
 
-func (x *IsmsSoftware) GetCategory() string {
+func (x *IsmsSoftware) GetReleaseYear() int32 {
 	if x != nil {
-		return x.Category
+		return x.ReleaseYear
+	}
+	return 0
+}
+
+func (x *IsmsSoftware) GetReleaseMonth() int32 {
+	if x != nil {
+		return x.ReleaseMonth
+	}
+	return 0
+}
+
+func (x *IsmsSoftware) GetReleaseDay() int32 {
+	if x != nil {
+		return x.ReleaseDay
+	}
+	return 0
+}
+
+func (x *IsmsSoftware) GetDeveloperId() int32 {
+	if x != nil {
+		return x.DeveloperId
+	}
+	return 0
+}
+
+func (x *IsmsSoftware) GetCountryId() int32 {
+	if x != nil {
+		return x.CountryId
+	}
+	return 0
+}
+
+func (x *IsmsSoftware) GetCountryName() string {
+	if x != nil {
+		return x.CountryName
 	}
 	return ""
 }
 
-func (x *IsmsSoftware) GetOsIds() []int32 {
+func (x *IsmsSoftware) GetDeveloperName() string {
 	if x != nil {
-		return x.OsIds
+		return x.DeveloperName
 	}
-	return nil
+	return ""
+}
+
+func (x *IsmsSoftware) GetCpuReq() string {
+	if x != nil {
+		return x.CpuReq
+	}
+	return ""
+}
+
+func (x *IsmsSoftware) GetMemoryMinGb() float64 {
+	if x != nil {
+		return x.MemoryMinGb
+	}
+	return 0
+}
+
+func (x *IsmsSoftware) GetDiskMinGb() float64 {
+	if x != nil {
+		return x.DiskMinGb
+	}
+	return 0
+}
+
+func (x *IsmsSoftware) GetSysReqOther() string {
+	if x != nil {
+		return x.SysReqOther
+	}
+	return ""
 }
 
 func (x *IsmsSoftware) GetDescription() string {
@@ -129,25 +198,60 @@ func (x *IsmsSoftware) GetDescription() string {
 	return ""
 }
 
-func (x *IsmsSoftware) GetCountryId() int64 {
+func (x *IsmsSoftware) GetSizeBytes() int64 {
 	if x != nil {
-		return x.CountryId
+		return x.SizeBytes
 	}
 	return 0
 }
 
-func (x *IsmsSoftware) GetWebsite() string {
+func (x *IsmsSoftware) GetDeploymentMethod() string {
 	if x != nil {
-		return x.Website
+		return x.DeploymentMethod
 	}
 	return ""
 }
 
-func (x *IsmsSoftware) GetStatus() int32 {
+func (x *IsmsSoftware) GetComplianceInfo() string {
+	if x != nil {
+		return x.ComplianceInfo
+	}
+	return ""
+}
+
+func (x *IsmsSoftware) GetSecurityInfo() string {
+	if x != nil {
+		return x.SecurityInfo
+	}
+	return ""
+}
+
+func (x *IsmsSoftware) GetIntellectualProperty() string {
+	if x != nil {
+		return x.IntellectualProperty
+	}
+	return ""
+}
+
+func (x *IsmsSoftware) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
-	return 0
+	return ""
+}
+
+func (x *IsmsSoftware) GetIndustryIds() []int32 {
+	if x != nil {
+		return x.IndustryIds
+	}
+	return nil
+}
+
+func (x *IsmsSoftware) GetOsIds() []int32 {
+	if x != nil {
+		return x.OsIds
+	}
+	return nil
 }
 
 func (x *IsmsSoftware) GetCreatedAt() string {
@@ -166,19 +270,30 @@ func (x *IsmsSoftware) GetUpdatedAt() string {
 
 // 创建软件请求
 type CreateSoftwareReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	NameEn        string                 `protobuf:"bytes,2,opt,name=name_en,json=nameEn,proto3" json:"name_en,omitempty"`
-	Developer     string                 `protobuf:"bytes,3,opt,name=developer,proto3" json:"developer,omitempty"`
-	Version       string                 `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
-	Category      string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
-	OsIds         []int32                `protobuf:"varint,6,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"` // 至少支持一个操作系统（修正：补充校验规则）
-	Description   string                 `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty"`
-	CountryId     int64                  `protobuf:"varint,8,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"`
-	Website       string                 `protobuf:"bytes,9,opt,name=website,proto3" json:"website,omitempty"`
-	Status        int32                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"` // 状态（1=正常，0=停用）
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	NameZh               string                 `protobuf:"bytes,1,opt,name=name_zh,json=nameZh,proto3" json:"name_zh,omitempty"`                                            // 软件中文名称
+	NameEn               string                 `protobuf:"bytes,2,opt,name=name_en,json=nameEn,proto3" json:"name_en,omitempty"`                                            // 软件英文名称
+	Version              string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`                                                        // 版本号
+	ReleaseYear          int32                  `protobuf:"varint,4,opt,name=release_year,json=releaseYear,proto3" json:"release_year,omitempty"`                            // 发布年份（如2023）
+	ReleaseMonth         int32                  `protobuf:"varint,5,opt,name=release_month,json=releaseMonth,proto3" json:"release_month,omitempty"`                         // 发布月份（1-12，0表示仅精确到年）
+	ReleaseDay           int32                  `protobuf:"varint,6,opt,name=release_day,json=releaseDay,proto3" json:"release_day,omitempty"`                               // 发布日（1-31，0表示仅精确到年或月）
+	DeveloperId          int32                  `protobuf:"varint,7,opt,name=developer_id,json=developerId,proto3" json:"developer_id,omitempty"`                            // 开发商ID
+	CountryId            int32                  `protobuf:"varint,8,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"`                                  // 产地国家ID
+	CpuReq               string                 `protobuf:"bytes,9,opt,name=cpu_req,json=cpuReq,proto3" json:"cpu_req,omitempty"`                                            // 处理器要求
+	MemoryMinGb          float64                `protobuf:"fixed64,10,opt,name=memory_min_gb,json=memoryMinGb,proto3" json:"memory_min_gb,omitempty"`                        // 最小内存要求（GB）
+	DiskMinGb            float64                `protobuf:"fixed64,11,opt,name=disk_min_gb,json=diskMinGb,proto3" json:"disk_min_gb,omitempty"`                              // 最小磁盘空间（GB）
+	SysReqOther          string                 `protobuf:"bytes,12,opt,name=sys_req_other,json=sysReqOther,proto3" json:"sys_req_other,omitempty"`                          // 其他系统要求
+	Description          string                 `protobuf:"bytes,13,opt,name=description,proto3" json:"description,omitempty"`                                               // 软件描述
+	SizeBytes            int64                  `protobuf:"varint,14,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`                                 // 软件大小（KB）
+	DeploymentMethod     string                 `protobuf:"bytes,15,opt,name=deployment_method,json=deploymentMethod,proto3" json:"deployment_method,omitempty"`             // 部署方式
+	ComplianceInfo       string                 `protobuf:"bytes,16,opt,name=compliance_info,json=complianceInfo,proto3" json:"compliance_info,omitempty"`                   // 合规性信息
+	SecurityInfo         string                 `protobuf:"bytes,17,opt,name=security_info,json=securityInfo,proto3" json:"security_info,omitempty"`                         // 安全信息
+	IntellectualProperty string                 `protobuf:"bytes,18,opt,name=intellectual_property,json=intellectualProperty,proto3" json:"intellectual_property,omitempty"` // 知识产权信息
+	Status               string                 `protobuf:"bytes,19,opt,name=status,proto3" json:"status,omitempty"`                                                         // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
+	IndustryIds          []int32                `protobuf:"varint,20,rep,packed,name=industry_ids,json=industryIds,proto3" json:"industry_ids,omitempty"`                    // 适用行业小类ID列表
+	OsIds                []int32                `protobuf:"varint,21,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`                                      // 支持的操作系统ID列表
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CreateSoftwareReq) Reset() {
@@ -211,9 +326,9 @@ func (*CreateSoftwareReq) Descriptor() ([]byte, []int) {
 	return file_isms_v1_software_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CreateSoftwareReq) GetName() string {
+func (x *CreateSoftwareReq) GetNameZh() string {
 	if x != nil {
-		return x.Name
+		return x.NameZh
 	}
 	return ""
 }
@@ -225,13 +340,6 @@ func (x *CreateSoftwareReq) GetNameEn() string {
 	return ""
 }
 
-func (x *CreateSoftwareReq) GetDeveloper() string {
-	if x != nil {
-		return x.Developer
-	}
-	return ""
-}
-
 func (x *CreateSoftwareReq) GetVersion() string {
 	if x != nil {
 		return x.Version
@@ -239,18 +347,67 @@ func (x *CreateSoftwareReq) GetVersion() string {
 	return ""
 }
 
-func (x *CreateSoftwareReq) GetCategory() string {
+func (x *CreateSoftwareReq) GetReleaseYear() int32 {
 	if x != nil {
-		return x.Category
+		return x.ReleaseYear
+	}
+	return 0
+}
+
+func (x *CreateSoftwareReq) GetReleaseMonth() int32 {
+	if x != nil {
+		return x.ReleaseMonth
+	}
+	return 0
+}
+
+func (x *CreateSoftwareReq) GetReleaseDay() int32 {
+	if x != nil {
+		return x.ReleaseDay
+	}
+	return 0
+}
+
+func (x *CreateSoftwareReq) GetDeveloperId() int32 {
+	if x != nil {
+		return x.DeveloperId
+	}
+	return 0
+}
+
+func (x *CreateSoftwareReq) GetCountryId() int32 {
+	if x != nil {
+		return x.CountryId
+	}
+	return 0
+}
+
+func (x *CreateSoftwareReq) GetCpuReq() string {
+	if x != nil {
+		return x.CpuReq
 	}
 	return ""
 }
 
-func (x *CreateSoftwareReq) GetOsIds() []int32 {
+func (x *CreateSoftwareReq) GetMemoryMinGb() float64 {
 	if x != nil {
-		return x.OsIds
+		return x.MemoryMinGb
 	}
-	return nil
+	return 0
+}
+
+func (x *CreateSoftwareReq) GetDiskMinGb() float64 {
+	if x != nil {
+		return x.DiskMinGb
+	}
+	return 0
+}
+
+func (x *CreateSoftwareReq) GetSysReqOther() string {
+	if x != nil {
+		return x.SysReqOther
+	}
+	return ""
 }
 
 func (x *CreateSoftwareReq) GetDescription() string {
@@ -260,25 +417,60 @@ func (x *CreateSoftwareReq) GetDescription() string {
 	return ""
 }
 
-func (x *CreateSoftwareReq) GetCountryId() int64 {
+func (x *CreateSoftwareReq) GetSizeBytes() int64 {
 	if x != nil {
-		return x.CountryId
+		return x.SizeBytes
 	}
 	return 0
 }
 
-func (x *CreateSoftwareReq) GetWebsite() string {
+func (x *CreateSoftwareReq) GetDeploymentMethod() string {
 	if x != nil {
-		return x.Website
+		return x.DeploymentMethod
 	}
 	return ""
 }
 
-func (x *CreateSoftwareReq) GetStatus() int32 {
+func (x *CreateSoftwareReq) GetComplianceInfo() string {
+	if x != nil {
+		return x.ComplianceInfo
+	}
+	return ""
+}
+
+func (x *CreateSoftwareReq) GetSecurityInfo() string {
+	if x != nil {
+		return x.SecurityInfo
+	}
+	return ""
+}
+
+func (x *CreateSoftwareReq) GetIntellectualProperty() string {
+	if x != nil {
+		return x.IntellectualProperty
+	}
+	return ""
+}
+
+func (x *CreateSoftwareReq) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
-	return 0
+	return ""
+}
+
+func (x *CreateSoftwareReq) GetIndustryIds() []int32 {
+	if x != nil {
+		return x.IndustryIds
+	}
+	return nil
+}
+
+func (x *CreateSoftwareReq) GetOsIds() []int32 {
+	if x != nil {
+		return x.OsIds
+	}
+	return nil
 }
 
 // 创建软件响应
@@ -336,20 +528,31 @@ func (x *CreateSoftwareResp) GetMessage() string {
 
 // 更新软件请求
 type UpdateSoftwareReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`    // 必须指定ID
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"` // 可选更新字段
-	NameEn        string                 `protobuf:"bytes,3,opt,name=name_en,json=nameEn,proto3" json:"name_en,omitempty"`
-	Developer     string                 `protobuf:"bytes,4,opt,name=developer,proto3" json:"developer,omitempty"`
-	Version       string                 `protobuf:"bytes,5,opt,name=version,proto3" json:"version,omitempty"`
-	Category      string                 `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
-	OsIds         []int32                `protobuf:"varint,7,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`
-	Description   string                 `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`
-	CountryId     int64                  `protobuf:"varint,9,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"`
-	Website       string                 `protobuf:"bytes,10,opt,name=website,proto3" json:"website,omitempty"`
-	Status        int32                  `protobuf:"varint,11,opt,name=status,proto3" json:"status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Id                   int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                 // 必须指定ID
+	NameZh               string                 `protobuf:"bytes,2,opt,name=name_zh,json=nameZh,proto3" json:"name_zh,omitempty"`                                            // 软件中文名称
+	NameEn               string                 `protobuf:"bytes,3,opt,name=name_en,json=nameEn,proto3" json:"name_en,omitempty"`                                            // 软件英文名称
+	Version              string                 `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`                                                        // 版本号
+	ReleaseYear          int32                  `protobuf:"varint,5,opt,name=release_year,json=releaseYear,proto3" json:"release_year,omitempty"`                            // 发布年份（如2023）
+	ReleaseMonth         int32                  `protobuf:"varint,6,opt,name=release_month,json=releaseMonth,proto3" json:"release_month,omitempty"`                         // 发布月份（1-12，0表示仅精确到年）
+	ReleaseDay           int32                  `protobuf:"varint,7,opt,name=release_day,json=releaseDay,proto3" json:"release_day,omitempty"`                               // 发布日（1-31，0表示仅精确到年或月）
+	DeveloperId          int32                  `protobuf:"varint,8,opt,name=developer_id,json=developerId,proto3" json:"developer_id,omitempty"`                            // 开发商ID
+	CountryId            int32                  `protobuf:"varint,9,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"`                                  // 产地国家ID
+	CpuReq               string                 `protobuf:"bytes,10,opt,name=cpu_req,json=cpuReq,proto3" json:"cpu_req,omitempty"`                                           // 处理器要求
+	MemoryMinGb          float64                `protobuf:"fixed64,11,opt,name=memory_min_gb,json=memoryMinGb,proto3" json:"memory_min_gb,omitempty"`                        // 最小内存要求（GB）
+	DiskMinGb            float64                `protobuf:"fixed64,12,opt,name=disk_min_gb,json=diskMinGb,proto3" json:"disk_min_gb,omitempty"`                              // 最小磁盘空间（GB）
+	SysReqOther          string                 `protobuf:"bytes,13,opt,name=sys_req_other,json=sysReqOther,proto3" json:"sys_req_other,omitempty"`                          // 其他系统要求
+	Description          string                 `protobuf:"bytes,14,opt,name=description,proto3" json:"description,omitempty"`                                               // 软件描述
+	SizeBytes            int64                  `protobuf:"varint,15,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`                                 // 软件大小（KB）
+	DeploymentMethod     string                 `protobuf:"bytes,16,opt,name=deployment_method,json=deploymentMethod,proto3" json:"deployment_method,omitempty"`             // 部署方式
+	ComplianceInfo       string                 `protobuf:"bytes,17,opt,name=compliance_info,json=complianceInfo,proto3" json:"compliance_info,omitempty"`                   // 合规性信息
+	SecurityInfo         string                 `protobuf:"bytes,18,opt,name=security_info,json=securityInfo,proto3" json:"security_info,omitempty"`                         // 安全信息
+	IntellectualProperty string                 `protobuf:"bytes,19,opt,name=intellectual_property,json=intellectualProperty,proto3" json:"intellectual_property,omitempty"` // 知识产权信息
+	Status               string                 `protobuf:"bytes,20,opt,name=status,proto3" json:"status,omitempty"`                                                         // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
+	IndustryIds          []int32                `protobuf:"varint,21,rep,packed,name=industry_ids,json=industryIds,proto3" json:"industry_ids,omitempty"`                    // 适用行业小类ID列表
+	OsIds                []int32                `protobuf:"varint,22,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`                                      // 支持的操作系统ID列表
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *UpdateSoftwareReq) Reset() {
@@ -389,9 +592,9 @@ func (x *UpdateSoftwareReq) GetId() int64 {
 	return 0
 }
 
-func (x *UpdateSoftwareReq) GetName() string {
+func (x *UpdateSoftwareReq) GetNameZh() string {
 	if x != nil {
-		return x.Name
+		return x.NameZh
 	}
 	return ""
 }
@@ -403,13 +606,6 @@ func (x *UpdateSoftwareReq) GetNameEn() string {
 	return ""
 }
 
-func (x *UpdateSoftwareReq) GetDeveloper() string {
-	if x != nil {
-		return x.Developer
-	}
-	return ""
-}
-
 func (x *UpdateSoftwareReq) GetVersion() string {
 	if x != nil {
 		return x.Version
@@ -417,18 +613,67 @@ func (x *UpdateSoftwareReq) GetVersion() string {
 	return ""
 }
 
-func (x *UpdateSoftwareReq) GetCategory() string {
+func (x *UpdateSoftwareReq) GetReleaseYear() int32 {
 	if x != nil {
-		return x.Category
+		return x.ReleaseYear
+	}
+	return 0
+}
+
+func (x *UpdateSoftwareReq) GetReleaseMonth() int32 {
+	if x != nil {
+		return x.ReleaseMonth
+	}
+	return 0
+}
+
+func (x *UpdateSoftwareReq) GetReleaseDay() int32 {
+	if x != nil {
+		return x.ReleaseDay
+	}
+	return 0
+}
+
+func (x *UpdateSoftwareReq) GetDeveloperId() int32 {
+	if x != nil {
+		return x.DeveloperId
+	}
+	return 0
+}
+
+func (x *UpdateSoftwareReq) GetCountryId() int32 {
+	if x != nil {
+		return x.CountryId
+	}
+	return 0
+}
+
+func (x *UpdateSoftwareReq) GetCpuReq() string {
+	if x != nil {
+		return x.CpuReq
 	}
 	return ""
 }
 
-func (x *UpdateSoftwareReq) GetOsIds() []int32 {
+func (x *UpdateSoftwareReq) GetMemoryMinGb() float64 {
 	if x != nil {
-		return x.OsIds
+		return x.MemoryMinGb
 	}
-	return nil
+	return 0
+}
+
+func (x *UpdateSoftwareReq) GetDiskMinGb() float64 {
+	if x != nil {
+		return x.DiskMinGb
+	}
+	return 0
+}
+
+func (x *UpdateSoftwareReq) GetSysReqOther() string {
+	if x != nil {
+		return x.SysReqOther
+	}
+	return ""
 }
 
 func (x *UpdateSoftwareReq) GetDescription() string {
@@ -438,25 +683,60 @@ func (x *UpdateSoftwareReq) GetDescription() string {
 	return ""
 }
 
-func (x *UpdateSoftwareReq) GetCountryId() int64 {
+func (x *UpdateSoftwareReq) GetSizeBytes() int64 {
 	if x != nil {
-		return x.CountryId
+		return x.SizeBytes
 	}
 	return 0
 }
 
-func (x *UpdateSoftwareReq) GetWebsite() string {
+func (x *UpdateSoftwareReq) GetDeploymentMethod() string {
 	if x != nil {
-		return x.Website
+		return x.DeploymentMethod
 	}
 	return ""
 }
 
-func (x *UpdateSoftwareReq) GetStatus() int32 {
+func (x *UpdateSoftwareReq) GetComplianceInfo() string {
+	if x != nil {
+		return x.ComplianceInfo
+	}
+	return ""
+}
+
+func (x *UpdateSoftwareReq) GetSecurityInfo() string {
+	if x != nil {
+		return x.SecurityInfo
+	}
+	return ""
+}
+
+func (x *UpdateSoftwareReq) GetIntellectualProperty() string {
+	if x != nil {
+		return x.IntellectualProperty
+	}
+	return ""
+}
+
+func (x *UpdateSoftwareReq) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
-	return 0
+	return ""
+}
+
+func (x *UpdateSoftwareReq) GetIndustryIds() []int32 {
+	if x != nil {
+		return x.IndustryIds
+	}
+	return nil
+}
+
+func (x *UpdateSoftwareReq) GetOsIds() []int32 {
+	if x != nil {
+		return x.OsIds
+	}
+	return nil
 }
 
 // 更新软件响应
@@ -516,12 +796,13 @@ func (x *UpdateSoftwareResp) GetMessage() string {
 type ListSoftwareReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 修正：proto3 不支持 "= 1" 这种默认值写法，默认值需通过业务代码处理
-	Page          int32  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`                            // 页码，默认第1页
-	PageSize      int32  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`    // 每页条数，默认20（修正：移除 "= 20"）
-	Keyword       string `protobuf:"bytes,3,opt,name=keyword,proto3" json:"keyword,omitempty"`                       // 搜索关键词（名称、开发商）
-	Category      string `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`                     // 按类别筛选
-	CountryId     int64  `protobuf:"varint,5,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"` // 按国家筛选
-	Status        int32  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`                        // 按状态筛选
+	Page          int32  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`                                    // 页码，默认第1页
+	PageSize      int32  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`            // 每页条数，默认20（修正：移除 "= 20"）
+	Keyword       string `protobuf:"bytes,3,opt,name=keyword,proto3" json:"keyword,omitempty"`                               // 搜索关键词（名称、开发商）
+	CountryId     int32  `protobuf:"varint,4,opt,name=country_id,json=countryId,proto3" json:"country_id,omitempty"`         // 按国家筛选
+	Status        string `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`                                 // 按状态筛选
+	DeveloperId   int32  `protobuf:"varint,6,opt,name=developer_id,json=developerId,proto3" json:"developer_id,omitempty"`   // 按开发商筛选
+	CategoryCode  string `protobuf:"bytes,7,opt,name=category_code,json=categoryCode,proto3" json:"category_code,omitempty"` // 按类别筛选
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -577,25 +858,32 @@ func (x *ListSoftwareReq) GetKeyword() string {
 	return ""
 }
 
-func (x *ListSoftwareReq) GetCategory() string {
-	if x != nil {
-		return x.Category
-	}
-	return ""
-}
-
-func (x *ListSoftwareReq) GetCountryId() int64 {
+func (x *ListSoftwareReq) GetCountryId() int32 {
 	if x != nil {
 		return x.CountryId
 	}
 	return 0
 }
 
-func (x *ListSoftwareReq) GetStatus() int32 {
+func (x *ListSoftwareReq) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
+	return ""
+}
+
+func (x *ListSoftwareReq) GetDeveloperId() int32 {
+	if x != nil {
+		return x.DeveloperId
+	}
 	return 0
+}
+
+func (x *ListSoftwareReq) GetCategoryCode() string {
+	if x != nil {
+		return x.CategoryCode
+	}
+	return ""
 }
 
 // 查询软件响应
@@ -716,67 +1004,109 @@ var File_isms_v1_software_proto protoreflect.FileDescriptor
 
 const file_isms_v1_software_proto_rawDesc = "" +
 	"\n" +
-	"\x16isms/v1/software.proto\x12\aisms.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\"\xf0\x02\n" +
+	"\x16isms/v1/software.proto\x12\aisms.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\"\xe8\x06\n" +
 	"\fIsmsSoftware\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1b\n" +
-	"\x04name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12\x17\n" +
-	"\aname_en\x18\x03 \x01(\tR\x06nameEn\x12\x1c\n" +
-	"\tdeveloper\x18\x04 \x01(\tR\tdeveloper\x12\x18\n" +
-	"\aversion\x18\x05 \x01(\tR\aversion\x12\x1a\n" +
-	"\bcategory\x18\x06 \x01(\tR\bcategory\x12\x15\n" +
-	"\x06os_ids\x18\a \x03(\x05R\x05osIds\x12 \n" +
-	"\vdescription\x18\b \x01(\tR\vdescription\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12 \n" +
+	"\aname_zh\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nameZh\x12\x17\n" +
+	"\aname_en\x18\x03 \x01(\tR\x06nameEn\x12\x18\n" +
+	"\aversion\x18\x04 \x01(\tR\aversion\x12!\n" +
+	"\frelease_year\x18\x05 \x01(\x05R\vreleaseYear\x12#\n" +
+	"\rrelease_month\x18\x06 \x01(\x05R\freleaseMonth\x12\x1f\n" +
+	"\vrelease_day\x18\a \x01(\x05R\n" +
+	"releaseDay\x12!\n" +
+	"\fdeveloper_id\x18\b \x01(\x05R\vdeveloperId\x12\x1d\n" +
 	"\n" +
-	"country_id\x18\t \x01(\x03R\tcountryId\x12\x18\n" +
-	"\awebsite\x18\n" +
-	" \x01(\tR\awebsite\x12\x16\n" +
-	"\x06status\x18\v \x01(\x05R\x06status\x12\x1d\n" +
+	"country_id\x18\t \x01(\x05R\tcountryId\x12 \n" +
+	"\vcountryName\x18\n" +
+	" \x01(\tR\vcountryName\x12$\n" +
+	"\rdeveloperName\x18\v \x01(\tR\rdeveloperName\x12\x17\n" +
+	"\acpu_req\x18\f \x01(\tR\x06cpuReq\x12\"\n" +
+	"\rmemory_min_gb\x18\r \x01(\x01R\vmemoryMinGb\x12\x1e\n" +
+	"\vdisk_min_gb\x18\x0e \x01(\x01R\tdiskMinGb\x12\"\n" +
+	"\rsys_req_other\x18\x0f \x01(\tR\vsysReqOther\x12 \n" +
+	"\vdescription\x18\x10 \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\f \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"size_bytes\x18\x11 \x01(\x03R\tsizeBytes\x12+\n" +
+	"\x11deployment_method\x18\x12 \x01(\tR\x10deploymentMethod\x12'\n" +
+	"\x0fcompliance_info\x18\x13 \x01(\tR\x0ecomplianceInfo\x12#\n" +
+	"\rsecurity_info\x18\x14 \x01(\tR\fsecurityInfo\x123\n" +
+	"\x15intellectual_property\x18\x15 \x01(\tR\x14intellectualProperty\x12\x16\n" +
+	"\x06status\x18\x16 \x01(\tR\x06status\x12!\n" +
+	"\findustry_ids\x18\x17 \x03(\x05R\vindustryIds\x12\x15\n" +
+	"\x06os_ids\x18\x18 \x03(\x05R\x05osIds\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\r \x01(\tR\tupdatedAt\"\xea\x02\n" +
-	"\x11CreateSoftwareReq\x12\x1b\n" +
-	"\x04name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12\x17\n" +
-	"\aname_en\x18\x02 \x01(\tR\x06nameEn\x12%\n" +
-	"\tdeveloper\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tdeveloper\x12!\n" +
-	"\aversion\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aversion\x12#\n" +
-	"\bcategory\x18\x05 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bcategory\x12\x1f\n" +
-	"\x06os_ids\x18\x06 \x03(\x05B\b\xfaB\x05\x92\x01\x02\b\x01R\x05osIds\x12 \n" +
-	"\vdescription\x18\a \x01(\tR\vdescription\x12&\n" +
+	"created_at\x18\x19 \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"country_id\x18\b \x01(\x03B\a\xfaB\x04\"\x02 \x00R\tcountryId\x12\"\n" +
-	"\awebsite\x18\t \x01(\tB\b\xfaB\x05r\x03\x88\x01\x01R\awebsite\x12!\n" +
-	"\x06status\x18\n" +
-	" \x01(\x05B\t\xfaB\x06\x1a\x040\x000\x01R\x06status\">\n" +
+	"updated_at\x18\x1a \x01(\tR\tupdatedAt\"\x86\x06\n" +
+	"\x11CreateSoftwareReq\x12 \n" +
+	"\aname_zh\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nameZh\x12\x17\n" +
+	"\aname_en\x18\x02 \x01(\tR\x06nameEn\x12!\n" +
+	"\aversion\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aversion\x12!\n" +
+	"\frelease_year\x18\x04 \x01(\x05R\vreleaseYear\x12#\n" +
+	"\rrelease_month\x18\x05 \x01(\x05R\freleaseMonth\x12\x1f\n" +
+	"\vrelease_day\x18\x06 \x01(\x05R\n" +
+	"releaseDay\x12*\n" +
+	"\fdeveloper_id\x18\a \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\vdeveloperId\x12&\n" +
+	"\n" +
+	"country_id\x18\b \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\tcountryId\x12\x17\n" +
+	"\acpu_req\x18\t \x01(\tR\x06cpuReq\x12\"\n" +
+	"\rmemory_min_gb\x18\n" +
+	" \x01(\x01R\vmemoryMinGb\x12\x1e\n" +
+	"\vdisk_min_gb\x18\v \x01(\x01R\tdiskMinGb\x12\"\n" +
+	"\rsys_req_other\x18\f \x01(\tR\vsysReqOther\x12 \n" +
+	"\vdescription\x18\r \x01(\tR\vdescription\x12\x1d\n" +
+	"\n" +
+	"size_bytes\x18\x0e \x01(\x03R\tsizeBytes\x12+\n" +
+	"\x11deployment_method\x18\x0f \x01(\tR\x10deploymentMethod\x12'\n" +
+	"\x0fcompliance_info\x18\x10 \x01(\tR\x0ecomplianceInfo\x12#\n" +
+	"\rsecurity_info\x18\x11 \x01(\tR\fsecurityInfo\x123\n" +
+	"\x15intellectual_property\x18\x12 \x01(\tR\x14intellectualProperty\x12\x16\n" +
+	"\x06status\x18\x13 \x01(\tR\x06status\x12+\n" +
+	"\findustry_ids\x18\x14 \x03(\x05B\b\xfaB\x05\x92\x01\x02\b\x01R\vindustryIds\x12\x1f\n" +
+	"\x06os_ids\x18\x15 \x03(\x05B\b\xfaB\x05\x92\x01\x02\b\x01R\x05osIds\">\n" +
 	"\x12CreateSoftwareResp\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xb7\x02\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\xe7\x05\n" +
 	"\x11UpdateSoftwareReq\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x17\n" +
-	"\aname_en\x18\x03 \x01(\tR\x06nameEn\x12\x1c\n" +
-	"\tdeveloper\x18\x04 \x01(\tR\tdeveloper\x12\x18\n" +
-	"\aversion\x18\x05 \x01(\tR\aversion\x12\x1a\n" +
-	"\bcategory\x18\x06 \x01(\tR\bcategory\x12\x15\n" +
-	"\x06os_ids\x18\a \x03(\x05R\x05osIds\x12 \n" +
-	"\vdescription\x18\b \x01(\tR\vdescription\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x02id\x12\x17\n" +
+	"\aname_zh\x18\x02 \x01(\tR\x06nameZh\x12\x17\n" +
+	"\aname_en\x18\x03 \x01(\tR\x06nameEn\x12\x18\n" +
+	"\aversion\x18\x04 \x01(\tR\aversion\x12!\n" +
+	"\frelease_year\x18\x05 \x01(\x05R\vreleaseYear\x12#\n" +
+	"\rrelease_month\x18\x06 \x01(\x05R\freleaseMonth\x12\x1f\n" +
+	"\vrelease_day\x18\a \x01(\x05R\n" +
+	"releaseDay\x12!\n" +
+	"\fdeveloper_id\x18\b \x01(\x05R\vdeveloperId\x12\x1d\n" +
 	"\n" +
-	"country_id\x18\t \x01(\x03R\tcountryId\x12\x18\n" +
-	"\awebsite\x18\n" +
-	" \x01(\tR\awebsite\x12\x16\n" +
-	"\x06status\x18\v \x01(\x05R\x06status\"H\n" +
+	"country_id\x18\t \x01(\x05R\tcountryId\x12\x17\n" +
+	"\acpu_req\x18\n" +
+	" \x01(\tR\x06cpuReq\x12\"\n" +
+	"\rmemory_min_gb\x18\v \x01(\x01R\vmemoryMinGb\x12\x1e\n" +
+	"\vdisk_min_gb\x18\f \x01(\x01R\tdiskMinGb\x12\"\n" +
+	"\rsys_req_other\x18\r \x01(\tR\vsysReqOther\x12 \n" +
+	"\vdescription\x18\x0e \x01(\tR\vdescription\x12\x1d\n" +
+	"\n" +
+	"size_bytes\x18\x0f \x01(\x03R\tsizeBytes\x12+\n" +
+	"\x11deployment_method\x18\x10 \x01(\tR\x10deploymentMethod\x12'\n" +
+	"\x0fcompliance_info\x18\x11 \x01(\tR\x0ecomplianceInfo\x12#\n" +
+	"\rsecurity_info\x18\x12 \x01(\tR\fsecurityInfo\x123\n" +
+	"\x15intellectual_property\x18\x13 \x01(\tR\x14intellectualProperty\x12\x16\n" +
+	"\x06status\x18\x14 \x01(\tR\x06status\x12!\n" +
+	"\findustry_ids\x18\x15 \x03(\x05R\vindustryIds\x12\x15\n" +
+	"\x06os_ids\x18\x16 \x03(\x05R\x05osIds\"H\n" +
 	"\x12UpdateSoftwareResp\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xc1\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\xed\x01\n" +
 	"\x0fListSoftwareReq\x12\x1b\n" +
 	"\x04page\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\x04page\x12$\n" +
 	"\tpage_size\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\n" +
 	"R\bpageSize\x12\x18\n" +
-	"\akeyword\x18\x03 \x01(\tR\akeyword\x12\x1a\n" +
-	"\bcategory\x18\x04 \x01(\tR\bcategory\x12\x1d\n" +
+	"\akeyword\x18\x03 \x01(\tR\akeyword\x12\x1d\n" +
 	"\n" +
-	"country_id\x18\x05 \x01(\x03R\tcountryId\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\x05R\x06status\"\x86\x01\n" +
+	"country_id\x18\x04 \x01(\x05R\tcountryId\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12!\n" +
+	"\fdeveloper_id\x18\x06 \x01(\x05R\vdeveloperId\x12#\n" +
+	"\rcategory_code\x18\a \x01(\tR\fcategoryCode\"\x86\x01\n" +
 	"\x10ListSoftwareResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12+\n" +
 	"\x05items\x18\x02 \x03(\v2\x15.isms.v1.IsmsSoftwareR\x05items\x12\x12\n" +

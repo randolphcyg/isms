@@ -28,11 +28,16 @@ func NewCountryRepo(db *gorm.DB, logger log.Logger) domain.CountryRepo {
 
 // Create 创建国家
 func (r *countryRepo) Create(ctx context.Context, country *domain.Country) (*domain.Country, error) {
+	var continentPtr *string
+	if country.Continent != "" {
+		continentPtr = &country.Continent
+	}
+
 	dataModel := &model.IsmsCountry{
 		NameZh:    country.NameZh,
 		NameEn:    country.NameEn,
 		IsoCode:   country.IsoCode,
-		Continent: &country.Continent,
+		Continent: continentPtr, // 使用可能为nil的指针
 	}
 
 	err := r.query.IsmsCountry.WithContext(ctx).Create(dataModel)
@@ -48,12 +53,17 @@ func (r *countryRepo) Create(ctx context.Context, country *domain.Country) (*dom
 
 // Update 更新国家
 func (r *countryRepo) Update(ctx context.Context, country *domain.Country) (*domain.Country, error) {
+	var continentPtr *string
+	if country.Continent != "" {
+		continentPtr = &country.Continent
+	}
+
 	dataModel := &model.IsmsCountry{
 		ID:        country.ID,
 		NameZh:    country.NameZh,
 		NameEn:    country.NameEn,
 		IsoCode:   country.IsoCode,
-		Continent: &country.Continent,
+		Continent: continentPtr, // 使用可能为nil的指针
 	}
 
 	err := r.query.IsmsCountry.WithContext(ctx).Save(dataModel)
@@ -61,12 +71,18 @@ func (r *countryRepo) Update(ctx context.Context, country *domain.Country) (*dom
 		return nil, fmt.Errorf("更新国家失败: %w", err)
 	}
 
+	// 安全地处理continent字段
+	continent := ""
+	if dataModel.Continent != nil {
+		continent = *dataModel.Continent
+	}
+
 	return &domain.Country{
 		ID:        dataModel.ID,
 		NameZh:    dataModel.NameZh,
 		NameEn:    dataModel.NameEn,
 		IsoCode:   dataModel.IsoCode,
-		Continent: *dataModel.Continent,
+		Continent: continent, // 使用安全的字符串值
 		CreatedAt: dataModel.CreatedAt,
 		UpdatedAt: dataModel.UpdatedAt,
 	}, nil
@@ -85,11 +101,17 @@ func (r *countryRepo) Delete(ctx context.Context, id int32) error {
 
 // GetByID 查询单个国家
 func (r *countryRepo) GetByID(ctx context.Context, id int32) (*domain.Country, error) {
-	dataModel, err := r.query.IsmsCountry.WithContext(ctx).
-		Where(query.IsmsCountry.ID.Eq(id)).
-		First()
+	q := r.query.IsmsCountry.WithContext(ctx)
+	q = q.Where(r.query.IsmsCountry.ID.Eq(id))
+
+	dataModel, err := q.First()
 	if err != nil {
 		return nil, fmt.Errorf("查询国家失败: %w", err)
+	}
+
+	continent := ""
+	if dataModel.Continent != nil {
+		continent = *dataModel.Continent
 	}
 
 	return &domain.Country{
@@ -97,7 +119,7 @@ func (r *countryRepo) GetByID(ctx context.Context, id int32) (*domain.Country, e
 		NameZh:    dataModel.NameZh,
 		NameEn:    dataModel.NameEn,
 		IsoCode:   dataModel.IsoCode,
-		Continent: *dataModel.Continent,
+		Continent: continent,
 		CreatedAt: dataModel.CreatedAt,
 		UpdatedAt: dataModel.UpdatedAt,
 	}, nil

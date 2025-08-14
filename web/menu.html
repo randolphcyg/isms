@@ -5,18 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>系统菜单</title>
     <style>
-        .container { max-width: 800px; margin: 50px auto; text-align: center; }
-        .menu-item { display: inline-block; margin: 20px; padding: 20px 40px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 18px; }
-        .menu-item:hover { background-color: #0056b3; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 左侧菜单样式 */
+        .sidebar {
+            width: 250px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+        }
+        
+        .sidebar h2 {
+            color: #343a40;
+            margin-top: 0;
+        }
+        
+        .menu-item {
+            display: block;
+            padding: 12px 15px;
+            margin: 10px 0;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .menu-item:hover {
+            background-color: #0056b3;
+        }
+        
+        /* 中间大屏展示区域 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        .dashboard-title {
+            font-size: 28px;
+            color: #343a40;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        /* 大屏展示区域网格布局 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .dashboard-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .dashboard-card h3 {
+            margin-top: 0;
+            color: #343a40;
+        }
+        
+        .dashboard-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        /* 图表占位符 */
+        .chart-placeholder {
+            width: 100%;
+            height: 150px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>工业软件管理系统</h1>
+    <!-- 左侧菜单 -->
+    <div class="sidebar">
+        <h2>系统菜单</h2>
         <a href="software_list.html" class="menu-item">软件列表</a>
         <a href="manufacturers_list.html" class="menu-item">开发商列表</a>
         <a href="countries_list.html" class="menu-item">国家列表</a>
         <a href="os_list.html" class="menu-item">操作系统列表</a>
+    </div>
+    
+    <!-- 中间大屏展示区域 -->
+    <div class="main-content">
+        <h1 class="dashboard-title">工业软件管理系统DEMO</h1>
+        
+        <div class="dashboard-grid">
+            <!-- 软件数量卡片 -->
+            <div class="dashboard-card">
+                <h3>工业软件总数</h3>
+                <p id="softwareCount">128</p>
+                <div class="chart-placeholder">软件数量趋势图</div>
+            </div>
+            
+            <!-- 产业占比卡片 -->
+            <div class="dashboard-card">
+                <h3>产业占比</h3>
+                <p>制造业 42%</p>
+                <div class="chart-placeholder">产业分布饼图</div>
+            </div>
+            
+            <!-- 国家占比卡片 -->
+            <div class="dashboard-card">
+                <h3>国家占比</h3>
+                <p>美国 35%</p>
+                <div class="chart-placeholder">国家分布饼图</div>
+            </div>
+            
+            <!-- 厂商排行榜卡片 -->
+            <div class="dashboard-card">
+                <h3>厂商排行榜</h3>
+                <p>Top 1: Siemens</p>
+                <div class="chart-placeholder">厂商排名柱状图</div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

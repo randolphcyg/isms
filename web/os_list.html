@@ -288,8 +288,8 @@
                 const version = os.version || '未设置';
                 const architecture = os.architecture || '未知';
                 const manufacturer = os.manufacturer || '未知';
-                const releaseYear = os.release_year || '-';
-                const createdAt = formatDate(os.created_at) || '-';
+                const releaseYear = os.releaseYear || '-';
+                const createdAt = formatDate(os.createdAt) || '-';
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `

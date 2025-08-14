@@ -29,7 +29,9 @@
                 <tr>
                     <th>ID</th>
                     <th>开发商名称</th>
+                    <th>英文名称</th>
                     <th>国家</th>
+                    <th>描述</th>
                     <th>创建时间</th>
                     <th>更新时间</th>
                 </tr>
@@ -130,7 +132,9 @@
                     // 确保字段存在，如果不存在则使用默认值
                     const id = manufacturer.id || '-';
                     const nameZh = manufacturer.nameZh || '未知';
+                    const nameEn = manufacturer.nameEn || '-';
                     const countryName = manufacturer.countryName || '未知';
+                    const description = manufacturer.description || '-';
                     const createdAt = formatDate(manufacturer.createdAt);
                     const updatedAt = formatDate(manufacturer.updatedAt);
                     
@@ -138,7 +142,9 @@
                     row.innerHTML = `
                         <td>${id}</td>
                         <td>${nameZh}</td>
+                        <td>${nameEn}</td>
                         <td>${countryName}</td>
+                        <td>${description}</td>
                         <td>${createdAt}</td>
                         <td>${updatedAt}</td>
                     `;

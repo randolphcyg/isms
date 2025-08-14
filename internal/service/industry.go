@@ -59,7 +59,7 @@ func (s *IndustryService) ListCategories(ctx context.Context, req *pb.ListCatego
 		return nil, err // 错误会自动转换为 API 错误码（需配合 errorx 或中间件）
 	}
 
-	// 2. 转换领域模型到 API 模型（核心：domain → v1）
+	// 2. 转换领域模型到 API 模型
 	categories := make([]*pb.IndustryCategory, 0, len(domainCategories))
 	for _, dc := range domainCategories {
 		categories = append(categories, &pb.IndustryCategory{

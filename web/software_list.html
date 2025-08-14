@@ -617,7 +617,7 @@
             }
             
             window.onclick = function(event) {
-                if (event.target == modal) {
+                if (event.target === modal) {
                     modal.style.display = 'none';
                 }
             }
@@ -682,11 +682,6 @@
                 messageEl.textContent = '';
                 messageEl.className = 'message';
             }, 3000);
-        }
-
-        function openConfirmDialog(softwareId) {
-            softwareIdToDelete = softwareId;
-            document.getElementById('confirmDialog').style.display = 'block';
         }
 
         function closeConfirmDialog() {

@@ -218,7 +218,6 @@ func (s *SoftwareService) ListSoftware(ctx context.Context, req *pb.ListSoftware
 		return nil, status.Errorf(codes.Internal, "查询软件列表失败: %v", err)
 	}
 
-	// 转换领域模型列表到API响应
 	respSoftwares := make([]*pb.IsmsSoftware, 0, len(softwares))
 
 	for _, sw := range softwares {
@@ -354,7 +353,6 @@ func (s *SoftwareService) GetSoftwareById(ctx context.Context, req *pb.GetSoftwa
 		})
 	}
 
-	// 转换领域模型到API响应
 	return &pb.IsmsSoftware{
 		Id:              int64(sw.ID),
 		NameZh:          sw.NameZh,

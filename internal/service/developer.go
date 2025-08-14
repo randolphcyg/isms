@@ -17,14 +17,16 @@ import (
 type DeveloperService struct {
 	pb.UnimplementedDeveloperServer
 
-	uc  *biz.DeveloperUsecase // 依赖biz层的用例接口
-	log *log.Helper           // 日志工具
+	uc        *biz.DeveloperUsecase // 依赖biz层的用例接口
+	countryUc *biz.CountryUsecase
+	log       *log.Helper // 日志工具
 }
 
-func NewDeveloperService(uc *biz.DeveloperUsecase, logger log.Logger) *DeveloperService {
+func NewDeveloperService(uc *biz.DeveloperUsecase, countryUc *biz.CountryUsecase, logger log.Logger) *DeveloperService {
 	return &DeveloperService{
-		uc:  uc,
-		log: log.NewHelper(log.With(logger, "module", "service/developer")),
+		uc:        uc,
+		countryUc: countryUc,
+		log:       log.NewHelper(log.With(logger, "module", "service/developer")),
 	}
 }
 
@@ -86,7 +88,6 @@ func (s *DeveloperService) GetDeveloper(ctx context.Context, req *pb.GetDevelope
 		return nil, status.Errorf(codes.NotFound, "开发商不存在")
 	}
 
-	// 转换领域模型到API响应
 	return &pb.DeveloperResp{
 		Id:          uint32(developer.ID),
 		NameZh:      developer.NameZh,
@@ -110,14 +111,19 @@ func (s *DeveloperService) ListDevelopers(ctx context.Context, req *pb.ListDevel
 		return nil, status.Errorf(codes.Internal, "查询开发商列表失败")
 	}
 
-	// 转换领域模型列表到API响应
 	respDevelopers := make([]*pb.DeveloperResp, 0, len(developers))
 	for _, dev := range developers {
+		country, err := s.countryUc.GetCountryByID(ctx, uint32(dev.CountryID))
+		if err != nil {
+			s.log.WithContext(ctx).Errorf("查询国家[%d]失败: %v", dev.CountryID, err)
+		}
+
 		respDevelopers = append(respDevelopers, &pb.DeveloperResp{
 			Id:          uint32(dev.ID),
 			NameZh:      dev.NameZh,
 			NameEn:      dev.NameEn,
 			CountryId:   uint32(dev.CountryID),
+			CountryName: country.NameZh,
 			Website:     *dev.Website,
 			Description: *dev.Description,
 			CreatedAt:   dev.CreatedAt.Format(time.RFC3339),
@@ -134,34 +140,32 @@ func (s *DeveloperService) ListDevelopers(ctx context.Context, req *pb.ListDevel
 }
 
 func (s *DeveloperService) UpdateDevelopers(ctx context.Context, req *pb.UpdateDeveloperReq) (*pb.DeveloperResp, error) {
-    s.log.WithContext(ctx).Infof("收到更新开发商请求: ID=%d, 中文名称=%s", req.Id, req.NameZh)
+	s.log.WithContext(ctx).Infof("收到更新开发商请求: ID=%d, 中文名称=%s", req.Id, req.NameZh)
 
-    // 转换API请求到领域模型
-    domainDev := &domain.Developer{
-        ID:          int32(req.Id),
-        NameZh:      req.NameZh,
-        NameEn:      req.NameEn,
-        CountryID:   int32(req.CountryId),
-        Website:     &req.Website,
-        Description: &req.Description,
-    }
+	domainDev := &domain.Developer{
+		ID:          int32(req.Id),
+		NameZh:      req.NameZh,
+		NameEn:      req.NameEn,
+		CountryID:   int32(req.CountryId),
+		Website:     &req.Website,
+		Description: &req.Description,
+	}
 
-    // 调用biz层更新方法
-    updatedDev, err := s.uc.Update(ctx, domainDev)
-    if err != nil {
-        s.log.WithContext(ctx).Errorf("更新开发商失败: %v", err)
-        return nil, status.Errorf(codes.Internal, "更新开发商失败")
-    }
+	// 调用biz层更新方法
+	updatedDev, err := s.uc.Update(ctx, domainDev)
+	if err != nil {
+		s.log.WithContext(ctx).Errorf("更新开发商失败: %v", err)
+		return nil, status.Errorf(codes.Internal, "更新开发商失败")
+	}
 
-    // 转换领域模型到API响应
-    return &pb.DeveloperResp{
-        Id:          uint32(updatedDev.ID),
-        NameZh:      updatedDev.NameZh,
-        NameEn:      updatedDev.NameEn,
-        CountryId:   uint32(updatedDev.CountryID),
-        Website:     *updatedDev.Website,
-        Description: *updatedDev.Description,
-        CreatedAt:   updatedDev.CreatedAt.Format(time.RFC3339),
-        UpdatedAt:   updatedDev.UpdatedAt.Format(time.RFC3339),
-    }, nil
+	return &pb.DeveloperResp{
+		Id:          uint32(updatedDev.ID),
+		NameZh:      updatedDev.NameZh,
+		NameEn:      updatedDev.NameEn,
+		CountryId:   uint32(updatedDev.CountryID),
+		Website:     *updatedDev.Website,
+		Description: *updatedDev.Description,
+		CreatedAt:   updatedDev.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   updatedDev.UpdatedAt.Format(time.RFC3339),
+	}, nil
 }

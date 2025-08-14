@@ -30,4 +30,6 @@ type IndustryRepo interface {
 	GetSubcategoriesByCode(ctx context.Context, categoryCode string) ([]*IsmsIndustry, error)
 	// GetCategoryByCode 根据编码查询单个大类
 	GetCategoryByCode(ctx context.Context, categoryCode string) (*IndustryCategory, error)
+	// 添加到IndustryRepo接口中
+	GetIndustriesByIDs(ctx context.Context, ids []int32) ([]*IsmsIndustry, error)
 }

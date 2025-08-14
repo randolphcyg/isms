@@ -14,17 +14,20 @@ import (
 )
 
 // SoftwareService 软件领域服务（关联行业逻辑、开发商逻辑）
+// 修改结构体定义，添加industryUsecase依赖
 type SoftwareService struct {
 	pb.UnimplementedSoftwareServer
 
-	uc  *biz.SoftwareUsecase // 依赖 biz 层的业务用例
-	log *log.Helper          // 日志工具
+	uc         *biz.SoftwareUsecase // 依赖 biz 层的业务用例
+	industryUc *biz.IndustryUsecase // 行业用例
+	log        *log.Helper          // 日志工具
 }
 
-func NewSoftwareService(uc *biz.SoftwareUsecase, logger log.Logger) *SoftwareService {
+func NewSoftwareService(uc *biz.SoftwareUsecase, industryUc *biz.IndustryUsecase, logger log.Logger) *SoftwareService {
 	return &SoftwareService{
-		uc:  uc,
-		log: log.NewHelper(log.With(logger, "module", "service/software")),
+		uc:         uc,
+		industryUc: industryUc,
+		log:        log.NewHelper(log.With(logger, "module", "service/software")),
 	}
 }
 
@@ -50,6 +53,25 @@ func (s *SoftwareService) CreateSoftware(ctx context.Context, req *pb.CreateSoft
 		sizeBytes = &req.SizeBytes
 	}
 
+	// 系统要求字段
+	var cpuReq *string
+	var memoryMinGb *float64
+	var diskMinGb *float64
+	var sysReqOther *string
+
+	if req.CpuReq != "" {
+		cpuReq = &req.CpuReq
+	}
+	if req.MemoryMinGb > 0 {
+		memoryMinGb = &req.MemoryMinGb
+	}
+	if req.DiskMinGb > 0 {
+		diskMinGb = &req.DiskMinGb
+	}
+	if req.SysReqOther != "" {
+		sysReqOther = &req.SysReqOther
+	}
+
 	// 转换API请求到领域模型
 	domainSoftware := &domain.IsmsSoftware{
 		NameZh:       req.NameZh,
@@ -59,12 +81,19 @@ func (s *SoftwareService) CreateSoftware(ctx context.Context, req *pb.CreateSoft
 		ReleaseMonth: releaseMonth,
 		ReleaseDay:   releaseDay,
 		Description:  &req.Description,
-		CountryID:    req.CountryId,
-		DeveloperID:  req.DeveloperId,
-		IndustryIDs:  req.IndustryIds,
-		SizeBytes:    sizeBytes,
-		Status:       req.Status,
-		OsIDs:        req.OsIds,
+
+		// 系统要求字段
+		CPUReq:      cpuReq,
+		MemoryMinGb: memoryMinGb,
+		DiskMinGb:   diskMinGb,
+		SysReqOther: sysReqOther,
+
+		CountryID:   req.CountryId,
+		DeveloperID: req.DeveloperId,
+		IndustryIDs: req.IndustryIds,
+		SizeBytes:   sizeBytes,
+		Status:      req.Status,
+		OsIDs:       req.OsIds,
 	}
 
 	// 调用biz层核心业务逻辑
@@ -165,24 +194,57 @@ func (s *SoftwareService) ListSoftware(ctx context.Context, req *pb.ListSoftware
 			sizeBytes = *sw.SizeBytes
 		}
 
+		var cpuReq, sysReqOther string
+		var memoryMinGb, diskMinGb float64
+		if sw.CPUReq != nil {
+			cpuReq = *sw.CPUReq
+		}
+		if sw.MemoryMinGb != nil {
+			memoryMinGb = *sw.MemoryMinGb
+		}
+		if sw.DiskMinGb != nil {
+			diskMinGb = *sw.DiskMinGb
+		}
+		if sw.SysReqOther != nil {
+			sysReqOther = *sw.SysReqOther
+		}
+
+		// 转换行业详情
+		industryDetails := make([]*pb.IsmsIndustry, 0, len(sw.IndustryDetails))
+		for _, detail := range sw.IndustryDetails {
+			industryDetails = append(industryDetails, &pb.IsmsIndustry{
+				Id:              detail.Id,
+				CategoryCode:    detail.CategoryCode,
+				CategoryName:    detail.CategoryName,
+				SubcategoryCode: detail.SubcategoryCode,
+				SubcategoryName: detail.SubcategoryName,
+			})
+		}
+
 		respSoftwares = append(respSoftwares, &pb.IsmsSoftware{
-			Id:            int64(sw.ID),
-			NameZh:        sw.NameZh,
-			NameEn:        sw.NameEn,
-			Version:       sw.Version,
-			ReleaseYear:   releaseYear,
-			ReleaseMonth:  releaseMonth,
-			ReleaseDay:    releaseDay,
-			Description:   *sw.Description,
-			CountryId:     sw.CountryID,
-			CountryName:   sw.CountryName,
-			DeveloperId:   sw.DeveloperID,
-			DeveloperName: sw.DeveloperName,
-			SizeBytes:     sizeBytes,
-			Status:        sw.Status,
-			OsIds:         sw.OsIDs,
-			CreatedAt:     sw.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:     sw.UpdatedAt.Format(time.RFC3339),
+			Id:              int64(sw.ID),
+			NameZh:          sw.NameZh,
+			NameEn:          sw.NameEn,
+			Version:         sw.Version,
+			ReleaseYear:     releaseYear,
+			ReleaseMonth:    releaseMonth,
+			ReleaseDay:      releaseDay,
+			Description:     *sw.Description,
+			CpuReq:          cpuReq,
+			MemoryMinGb:     memoryMinGb,
+			DiskMinGb:       diskMinGb,
+			SysReqOther:     sysReqOther,
+			CountryId:       sw.CountryID,
+			CountryName:     sw.CountryName,
+			IndustryIds:     sw.IndustryIDs,
+			IndustryDetails: industryDetails,
+			DeveloperId:     sw.DeveloperID,
+			DeveloperName:   sw.DeveloperName,
+			SizeBytes:       sizeBytes,
+			Status:          sw.Status,
+			OsIds:           sw.OsIDs,
+			CreatedAt:       sw.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:       sw.UpdatedAt.Format(time.RFC3339),
 		})
 	}
 
@@ -220,24 +282,57 @@ func (s *SoftwareService) GetSoftwareById(ctx context.Context, req *pb.GetSoftwa
 		sizeBytes = *sw.SizeBytes
 	}
 
+	var cpuReq, sysReqOther string
+	var memoryMinGb, diskMinGb float64
+	if sw.CPUReq != nil {
+		cpuReq = *sw.CPUReq
+	}
+	if sw.MemoryMinGb != nil {
+		memoryMinGb = *sw.MemoryMinGb
+	}
+	if sw.DiskMinGb != nil {
+		diskMinGb = *sw.DiskMinGb
+	}
+	if sw.SysReqOther != nil {
+		sysReqOther = *sw.SysReqOther
+	}
+
+	// 转换行业详情
+	industryDetails := make([]*pb.IsmsIndustry, 0, len(sw.IndustryDetails))
+	for _, detail := range sw.IndustryDetails {
+		industryDetails = append(industryDetails, &pb.IsmsIndustry{
+			Id:              detail.Id,
+			CategoryCode:    detail.CategoryCode,
+			CategoryName:    detail.CategoryName,
+			SubcategoryCode: detail.SubcategoryCode,
+			SubcategoryName: detail.SubcategoryName,
+		})
+	}
+
 	// 转换领域模型到API响应
 	return &pb.IsmsSoftware{
-		Id:            int64(sw.ID),
-		NameZh:        sw.NameZh,
-		NameEn:        sw.NameEn,
-		Version:       sw.Version,
-		ReleaseYear:   releaseYear,
-		ReleaseMonth:  releaseMonth,
-		ReleaseDay:    releaseDay,
-		Description:   *sw.Description,
-		CountryId:     sw.CountryID,
-		CountryName:   sw.CountryName,
-		DeveloperId:   sw.DeveloperID,
-		DeveloperName: sw.DeveloperName,
-		SizeBytes:     sizeBytes,
-		Status:        sw.Status,
-		OsIds:         sw.OsIDs,
-		CreatedAt:     sw.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:     sw.UpdatedAt.Format(time.RFC3339),
+		Id:              int64(sw.ID),
+		NameZh:          sw.NameZh,
+		NameEn:          sw.NameEn,
+		Version:         sw.Version,
+		ReleaseYear:     releaseYear,
+		ReleaseMonth:    releaseMonth,
+		ReleaseDay:      releaseDay,
+		Description:     *sw.Description,
+		CpuReq:          cpuReq,
+		MemoryMinGb:     memoryMinGb,
+		DiskMinGb:       diskMinGb,
+		SysReqOther:     sysReqOther,
+		CountryId:       sw.CountryID,
+		CountryName:     sw.CountryName,
+		DeveloperId:     sw.DeveloperID,
+		DeveloperName:   sw.DeveloperName,
+		SizeBytes:       sizeBytes,
+		Status:          sw.Status,
+		OsIds:           sw.OsIDs,
+		IndustryIds:     sw.IndustryIDs,
+		IndustryDetails: industryDetails,
+		CreatedAt:       sw.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:       sw.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }

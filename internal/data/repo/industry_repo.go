@@ -99,3 +99,30 @@ func (r *industryRepo) GetCategoryByCode(ctx context.Context, categoryCode strin
 		CategoryName: modelCat.CategoryName,
 	}, nil
 }
+
+// GetIndustriesByIDs 根据ID列表批量查询行业信息
+func (r *industryRepo) GetIndustriesByIDs(ctx context.Context, ids []int32) ([]*domain.IsmsIndustry, error) {
+	// 调用生成的查询器查询数据模型
+	modelIndustries, err := r.query.IsmsIndustry.WithContext(ctx).
+		Where(r.query.IsmsIndustry.ID.In(ids...)).
+		Find()
+	if err != nil {
+		r.log.Errorf("批量查询行业信息失败: %v", err)
+		return nil, fmt.Errorf("查询失败: %w", err)
+	}
+
+	// 转换：model → domain
+	industryList := make([]*domain.IsmsIndustry, 0, len(modelIndustries))
+	for _, m := range modelIndustries {
+		industryList = append(industryList, &domain.IsmsIndustry{
+			ID:              m.ID,
+			CategoryCode:    m.CategoryCode,
+			CategoryName:    m.CategoryName,
+			SubcategoryCode: m.SubcategoryCode,
+			SubcategoryName: m.SubcategoryName,
+			CreatedAt:       m.CreatedAt,
+			UpdatedAt:       m.UpdatedAt,
+		})
+	}
+	return industryList, nil
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	v1 "isms/api/isms/v1"
 	"isms/internal/data/model"
 	"isms/internal/data/query"
 	"isms/internal/domain"
@@ -36,6 +37,10 @@ func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware
 		ReleaseYear:  software.ReleaseYear,
 		ReleaseMonth: software.ReleaseMonth,
 		ReleaseDay:   software.ReleaseDay,
+		CPUReq:       software.CPUReq,
+		MemoryMinGb:  software.MemoryMinGb,
+		DiskMinGb:    software.DiskMinGb,
+		SysReqOther:  software.SysReqOther,
 		Description:  software.Description,
 		CountryID:    software.CountryID,
 		DeveloperID:  software.DeveloperID,
@@ -58,8 +63,8 @@ func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware
 	if len(software.IndustryIDs) > 0 {
 		for _, id := range software.IndustryIDs {
 			err := s.query.IsmsSoftwareIndustry.WithContext(ctx).Create(&model.IsmsSoftwareIndustry{
-				SoftwareID: int32(software.ID),
-				IndustryID: int32(id),
+				SoftwareID: software.ID,
+				IndustryID: id,
 			})
 			if err != nil {
 				return software, fmt.Errorf("关联行业失败: %w", err)
@@ -71,7 +76,7 @@ func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware
 		for _, id := range software.OsIDs {
 			err := s.query.IsmsSoftwareOS.WithContext(ctx).Create(&model.IsmsSoftwareOS{
 				SoftwareID: software.ID,
-				OsID:       int32(id),
+				OsID:       id,
 			})
 			if err != nil {
 				return software, fmt.Errorf("关联操作系统失败: %w", err)
@@ -93,6 +98,10 @@ func (s *softwareRepo) Update(ctx context.Context, software *domain.IsmsSoftware
 		ReleaseMonth: software.ReleaseMonth,
 		ReleaseDay:   software.ReleaseDay,
 		Description:  software.Description,
+		CPUReq:       software.CPUReq,
+		MemoryMinGb:  software.MemoryMinGb,
+		DiskMinGb:    software.DiskMinGb,
+		SysReqOther:  software.SysReqOther,
 		CountryID:    software.CountryID,
 		DeveloperID:  software.DeveloperID,
 		SizeBytes:    software.SizeBytes,
@@ -202,6 +211,10 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 		ReleaseMonth: dataModel.ReleaseMonth,
 		ReleaseDay:   dataModel.ReleaseDay,
 		Description:  dataModel.Description,
+		CPUReq:       dataModel.CPUReq,
+		MemoryMinGb:  dataModel.MemoryMinGb,
+		DiskMinGb:    dataModel.DiskMinGb,
+		SysReqOther:  dataModel.SysReqOther,
 		CountryID:    dataModel.CountryID,
 		Status:       dataModel.Status,
 		SizeBytes:    dataModel.SizeBytes,
@@ -213,44 +226,77 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 }
 
 func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions) ([]*domain.IsmsSoftware, int64, error) {
-	// 基础查询
-	db := s.db.WithContext(ctx).Table("isms_software")
+	// 基础查询（只查询软件表本身，不关联其他表）
+	q := s.query.IsmsSoftware.WithContext(ctx)
 
-	// 构建筛选条件
+	// 构建筛选条件（不关联行业表）
 	if opts.DeveloperID > 0 {
-		db = db.Where("developer_id = ?", opts.DeveloperID)
-	}
-	if opts.CategoryCode != "" {
-		// 这里需要关联查询行业分类
-		db = db.Joins("JOIN isms_software_industry ON isms_software.id = isms_software_industry.software_id")
-		db = db.Joins("JOIN isms_industry ON isms_software_industry.industry_id = isms_industry.id")
-		db = db.Where("isms_industry.category_code = ?", opts.CategoryCode)
+		q = q.Where(s.query.IsmsSoftware.DeveloperID.Eq(opts.DeveloperID))
 	}
 	if opts.Status != "" {
-		db = db.Where("status = ?", opts.Status)
+		q = q.Where(s.query.IsmsSoftware.Status.Eq(opts.Status))
 	}
 	if opts.Keyword != "" {
-		db = db.Where("name_zh LIKE ?", "%"+opts.Keyword+"%").
-			Or("name_en LIKE ?", "%"+opts.Keyword+"%")
+		q = q.Where(s.query.IsmsSoftware.NameZh.Like("%"+opts.Keyword+"%"),
+			s.query.IsmsSoftware.NameEn.Like("%"+opts.Keyword+"%"))
 	}
 
-	// 查询总条数
-	var total int64
-	if err := db.Count(&total).Error; err != nil {
+	// 查询总条数（不关联其他表）
+	total, err := q.Count()
+	if err != nil {
 		return nil, 0, fmt.Errorf("查询软件总数失败: %w", err)
 	}
 
-	// 分页查询
-	offset := (opts.Page - 1) * opts.PageSize
-	var modelSoftwares []*model.IsmsSoftware
-	if err := db.Offset(int(offset)).Limit(int(opts.PageSize)).Find(&modelSoftwares).Error; err != nil {
+	// 分页查询（只查询软件表本身）
+	modelSoftwares, err := q.Offset(int((opts.Page - 1) * opts.PageSize)).
+		Limit(int(opts.PageSize)).
+		Find()
+	if err != nil {
 		return nil, 0, fmt.Errorf("查询软件列表失败: %w", err)
 	}
 
-	// 转换数据模型到领域模型
-	domainSoftwares := make([]*domain.IsmsSoftware, 0, len(modelSoftwares))
+	// 收集软件ID用于批量查询关联关系
+	softwareIDs := make([]int32, 0, len(modelSoftwares))
 	for _, m := range modelSoftwares {
-		domainSoftwares = append(domainSoftwares, &domain.IsmsSoftware{
+		softwareIDs = append(softwareIDs, m.ID)
+	}
+
+	// 批量查询行业关联
+	industryRelations := make(map[int32][]int32)          // softwareID -> industryIDs
+	industryDetails := make(map[int32][]*v1.IsmsIndustry) // softwareID -> industryDetails
+	if len(softwareIDs) > 0 {
+		relations, err := s.query.IsmsSoftwareIndustry.WithContext(ctx).
+			Where(s.query.IsmsSoftwareIndustry.SoftwareID.In(softwareIDs...)).
+			Find()
+		if err != nil {
+			return nil, 0, fmt.Errorf("查询软件行业关联失败: %w", err)
+		}
+
+		// 用于去重industryID
+		industryIDSet := make(map[int32]map[int32]bool)
+
+		for _, rel := range relations {
+			// 初始化map
+			if industryIDSet[rel.SoftwareID] == nil {
+				industryIDSet[rel.SoftwareID] = make(map[int32]bool)
+			}
+
+			// 如果该industryID还没有添加到该softwareID的列表中
+			if !industryIDSet[rel.SoftwareID][rel.IndustryID] {
+				industryRelations[rel.SoftwareID] = append(industryRelations[rel.SoftwareID], rel.IndustryID)
+				industryIDSet[rel.SoftwareID][rel.IndustryID] = true
+
+				industryDetails[rel.SoftwareID] = append(industryDetails[rel.SoftwareID], &v1.IsmsIndustry{
+					Id: rel.IndustryID,
+				})
+			}
+		}
+	}
+
+	// 转换数据模型到领域模型
+	var domainSoftwares []*domain.IsmsSoftware
+	for _, m := range modelSoftwares {
+		sw := &domain.IsmsSoftware{
 			ID:           m.ID,
 			NameZh:       m.NameZh,
 			NameEn:       m.NameEn,
@@ -260,12 +306,28 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 			ReleaseMonth: m.ReleaseMonth,
 			ReleaseDay:   m.ReleaseDay,
 			Description:  m.Description,
+			CPUReq:       m.CPUReq,
+			MemoryMinGb:  m.MemoryMinGb,
+			DiskMinGb:    m.DiskMinGb,
+			SysReqOther:  m.SysReqOther,
 			SizeBytes:    m.SizeBytes,
 			CountryID:    m.CountryID,
 			Status:       m.Status,
 			CreatedAt:    m.CreatedAt,
 			UpdatedAt:    m.UpdatedAt,
-		})
+		}
+
+		// 设置行业ID
+		if ids, ok := industryRelations[m.ID]; ok {
+			sw.IndustryIDs = ids
+		}
+
+		// 设置行业详情
+		if details, ok := industryDetails[m.ID]; ok {
+			sw.IndustryDetails = details
+		}
+
+		domainSoftwares = append(domainSoftwares, sw)
 	}
 
 	return domainSoftwares, total, nil

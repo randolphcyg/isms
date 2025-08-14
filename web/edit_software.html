@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新增工业软件</title>
+    <title>编辑工业软件</title>
     <style>
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         .form-group { margin-bottom: 15px; }
@@ -261,7 +261,7 @@
 <body>
     <div class="container">
         <a href="software_list.html" class="back-link">← 返回软件列表</a>
-        <h1>新增工业软件</h1>
+        <h1>编辑工业软件</h1>
         <form id="softwareForm">
         <!-- 基础信息 -->
             <fieldset class="form-section">
@@ -417,7 +417,7 @@
             </div>
             
             <div class="button-group">
-                <button type="submit">提交</button>
+                <button type="submit">更新</button>
                 <button type="button" class="cancel-btn" id="cancelBtn">取消</button>
             </div>
             <div id="message" class="message"></div>
@@ -435,8 +435,20 @@
         let industryCategories = [];
         let industrySubcategories = new Map(); // Map<categoryCode, subcategories[]>
         
+        // 保存软件ID
+        let softwareId = null;
+        
         // 页面加载时获取厂商列表
         document.addEventListener('DOMContentLoaded', function() {
+            // 从URL获取软件ID
+            const urlParams = new URLSearchParams(window.location.search);
+            softwareId = urlParams.get('id');
+            
+            if (softwareId) {
+                // 加载软件数据
+                loadSoftwareData(softwareId);
+            }
+            
             fetchManufacturers();
             fetchIndustryCategories();
             document.getElementById('softwareForm').addEventListener('submit', handleSubmit);
@@ -766,7 +778,7 @@
                         tag.className = 'selected-industry-tag';
                         tag.innerHTML = `
                             ${categoryData.categoryName}: ${subcategoryName}
-                            <span class="remove-tag" data-category="${categoryCode}" data-id="${subcategoryId}">×
+                            <span class="remove-tag" data-category="${categoryCode}" data-id="${subcategoryId}">×</span>
                         `;
                         
                         // 添加删除事件
@@ -847,9 +859,112 @@
             dropdown.classList.toggle('show');
         }
 
+        // 加载软件数据
+        async function loadSoftwareData(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/software/${id}`);
+                if (!response.ok) throw new Error('获取软件数据失败');
+                
+                const software = await response.json();
+                
+                // 填充表单数据
+                document.getElementById('nameEn').value = software.nameEn || '';
+                document.getElementById('nameZh').value = software.nameZh || '';
+                document.getElementById('version').value = software.version || '';
+                
+                // 填充发布日期
+                if (software.release_year) {
+                    document.getElementById('releaseYear').value = software.release_year;
+                }
+                if (software.release_month) {
+                    document.getElementById('releaseMonth').value = software.release_month;
+                }
+                if (software.release_day) {
+                    document.getElementById('releaseDay').value = software.release_day;
+                }
+                
+                // 填充厂商
+                if (software.developerId) {
+                    document.getElementById('manufacturer').value = software.developerId;
+                }
+                
+                // 转换并填充软件大小
+                if (software.sizeBytes) {
+    const sizeData = convertBytesToUnits(software.sizeBytes);
+                    document.getElementById('sizeValue').value = sizeData.value;
+                    document.getElementById('sizeUnit').value = sizeData.unit;
+                }
+                
+                // 填充其他字段
+                document.getElementById('cpuReq').value = software.cpuReq || '';
+                document.getElementById('memoryMin').value = software.memoryMinGb || '';
+                document.getElementById('diskMin').value = software.diskMinGb || '';
+                document.getElementById('sysReqOther').value = software.sysReqOther || '';
+                document.getElementById('description').value = software.description || '';
+                document.getElementById('deploymentMethod').value = software.deploymentMethod || '';
+                document.getElementById('complianceInfo').value = software.complianceInfo || '';
+                document.getElementById('securityInfo').value = software.securityInfo || '';
+                document.getElementById('intellectualProperty').value = software.intellectualProperty || '';
+                document.getElementById('status').value = software.status || 'active';
+                
+                // 处理行业分类数据 - 从industryDetails字段获取数据
+        if (Array.isArray(software.industryDetails)) {
+            // 清空当前选择
+            selectedIndustries.clear();
+            
+            // 重新构建选择的行业分类
+            software.industryDetails.forEach(industry => {
+                // 从industryDetails中获取行业信息
+                const categoryCode = industry.categoryCode;
+                const subcategoryId = industry.id;
+                const categoryName = industry.categoryName;
+                const subcategoryName = `${industry.subcategoryName} (${industry.subcategoryCode})`;
+                
+                // 确保大类条目存在
+                if (!selectedIndustries.has(categoryCode)) {
+                    selectedIndustries.set(categoryCode, {
+                        categoryName: categoryName,
+                        subcategories: new Map()
+                    });
+                }
+                
+                // 添加小类
+                const categoryData = selectedIndustries.get(categoryCode);
+                categoryData.subcategories.set(subcategoryId, subcategoryName);
+            });
+            
+            // 更新UI
+            updateIndustrySelectionUI();
+            updateIndustryTreeCheckboxes();
+        }
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('加载软件数据错误:', error);
+            }
+        }
+
+        // 将字节转换为合适的单位
+        function convertBytesToUnits(bytes) {
+            if (bytes >= 1024 * 1024 * 1024) {
+                return { value: (bytes / (1024 * 1024 * 1024)).toFixed(2), unit: 'GB' };
+            } else if (bytes >= 1024 * 1024) {
+                return { value: (bytes / (1024 * 1024)).toFixed(2), unit: 'MB' };
+            } else if (bytes >= 1024) {
+                return { value: (bytes / 1024).toFixed(2), unit: 'KB' };
+            } else {
+                return { value: bytes, unit: 'GB' }; // 默认返回字节
+            }
+        }
+
         // 处理表单提交
         async function handleSubmit(event) {
             event.preventDefault();
+
+            // 检查是否有软件ID
+            if (!softwareId) {
+                showMessage('软件ID未找到，请从软件列表页面进入编辑页面', 'error');
+                return;
+            }
 
             // 获取所有选中的行业小类ID
             let allSelectedSubcategories = [];
@@ -934,97 +1049,74 @@
             }
             
             // 查找选中的厂商信息
-        const manufacturerSelect = document.getElementById('manufacturer');
-        const selectedManufacturerId = parseInt(manufacturerSelect.value);
-        const selectedManufacturer = manufacturerData.find(m => m.id === selectedManufacturerId);
-        
-        // 在formData对象中更新release_date字段
-        const formData = {
-            nameEn: document.getElementById('nameEn').value,
-            nameZh: document.getElementById('nameZh').value,
-            version: document.getElementById('version').value,
-            // 从选中的厂商信息中获取国家ID
-            countryId: selectedManufacturer ? selectedManufacturer.countryId : null,
-            developerId: selectedManufacturerId,
-            release_date: releaseDate,
-            release_year: releaseYear ? parseInt(releaseYear) : null,
-            release_month: releaseMonth ? parseInt(releaseMonth) : null,
-            release_day: releaseDay ? parseInt(releaseDay) : null,
-            cpu_req: document.getElementById('cpuReq').value || null,
-            memory_min_gb: document.getElementById('memoryMin').value ? parseFloat(document.getElementById('memoryMin').value) : null,
-            disk_min_gb: document.getElementById('diskMin').value ? parseFloat(document.getElementById('diskMin').value) : null,
-            sys_req_other: document.getElementById('sysReqOther').value || null,
-            description: document.getElementById('description').value || null,
-            size_bytes: sizeBytes, 
-            industry_ids: allSelectedSubcategories,
-            os_ids: [], // 暂时留空，因为没有API接口
-            deployment_method: document.getElementById('deploymentMethod').value || null,
-            compliance_info: document.getElementById('complianceInfo').value || null,
-            security_info: document.getElementById('securityInfo').value || null,
-            intellectual_property: document.getElementById('intellectualProperty').value || null,
-            status: document.getElementById('status').value
-        };
+            const manufacturerSelect = document.getElementById('manufacturer');
+            const selectedManufacturerId = parseInt(manufacturerSelect.value);
+            const selectedManufacturer = manufacturerData.find(m => m.id === selectedManufacturerId);
+            
+            // 构建更新数据对象
+            const updateData = {
+                nameEn: document.getElementById('nameEn').value,
+                nameZh: document.getElementById('nameZh').value,
+                version: document.getElementById('version').value,
+                // 从选中的厂商信息中获取国家ID
+                countryId: selectedManufacturer ? selectedManufacturer.countryId : null,
+                developerId: selectedManufacturerId,
+                release_date: releaseDate,
+                release_year: releaseYear ? parseInt(releaseYear) : null,
+                release_month: releaseMonth ? parseInt(releaseMonth) : null,
+                release_day: releaseDay ? parseInt(releaseDay) : null,
+                cpu_req: document.getElementById('cpuReq').value || null,
+                memory_min_gb: document.getElementById('memoryMin').value ? parseFloat(document.getElementById('memoryMin').value) : null,
+                disk_min_gb: document.getElementById('diskMin').value ? parseFloat(document.getElementById('diskMin').value) : null,
+                sys_req_other: document.getElementById('sysReqOther').value || null,
+                description: document.getElementById('description').value || null,
+                size_bytes: sizeBytes, 
+                industry_ids: allSelectedSubcategories,
+                os_ids: [], // 暂时留空，因为没有API接口
+                deployment_method: document.getElementById('deploymentMethod').value || null,
+                compliance_info: document.getElementById('complianceInfo').value || null,
+                security_info: document.getElementById('securityInfo').value || null,
+                intellectual_property: document.getElementById('intellectualProperty').value || null,
+                status: document.getElementById('status').value
+            };
 
-        // 验证必填字段
-        if (!formData.nameEn || !formData.version || !formData.countryId || !formData.developerId || !formData.status || allSelectedSubcategories.length === 0) {
-            showMessage('请填写所有必填字段', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/software`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || '提交失败，请重试');
+            // 验证必填字段
+            if (!updateData.nameEn || !updateData.version || !updateData.countryId || !updateData.developerId || !updateData.status || allSelectedSubcategories.length === 0) {
+                showMessage('请填写所有必填字段', 'error');
+                return;
             }
 
-            showMessage('工业软件添加成功！', 'success');
-            document.getElementById('softwareForm').reset();
-            
-            // 重置行业分类选择
-            selectedIndustries.clear();
-            updateIndustrySelectionUI();
-            updateIndustryTreeCheckboxes();
-            
-            // 重置选择框为默认选项
-            document.getElementById('manufacturer').innerHTML = '<option value="">请选择厂商</option>';
-            
-            // 重新加载厂商列表
-            fetchManufacturers();
-            fetchIndustryCategories();
+            try {
+                const response = await fetch(`${API_BASE_URL}/software/${softwareId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || '更新失败，请重试');
+                }
+
+                showMessage('工业软件更新成功！', 'success');
+                
+                // 3秒后跳转回软件列表页面
+                setTimeout(() => {
+                    window.location.href = 'software_list.html';
+                }, 3000);
             } catch (error) {
                 showMessage(error.message, 'error');
-                console.error('提交表单错误:', error);
+                console.error('更新表单错误:', error);
             }
         }
 
         // 处理取消操作
         function handleCancel() {
-            if (confirm('确定要取消添加工业软件吗？未保存的数据将会丢失。')) {
-                document.getElementById('softwareForm').reset();
-                
-                // 重置行业分类选择
-                selectedIndustries.clear();
-                updateIndustrySelectionUI();
-                updateIndustryTreeCheckboxes();
-                
-                // 重置选择框为默认选项
-                document.getElementById('manufacturer').innerHTML = '<option value="">请选择厂商</option>';
-                
-                // 清除消息
-                document.getElementById('message').className = 'message';
-                document.getElementById('message').textContent = '';
-                
-                // 重新加载厂商列表
-                fetchManufacturers();
-                fetchIndustryCategories();
+            if (confirm('确定要取消编辑工业软件吗？未保存的数据将会丢失。')) {
+                // 跳转回软件列表页面
+                window.location.href = 'software_list.html';
             }
         }
 

@@ -5,46 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>软件列表</title>
     <style>
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
         .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
         .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
         .error { background-color: #f8d7da; color: #721c24; }
         .success { background-color: #d4edda; color: #155724; }
+
+        /* 描述字段样式 */
+        .description-cell {
+            display: inline-block;
+            width: 100%;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
         
+        .description-cell:hover {
+            color: #0056b3;
+        }
+        
+        /* 空内容样式 */
+        .description-cell.empty {
+            color: inherit;
+            text-decoration: none;
+            cursor: default;
+        }
+        
+        .description-cell.empty:hover {
+            color: inherit;
+        }
+        /* 系统要求字段样式 */
+        .sys-req-cell {
+            width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+        }
+
         /* 分页控件样式 */
-        .pagination { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            margin-top: 20px; 
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
             gap: 10px;
         }
-        .pagination button { 
-            padding: 8px 12px; 
-            background-color: #007bff; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
+        .pagination button {
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        .pagination button:disabled { 
-            background-color: #ccc; 
-            cursor: not-allowed; 
+        .pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
-        .pagination input { 
-            width: 60px; 
-            padding: 6px; 
-            text-align: center; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
+        .pagination input {
+            width: 60px;
+            padding: 6px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .pagination span { 
-            margin: 0 5px; 
+        .pagination span {
+            margin: 0 5px;
         }
-        
+
         /* 新增按钮样式 */
         .add-button {
             display: inline-block;
@@ -59,6 +96,235 @@
         .add-button:hover {
             background-color: #218838;
         }
+
+        /* 行业标签样式 */
+        .industry-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .industry-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: normal;
+            color: white;
+        }
+
+        /* 四个行业大类的颜色定义 */
+        .category-A { background-color: #FF6B6B; } /* 红色 */
+        .category-B { background-color: #4ECDC4; } /* 青色 */
+        .category-C { background-color: #45B7D1; } /* 蓝色 */
+        .category-D { background-color: #96CEB4; } /* 绿色 */
+        .category-default { background-color: #6c757d; } /* 默认灰色 */
+        .category-E { background-color: #FFEAA7; color: #333; }
+        .category-F { background-color: #DDA0DD; }
+        .category-G { background-color: #FFB347; }
+        .category-H { background-color: #98D8C8; }
+        .category-I { background-color: #F7DC6F; color: #333; }
+        .category-J { background-color: #BB8FCE; }
+        .category-K { background-color: #F8C471; }
+        .category-L { background-color: #85C1E9; }
+        .category-M { background-color: #82E0AA; }
+        .category-N { background-color: #F1948A; }
+        .category-O { background-color: #D7BDE2; }
+        .category-P { background-color: #A9DFBF; }
+        .category-Q { background-color: #F9E79F; color: #333; }
+        .category-R { background-color: #D5A6BD; }
+        .category-S { background-color: #AAA; }
+        .category-T { background-color: #CCC; color: #333; }
+        .category-U { background-color: #888; }
+        .category-Z { background-color: #666; }
+
+        /* 默认颜色 */
+        .category-default { background-color: #6c757d; }
+
+        /* 操作按钮样式 */
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .edit-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-edit {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-edit:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-delete {
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        /* 确认对话框样式 */
+        .confirm-dialog {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .confirm-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .confirm-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .confirm-btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .confirm-btn-confirm {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* 冻结列样式 */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto; /* 改为auto以更好地支持冻结列 */
+            min-width: 1200px; /* 确保表格有足够的宽度 */
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+        }
+        
+        /* 冻结第一列 (ID) */
+        th:nth-child(1),
+        td:nth-child(1) {
+            position: sticky;
+            left: 0;
+            background-color: #f2f2f2;
+            z-index: 3;
+        }
+        
+        /* 冻结第二列 (名称) */
+        th:nth-child(2),
+        td:nth-child(2) {
+            position: sticky;
+            left: 50px; /* 第一列的宽度 */
+            background-color: #f2f2f2;
+            z-index: 2;
+        }
+        
+        /* 冻结倒数第三列 (软件大小) */
+        th:nth-child(15),
+        td:nth-child(15) {
+            position: sticky;
+            right: 270px; /* 倒数第二列宽度(150px) + 最后一列宽度(120px) */
+            background-color: #f2f2f2;
+            z-index: 2;
+        }
+        
+        /* 冻结倒数第二列 (所属行业) */
+        th:nth-child(16),
+        td:nth-child(16) {
+            position: sticky;
+            right: 120px; /* 最后一列的宽度 */
+            background-color: #f2f2f2;
+            z-index: 2;
+        }
+        
+        /* 冻结最后一列 (操作) */
+        th:nth-child(17),
+        td:nth-child(17) {
+            position: sticky;
+            right: 0;
+            background-color: #f2f2f2;
+            z-index: 3;
+        }
+        
+        /* 为冻结列添加右边框以增强视觉效果 */
+        th:nth-child(2),
+        td:nth-child(2),
+        th:nth-child(15),
+        td:nth-child(15) {
+            border-right: 2px solid #ddd;
+        }
+        
+        th:nth-child(17),
+        td:nth-child(17) {
+            border-left: 2px solid #ddd;
+        }
     </style>
 </head>
 <body>
@@ -67,25 +333,33 @@
         <h1>工业软件列表</h1>
         <a href="add_software.html" class="add-button">新增工业软件</a>
         <div id="message" class="message"></div>
+        <div class="table-container">
         <table id="softwareTable">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>name</th>
-                    <th>中文名</th>
-                    <th>版本</th>
-                    <th>国家</th>
-                    <th>厂商</th>
-                    <th>描述</th>
-                    <th>发布日期</th>
-                    <th>状态</th>
-                    <th>创建时间</th>
-                    <th>软件大小</th>
+                    <th style="width: 50px;">ID</th>
+                    <th style="width: 80px;">name</th>
+                    <th style="width: 60px;">中文名</th>
+                    <th style="width: 80px;">版本</th>
+                    <th style="width: 80px;">国家</th>
+                    <th style="width: 80px;">厂商</th>
+                    <th style="width: 80px;">描述</th>
+                    <th style="width: 100px;">发布日期</th>
+                    <th style="width: 80px;">状态</th>
+                    <th style="width: 120px;">CPU要求</th>
+                    <th style="width: 80px;">内存(GB)</th>
+                    <th style="width: 80px;">磁盘(GB)</th>
+                    <th style="width: 120px;">其他要求</th>
+                    <th style="width: 100px;">创建时间</th>
+                    <th style="width: 100px;">软件大小</th>
+                    <th style="width: 150px;">所属行业</th>
+                    <th style="width: 120px;">操作</th>
                 </tr>
             </thead>
             <tbody id="softwareTableBody"></tbody>
         </table>
-        
+        </div>
+
         <!-- 分页控件 -->
         <div class="pagination" id="pagination">
             <button id="firstPage">首页</button>
@@ -97,82 +371,100 @@
             <span>每页 <input type="number" id="pageSizeInput" min="1" max="100" value="20"> 条</span>
             <button id="goPage">跳转</button>
         </div>
+
+        <!-- 删除确认对话框 -->
+        <div id="confirmDialog" class="confirm-dialog">
+            <div class="confirm-content">
+                <h3>确认删除</h3>
+                <p>您确定要删除这个软件吗？此操作不可撤销。</p>
+                <div class="confirm-buttons">
+                    <button id="cancelDelete" class="confirm-btn confirm-btn-cancel">取消</button>
+                    <button id="confirmDelete" class="confirm-btn confirm-btn-confirm">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 描述详情模态框 -->
+    <div id="descriptionModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="background-color: white; margin: 10% auto; padding: 20px; border-radius: 5px; width: 80%; max-width: 600px; position: relative;">
+            <span id="closeModal" style="position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer;">&times;</span>
+            <h3>软件描述</h3>
+            <div id="modalDescription" style="word-wrap: break-word; white-space: pre-wrap; max-height: 70vh; overflow-y: auto;"></div>
+        </div>
     </div>
 
     <script>
-        // 后端API基础URL
         const API_BASE_URL = 'http://localhost:8000/v1';
-        
-        // 当前分页状态
         let currentPage = 1;
         let pageSize = 20;
         let total = 0;
+        let softwareIdToDelete = null;
 
-        // 页面加载时获取软件列表
         document.addEventListener('DOMContentLoaded', function() {
             setupPagination();
             fetchSoftwareList(currentPage, pageSize);
+            document.getElementById('cancelDelete').addEventListener('click', closeConfirmDialog);
+            document.getElementById('confirmDelete').addEventListener('click', performDelete);
+            setupModal();
         });
 
-        // 设置分页控件事件监听
         function setupPagination() {
             document.getElementById('firstPage').addEventListener('click', () => {
                 if (currentPage > 1) {
                     fetchSoftwareList(1, pageSize);
                 }
             });
-            
+
             document.getElementById('prevPage').addEventListener('click', () => {
                 if (currentPage > 1) {
                     fetchSoftwareList(currentPage - 1, pageSize);
                 }
             });
-            
+
             document.getElementById('nextPage').addEventListener('click', () => {
                 const totalPages = Math.ceil(total / pageSize);
                 if (currentPage < totalPages) {
                     fetchSoftwareList(currentPage + 1, pageSize);
                 }
             });
-            
+
             document.getElementById('lastPage').addEventListener('click', () => {
                 const totalPages = Math.ceil(total / pageSize);
                 if (currentPage < totalPages) {
                     fetchSoftwareList(totalPages, pageSize);
                 }
             });
-            
+
             document.getElementById('goPage').addEventListener('click', () => {
                 const pageInput = document.getElementById('pageInput');
                 const page = parseInt(pageInput.value);
                 const totalPages = Math.ceil(total / pageSize);
-                
+
                 if (page >= 1 && page <= totalPages) {
                     fetchSoftwareList(page, pageSize);
                 } else {
                     showMessage(`请输入有效的页码 (1-${totalPages})`, 'error');
                 }
             });
-            
+
             document.getElementById('pageSizeInput').addEventListener('change', (e) => {
                 const newSize = parseInt(e.target.value);
                 if (newSize >= 1 && newSize <= 100) {
                     pageSize = newSize;
-                    fetchSoftwareList(1, pageSize); // 重置到第一页
+                    fetchSoftwareList(1, pageSize);
                 } else {
                     showMessage('每页条数应在1-100之间', 'error');
                     e.target.value = pageSize;
                 }
             });
-            
-            // 回车跳转页面
+
             document.getElementById('pageInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') {
                     document.getElementById('goPage').click();
                 }
             });
-            
-            // 回车设置每页条数
+
             document.getElementById('pageSizeInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') {
                     document.getElementById('pageSizeInput').dispatchEvent(new Event('change'));
@@ -180,65 +472,51 @@
             });
         }
 
-        // 获取软件列表
         async function fetchSoftwareList(page = 1, pageSize = 20) {
             try {
                 const response = await fetch(`${API_BASE_URL}/software?page=${page}&page_size=${pageSize}`);
                 if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
-                
+
                 const result = await response.json();
-                
-                // 检查响应数据结构
-                if (!result || typeof result !== 'object') {
-                    throw new Error('服务器响应格式错误');
-                }
-                
-                // 提取数据数组
                 const data = Array.isArray(result.items) ? result.items : [];
                 total = result.total || 0;
                 currentPage = result.page || page;
-                
-                // 更新分页控件
+
                 updatePaginationControls();
-                
-                // 渲染表格
                 renderSoftwareTable(data);
-                
-                // 显示成功消息
                 showMessage(`成功加载 ${data.length} 条软件数据`, 'success');
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('获取软件列表错误:', error);
-                
-                // 渲染空表格
                 renderSoftwareTable([]);
             }
         }
 
-        // 渲染软件表格
+        // 在renderSoftwareTable函数中替换相关代码
         function renderSoftwareTable(data) {
             const tableBody = document.getElementById('softwareTableBody');
             tableBody.innerHTML = '';
 
             if (!data || data.length === 0) {
                 const row = document.createElement('tr');
-                row.innerHTML = '<td colspan="9" style="text-align: center;">暂无数据</td>';
+                row.innerHTML = '<td colspan="17" style="text-align: center;">暂无数据</td>';
                 tableBody.appendChild(row);
                 return;
             }
 
             data.forEach(software => {
-                // 数据存在性检查和默认值设置
                 const id = software.id || '-';
                 const nameEn = software.nameEn || 'default';
-                const nameZh = software.nameZh || '未设置';
+                const nameZh = software.nameZh || '-';
                 const version = software.version || '-';
                 const countryName = software.countryName || '未知';
-                const developerName = software.developerName
-                    || '未知';
+                const developerName = software.developerName || '未知';
                 const description = software.description || '-';
-                
-                // 发布日期处理
+                const cpuReq = software.cpuReq || '-';
+                const memoryMinGb = software.memoryMinGb || '-';
+                const diskMinGb = software.diskMinGb || '-';
+                const sysReqOther = software.sysReqOther || '-';
+
                 let releaseDate = '-';
                 if (software.releaseYear) {
                     if (software.releaseMonth && software.releaseDay) {
@@ -249,8 +527,7 @@
                         releaseDate = software.releaseYear;
                     }
                 }
-                
-                // 状态处理
+
                 const statusMap = {
                     'active': '有效',
                     'inactive': '下架',
@@ -258,9 +535,24 @@
                     'discontinued': '已停产'
                 };
                 const status = statusMap[software.status] || software.status || '未知';
-                
+
                 const createdAt = formatDate(software.createdAt) || '-';
-                
+
+                let industryTags = '<div class="industry-tags">-</div>';
+                if (software.industryDetails && software.industryDetails.length > 0) {
+                    const tagsHtml = software.industryDetails.map(industry => {
+                        const categoryClass = industry.categoryCode ?
+                            `category-${industry.categoryCode}` : 'category-default';
+                        return `<span class="industry-tag ${categoryClass}">${industry.subcategoryName || industry.subcategoryName || '未知行业'}</span>`;
+                    }).join('');
+                    industryTags = `<div class="industry-tags">${tagsHtml}</div>`;
+                }
+
+                const actions = `
+                    <button class="edit-btn" data-id="${id}">修改</button>
+                    <button class="delete-btn" data-id="${id}">删除</button>
+                `;
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${id}</td>
@@ -269,47 +561,88 @@
                     <td>${version}</td>
                     <td>${countryName}</td>
                     <td>${developerName}</td>
-                    <td>${description}</td>
+                    <td>
+                        ${description === '-' ? 
+                        `<span class="description-cell empty">-</span>` : 
+                        `<span class="description-cell" data-description="${description.replace(/"/g, '&quot;')}">${description.substring(0, 50)}${description.length > 50 ? '...' : ''}</span>`}
+                    </td>
                     <td>${releaseDate}</td>
                     <td>${status}</td>
+                    <td class="sys-req-cell" data-full-text="${cpuReq.replace(/"/g, '&quot;')}">${cpuReq}</td>
+                    <td>${memoryMinGb}</td>
+                    <td>${diskMinGb}</td>
+                    <td class="sys-req-cell" data-full-text="${sysReqOther.replace(/"/g, '&quot;')}">${sysReqOther}</td>
                     <td>${createdAt}</td>
                     <td>${formatSize(software.sizeBytes)}</td>
+                    <td>${industryTags}</td>
+                    <td>${actions}</td>
                 `;
                 tableBody.appendChild(row);
             });
+
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const softwareId = this.getAttribute('data-id');
+                    window.location.href = `edit_software.html?id=${softwareId}`;
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const softwareId = this.getAttribute('data-id');
+                    const softwareName = this.closest('tr').querySelector('td:nth-child(3)').textContent;
+
+                    if (confirm(`确定要删除软件 "${softwareName}" 吗？此操作不可恢复。`)) {
+                        deleteSoftware(softwareId);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.description-cell:not(.empty)').forEach(span => {
+                span.addEventListener('click', function() {
+                    const description = this.getAttribute('data-description');
+                    document.getElementById('modalDescription').textContent = description;
+                    document.getElementById('descriptionModal').style.display = 'block';
+                });
+            });
         }
 
-        // 更新分页控件状态
+        // 添加模态框关闭功能
+        function setupModal() {
+            const modal = document.getElementById('descriptionModal');
+            const closeBtn = document.getElementById('closeModal');
+            
+            closeBtn.onclick = function() {
+                modal.style.display = 'none';
+            }
+            
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        }
+
         function updatePaginationControls() {
             const totalPages = Math.ceil(total / pageSize);
-            
-            // 更新页码输入框
             document.getElementById('pageInput').value = currentPage;
             document.getElementById('pageInput').min = 1;
             document.getElementById('pageInput').max = totalPages;
-            
-            // 更新总页数显示
             document.getElementById('totalPages').textContent = totalPages || 1;
-            
-            // 更新按钮状态
             document.getElementById('firstPage').disabled = currentPage <= 1;
             document.getElementById('prevPage').disabled = currentPage <= 1;
             document.getElementById('nextPage').disabled = currentPage >= totalPages;
             document.getElementById('lastPage').disabled = currentPage >= totalPages;
-            
-            // 更新每页条数输入框
             document.getElementById('pageSizeInput').value = pageSize;
         }
 
-        // 格式化日期时间
         function formatDate(dateString) {
             if (!dateString) return '-';
-            
+
             try {
                 const date = new Date(dateString);
-                if (isNaN(date.getTime())) return '-'; // 无效日期
-                
-                // 使用中文格式化日期
+                if (isNaN(date.getTime())) return '-';
+
                 return new Intl.DateTimeFormat('zh-CN', {
                     year: 'numeric',
                     month: '2-digit',
@@ -321,37 +654,85 @@
                 }).format(date);
             } catch (error) {
                 console.error('日期格式化错误:', error);
-                return '-'; // 格式化失败时返回默认值
+                return '-';
             }
         }
 
-        // 格式化文件大小
         function formatSize(sizeBytes) {
             if (!sizeBytes || sizeBytes <= 0) return '-';
-            
+
             const units = ['B', 'KB', 'MB', 'GB', 'TB'];
             let size = sizeBytes;
             let unitIndex = 0;
-            
+
             while (size >= 1024 && unitIndex < units.length - 1) {
                 size /= 1024;
                 unitIndex++;
             }
-            
+
             return size.toFixed(2) + ' ' + units[unitIndex];
         }
 
-        // 显示消息
         function showMessage(text, type) {
             const messageEl = document.getElementById('message');
             messageEl.textContent = text;
             messageEl.className = `message ${type}`;
 
-            // 3秒后自动清除消息
             setTimeout(() => {
                 messageEl.textContent = '';
                 messageEl.className = 'message';
             }, 3000);
+        }
+
+        function openConfirmDialog(softwareId) {
+            softwareIdToDelete = softwareId;
+            document.getElementById('confirmDialog').style.display = 'block';
+        }
+
+        function closeConfirmDialog() {
+            document.getElementById('confirmDialog').style.display = 'none';
+            softwareIdToDelete = null;
+        }
+
+        async function performDelete() {
+            if (!softwareIdToDelete) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/software/${softwareIdToDelete}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error(`删除软件失败: ${response.status} ${response.statusText}`);
+
+                closeConfirmDialog();
+                fetchSoftwareList(currentPage, pageSize);
+                showMessage('软件删除成功', 'success');
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('删除软件错误:', error);
+            }
+        }
+
+        async function deleteSoftware(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/software/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error(`删除软件失败: ${response.status} ${response.statusText}`);
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('软件删除成功', 'success');
+                    fetchSoftwareList(currentPage, pageSize);
+                } else {
+                    showMessage(`删除失败: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('删除软件错误:', error);
+            }
         }
     </script>
 </body>

@@ -602,6 +602,14 @@ components:
                     type: string
                 updatedAt:
                     type: string
+                industryNames:
+                    type: array
+                    items:
+                        type: string
+                industryDetails:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/isms.v1.IsmsIndustry'
             description: 工业软件主表数据结构
         isms.v1.ListCategoriesResp:
             type: object

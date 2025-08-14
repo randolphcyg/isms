@@ -4,6 +4,7 @@ package isms.v1;
 
 import "google/api/annotations.proto";
 import "validate/validate.proto";
+import "isms/v1/industry.proto";
 
 option go_package = "isms/api/isms/v1;v1";
 
@@ -35,6 +36,8 @@ message IsmsSoftware {
   repeated int32 os_ids = 24; // 支持的操作系统ID列表
   string created_at = 25; // 创建时间
   string updated_at = 26; // 更新时间
+  repeated string industry_names = 27; // 适用行业小类名称列表
+  repeated IsmsIndustry industry_details = 28; // 适用行业详情
 }
 
 // 创建软件请求

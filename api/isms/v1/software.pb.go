@@ -52,6 +52,8 @@ type IsmsSoftware struct {
 	OsIds                []int32                `protobuf:"varint,24,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`                                      // 支持的操作系统ID列表
 	CreatedAt            string                 `protobuf:"bytes,25,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                  // 创建时间
 	UpdatedAt            string                 `protobuf:"bytes,26,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                  // 更新时间
+	IndustryNames        []string               `protobuf:"bytes,27,rep,name=industry_names,json=industryNames,proto3" json:"industry_names,omitempty"`                      // 适用行业小类名称列表
+	IndustryDetails      []*IsmsIndustry        `protobuf:"bytes,28,rep,name=industry_details,json=industryDetails,proto3" json:"industry_details,omitempty"`                // 适用行业详情
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -266,6 +268,20 @@ func (x *IsmsSoftware) GetUpdatedAt() string {
 		return x.UpdatedAt
 	}
 	return ""
+}
+
+func (x *IsmsSoftware) GetIndustryNames() []string {
+	if x != nil {
+		return x.IndustryNames
+	}
+	return nil
+}
+
+func (x *IsmsSoftware) GetIndustryDetails() []*IsmsIndustry {
+	if x != nil {
+		return x.IndustryDetails
+	}
+	return nil
 }
 
 // 创建软件请求
@@ -1004,7 +1020,7 @@ var File_isms_v1_software_proto protoreflect.FileDescriptor
 
 const file_isms_v1_software_proto_rawDesc = "" +
 	"\n" +
-	"\x16isms/v1/software.proto\x12\aisms.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\"\xe8\x06\n" +
+	"\x16isms/v1/software.proto\x12\aisms.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\x1a\x16isms/v1/industry.proto\"\xd1\a\n" +
 	"\fIsmsSoftware\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12 \n" +
 	"\aname_zh\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nameZh\x12\x17\n" +
@@ -1037,7 +1053,9 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x19 \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\x1a \x01(\tR\tupdatedAt\"\x86\x06\n" +
+	"updated_at\x18\x1a \x01(\tR\tupdatedAt\x12%\n" +
+	"\x0eindustry_names\x18\x1b \x03(\tR\rindustryNames\x12@\n" +
+	"\x10industry_details\x18\x1c \x03(\v2\x15.isms.v1.IsmsIndustryR\x0findustryDetails\"\x86\x06\n" +
 	"\x11CreateSoftwareReq\x12 \n" +
 	"\aname_zh\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nameZh\x12\x17\n" +
 	"\aname_en\x18\x02 \x01(\tR\x06nameEn\x12!\n" +
@@ -1142,22 +1160,24 @@ var file_isms_v1_software_proto_goTypes = []any{
 	(*ListSoftwareReq)(nil),    // 5: isms.v1.ListSoftwareReq
 	(*ListSoftwareResp)(nil),   // 6: isms.v1.ListSoftwareResp
 	(*GetSoftwareByIdReq)(nil), // 7: isms.v1.GetSoftwareByIdReq
+	(*IsmsIndustry)(nil),       // 8: isms.v1.IsmsIndustry
 }
 var file_isms_v1_software_proto_depIdxs = []int32{
-	0, // 0: isms.v1.ListSoftwareResp.items:type_name -> isms.v1.IsmsSoftware
-	1, // 1: isms.v1.Software.CreateSoftware:input_type -> isms.v1.CreateSoftwareReq
-	3, // 2: isms.v1.Software.UpdateSoftware:input_type -> isms.v1.UpdateSoftwareReq
-	5, // 3: isms.v1.Software.ListSoftware:input_type -> isms.v1.ListSoftwareReq
-	7, // 4: isms.v1.Software.GetSoftwareById:input_type -> isms.v1.GetSoftwareByIdReq
-	2, // 5: isms.v1.Software.CreateSoftware:output_type -> isms.v1.CreateSoftwareResp
-	4, // 6: isms.v1.Software.UpdateSoftware:output_type -> isms.v1.UpdateSoftwareResp
-	6, // 7: isms.v1.Software.ListSoftware:output_type -> isms.v1.ListSoftwareResp
-	0, // 8: isms.v1.Software.GetSoftwareById:output_type -> isms.v1.IsmsSoftware
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	8, // 0: isms.v1.IsmsSoftware.industry_details:type_name -> isms.v1.IsmsIndustry
+	0, // 1: isms.v1.ListSoftwareResp.items:type_name -> isms.v1.IsmsSoftware
+	1, // 2: isms.v1.Software.CreateSoftware:input_type -> isms.v1.CreateSoftwareReq
+	3, // 3: isms.v1.Software.UpdateSoftware:input_type -> isms.v1.UpdateSoftwareReq
+	5, // 4: isms.v1.Software.ListSoftware:input_type -> isms.v1.ListSoftwareReq
+	7, // 5: isms.v1.Software.GetSoftwareById:input_type -> isms.v1.GetSoftwareByIdReq
+	2, // 6: isms.v1.Software.CreateSoftware:output_type -> isms.v1.CreateSoftwareResp
+	4, // 7: isms.v1.Software.UpdateSoftware:output_type -> isms.v1.UpdateSoftwareResp
+	6, // 8: isms.v1.Software.ListSoftware:output_type -> isms.v1.ListSoftwareResp
+	0, // 9: isms.v1.Software.GetSoftwareById:output_type -> isms.v1.IsmsSoftware
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_isms_v1_software_proto_init() }
@@ -1165,6 +1185,7 @@ func file_isms_v1_software_proto_init() {
 	if File_isms_v1_software_proto != nil {
 		return
 	}
+	file_isms_v1_industry_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

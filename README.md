@@ -1,9 +1,10 @@
-# Kratos Project Template
+# ISMS
 
-## Install Kratos
+## proto
 ```
-go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
+protoc --proto_path=./api --proto_path=./third_party --go_out=paths=source_relative:./api --go-http_out=paths=source_relative:./api --go-grpc_out=paths=source_relative:./api api/isms/v1/software.proto
 ```
+
 ## Create a service
 ```
 # Create a template project

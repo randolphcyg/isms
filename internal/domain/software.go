@@ -21,7 +21,10 @@ type IsmsSoftware struct {
 	ReleaseYear          *int32             `json:"release_year,omitempty"`          // 发布年份
 	ReleaseMonth         *int32             `json:"release_month,omitempty"`         // 发布月份
 	ReleaseDay           *int32             `json:"release_day,omitempty"`           // 发布日
-	SysReq               *string            `json:"sys_req,omitempty"`               // 系统要求
+	CPUReq               *string            `json:"cpu_req,omitempty"`               // 处理器要求
+	MemoryMinGb          *float64           `json:"memory_min_gb,omitempty"`         // 最小内存要求(GB)
+	DiskMinGb            *float64           `json:"disk_min_gb,omitempty"`           // 最小磁盘空间要求(GB)
+	SysReqOther          *string            `json:"sys_req_other,omitempty"`         // 其他系统要求
 	Description          *string            `json:"description,omitempty"`           // 软件描述
 	SizeBytes            *int64             `json:"size_bytes,omitempty"`            // 软件实际大小（字节，用于计算和存储，1KB=1024字节）
 	DeploymentMethod     *string            `json:"deployment_method,omitempty"`     // 部署方式
@@ -91,6 +94,7 @@ type ListSoftwareOptions2 struct {
 }
 
 // SoftwareRepo 软件仓储接口
+// 修改SoftwareRepo接口，确保List方法签名正确
 type SoftwareRepo interface {
 	// Create 保存软件实体
 	Create(ctx context.Context, software *IsmsSoftware) (*IsmsSoftware, error)

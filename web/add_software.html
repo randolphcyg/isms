@@ -732,64 +732,6 @@
             children.classList.toggle('show');
         }
 
-        // 切换大类选择
-        function toggleCategorySelection(categoryCode, categoryName, selected) {
-            // 如果选择大类，则选择所有小类
-            if (selected) {
-                if (!selectedIndustries.has(categoryCode)) {
-                    selectedIndustries.set(categoryCode, {
-                        categoryName: categoryName,
-                        subcategories: new Map()
-                    });
-                }
-                
-                const categoryData = selectedIndustries.get(categoryCode);
-                
-                // 选择所有小类
-                const subcategories = industrySubcategories.get(categoryCode) || [];
-                subcategories.forEach(sub => {
-                    categoryData.subcategories.set(sub.id, `${sub.subcategoryName} (${sub.subcategoryCode})`);
-                });
-            } else {
-                // 如果取消选择大类，则取消选择所有小类
-                selectedIndustries.delete(categoryCode);
-            }
-            
-            // 更新UI
-            updateIndustrySelectionUI();
-            updateIndustryTreeCheckboxes();
-        }
-
-        // 切换小类选择
-        function toggleSubcategorySelection(categoryCode, categoryName, subcategoryId, subcategoryName, selected) {
-            // 确保大类条目存在
-            if (!selectedIndustries.has(categoryCode)) {
-                selectedIndustries.set(categoryCode, {
-                    categoryName: categoryName,
-                    subcategories: new Map()
-                });
-            }
-            
-            const categoryData = selectedIndustries.get(categoryCode);
-            
-            if (selected) {
-                // 添加小类
-                categoryData.subcategories.set(subcategoryId, subcategoryName);
-            } else {
-                // 移除小类
-                categoryData.subcategories.delete(subcategoryId);
-                
-                // 如果该大类下没有小类了，则移除大类
-                if (categoryData.subcategories.size === 0) {
-                    selectedIndustries.delete(categoryCode);
-                }
-            }
-            
-            // 更新UI
-            updateIndustrySelectionUI();
-            updateIndustryTreeCheckboxes();
-        }
-
         // 更新行业分类选择UI
         function updateIndustrySelectionUI() {
             const container = document.getElementById('selectedIndustriesContainer');
@@ -974,12 +916,16 @@
                     releaseDate = releaseYear;
                 }
             }
-            
-            // 查找选中的厂商信息
+
+        // 查找选中的厂商信息
         const manufacturerSelect = document.getElementById('manufacturer');
         const selectedManufacturerId = parseInt(manufacturerSelect.value);
         const selectedManufacturer = manufacturerData.find(m => m.id === selectedManufacturerId);
-        
+
+        // 获取选中的操作系统ID
+        const osSelect = document.getElementById('osIds');
+        const selectedOSIds = Array.from(osSelect.selectedOptions).map(option => parseInt(option.value));
+
         // 在formData对象中更新release_date字段
         const formData = {
             nameEn: document.getElementById('nameEn').value,

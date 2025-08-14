@@ -374,10 +374,11 @@
             </div>
                 
             <div class="form-group">
-                <label for="osIds">操作系统（暂未实现数据加载）</label>
-                <select id="osIds" multiple>
-                    <option value="">请选择操作系统</option>
+                <label for="osIds">关联操作系统</label>
+                 <select id="osIds" multiple style="height: 150px;">
+                    <!-- 操作系统选项将通过JavaScript动态生成 -->
                 </select>
+                <small>按住Ctrl键(Windows)或Command键(Mac)可多选</small>
             </div>
             
             <!-- 更多信息 -->
@@ -437,20 +438,70 @@
         
         // 保存软件ID
         let softwareId = null;
+
+        // 添加操作系统相关变量
+        let osList = []; // 存储操作系统列表
+
+        // 获取操作系统列表
+        async function fetchOSList() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/os?page=1&page_size=100`);
+                if (!response.ok) throw new Error('获取操作系统列表失败');
+                
+                const result = await response.json();
+                osList = Array.isArray(result.items) ? result.items : [];
+                renderOSOptions();
+            } catch (error) {
+                console.error('获取操作系统列表错误:', error);
+            }
+        }
+
+        // 渲染操作系统选项
+        function renderOSOptions() {
+            const select = document.getElementById('osIds');
+            if (!select) return;
+            
+            // 清空现有选项
+            select.innerHTML = '';
+            
+            // 添加默认选项
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '请选择操作系统';
+            select.appendChild(defaultOption);
+            
+            // 添加操作系统选项
+            osList.forEach(os => {
+                const option = document.createElement('option');
+                option.value = os.id;
+                option.textContent = `${os.name} ${os.version} (${os.manufacturer})`;
+                select.appendChild(option);
+            });
+        }
         
         // 页面加载时获取厂商列表
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // 从URL获取软件ID
             const urlParams = new URLSearchParams(window.location.search);
             softwareId = urlParams.get('id');
-            
-            if (softwareId) {
-                // 加载软件数据
-                loadSoftwareData(softwareId);
+
+            if (!softwareId) {
+                showMessage('软件ID未找到，请从软件列表页面进入编辑页面', 'error');
+                return;
             }
             
-            fetchManufacturers();
-            fetchIndustryCategories();
+            // 获取厂商列表
+            await fetchManufacturers();
+            // 获取行业分类数据
+            await fetchIndustryCategories();
+
+            // 获取操作系统列表
+            await fetchOSList();
+
+            // 加载软件数据
+            loadSoftwareData(softwareId);
+
+            // 绑定事件
             document.getElementById('softwareForm').addEventListener('submit', handleSubmit);
             document.getElementById('cancelBtn').addEventListener('click', handleCancel);
             
@@ -937,6 +988,24 @@
             updateIndustrySelectionUI();
             updateIndustryTreeCheckboxes();
         }
+
+        // 处理操作系统数据 - 修正后移到try块内
+        if (Array.isArray(software.osIds)) {
+            const osSelect = document.getElementById('osIds');
+            // 清空之前的选择
+            Array.from(osSelect.options).forEach(option => option.selected = false);
+            
+            // 重新渲染选项
+            renderOSOptions();
+            
+            // 选择对应的操作系统
+            software.osIds.forEach(osId => {
+                const option = osSelect.querySelector(`option[value="${osId}"]`);
+                if (option) {
+                    option.selected = true;
+                }
+            });
+        }
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('加载软件数据错误:', error);
@@ -1053,6 +1122,10 @@
             const selectedManufacturerId = parseInt(manufacturerSelect.value);
             const selectedManufacturer = manufacturerData.find(m => m.id === selectedManufacturerId);
             
+            // 获取选中的操作系统ID
+            const osSelect = document.getElementById('osIds');
+            const selectedOSIds = Array.from(osSelect.selectedOptions).map(option => parseInt(option.value));
+
             // 构建更新数据对象
             const updateData = {
                 nameEn: document.getElementById('nameEn').value,
@@ -1072,7 +1145,7 @@
                 description: document.getElementById('description').value || null,
                 size_bytes: sizeBytes, 
                 industry_ids: allSelectedSubcategories,
-                os_ids: [], // 暂时留空，因为没有API接口
+                os_ids: selectedOSIds, // 更新为实际选中的操作系统ID
                 deployment_method: document.getElementById('deploymentMethod').value || null,
                 compliance_info: document.getElementById('complianceInfo').value || null,
                 security_info: document.getElementById('securityInfo').value || null,

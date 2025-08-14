@@ -54,6 +54,7 @@ type IsmsSoftware struct {
 	UpdatedAt            string                 `protobuf:"bytes,26,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                  // 更新时间
 	IndustryNames        []string               `protobuf:"bytes,27,rep,name=industry_names,json=industryNames,proto3" json:"industry_names,omitempty"`                      // 适用行业小类名称列表
 	IndustryDetails      []*IsmsIndustry        `protobuf:"bytes,28,rep,name=industry_details,json=industryDetails,proto3" json:"industry_details,omitempty"`                // 适用行业详情
+	BitWidths            []string               `protobuf:"bytes,29,rep,name=bit_widths,json=bitWidths,proto3" json:"bit_widths,omitempty"`                                  // 支持的位宽列表
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -284,6 +285,13 @@ func (x *IsmsSoftware) GetIndustryDetails() []*IsmsIndustry {
 	return nil
 }
 
+func (x *IsmsSoftware) GetBitWidths() []string {
+	if x != nil {
+		return x.BitWidths
+	}
+	return nil
+}
+
 // 创建软件请求
 type CreateSoftwareReq struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
@@ -308,6 +316,7 @@ type CreateSoftwareReq struct {
 	Status               string                 `protobuf:"bytes,19,opt,name=status,proto3" json:"status,omitempty"`                                                         // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
 	IndustryIds          []int32                `protobuf:"varint,20,rep,packed,name=industry_ids,json=industryIds,proto3" json:"industry_ids,omitempty"`                    // 适用行业小类ID列表
 	OsIds                []int32                `protobuf:"varint,21,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`                                      // 支持的操作系统ID列表
+	BitWidths            []string               `protobuf:"bytes,22,rep,name=bit_widths,json=bitWidths,proto3" json:"bit_widths,omitempty"`                                  // 支持的位宽列表
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -489,6 +498,13 @@ func (x *CreateSoftwareReq) GetOsIds() []int32 {
 	return nil
 }
 
+func (x *CreateSoftwareReq) GetBitWidths() []string {
+	if x != nil {
+		return x.BitWidths
+	}
+	return nil
+}
+
 // 创建软件响应
 type CreateSoftwareResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -567,6 +583,7 @@ type UpdateSoftwareReq struct {
 	Status               string                 `protobuf:"bytes,20,opt,name=status,proto3" json:"status,omitempty"`                                                         // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
 	IndustryIds          []int32                `protobuf:"varint,21,rep,packed,name=industry_ids,json=industryIds,proto3" json:"industry_ids,omitempty"`                    // 适用行业小类ID列表
 	OsIds                []int32                `protobuf:"varint,22,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`                                      // 支持的操作系统ID列表
+	BitWidths            []string               `protobuf:"bytes,23,rep,name=bit_widths,json=bitWidths,proto3" json:"bit_widths,omitempty"`                                  // 支持的位宽列表
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -751,6 +768,13 @@ func (x *UpdateSoftwareReq) GetIndustryIds() []int32 {
 func (x *UpdateSoftwareReq) GetOsIds() []int32 {
 	if x != nil {
 		return x.OsIds
+	}
+	return nil
+}
+
+func (x *UpdateSoftwareReq) GetBitWidths() []string {
+	if x != nil {
+		return x.BitWidths
 	}
 	return nil
 }
@@ -1020,7 +1044,7 @@ var File_isms_v1_software_proto protoreflect.FileDescriptor
 
 const file_isms_v1_software_proto_rawDesc = "" +
 	"\n" +
-	"\x16isms/v1/software.proto\x12\aisms.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\x1a\x16isms/v1/industry.proto\"\xd1\a\n" +
+	"\x16isms/v1/software.proto\x12\aisms.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\x1a\x16isms/v1/industry.proto\"\xf0\a\n" +
 	"\fIsmsSoftware\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12 \n" +
 	"\aname_zh\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nameZh\x12\x17\n" +
@@ -1055,7 +1079,9 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\x1a \x01(\tR\tupdatedAt\x12%\n" +
 	"\x0eindustry_names\x18\x1b \x03(\tR\rindustryNames\x12@\n" +
-	"\x10industry_details\x18\x1c \x03(\v2\x15.isms.v1.IsmsIndustryR\x0findustryDetails\"\x86\x06\n" +
+	"\x10industry_details\x18\x1c \x03(\v2\x15.isms.v1.IsmsIndustryR\x0findustryDetails\x12\x1d\n" +
+	"\n" +
+	"bit_widths\x18\x1d \x03(\tR\tbitWidths\"\xa5\x06\n" +
 	"\x11CreateSoftwareReq\x12 \n" +
 	"\aname_zh\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nameZh\x12\x17\n" +
 	"\aname_en\x18\x02 \x01(\tR\x06nameEn\x12!\n" +
@@ -1081,10 +1107,12 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\x15intellectual_property\x18\x12 \x01(\tR\x14intellectualProperty\x12\x16\n" +
 	"\x06status\x18\x13 \x01(\tR\x06status\x12+\n" +
 	"\findustry_ids\x18\x14 \x03(\x05B\b\xfaB\x05\x92\x01\x02\b\x01R\vindustryIds\x12\x1f\n" +
-	"\x06os_ids\x18\x15 \x03(\x05B\b\xfaB\x05\x92\x01\x02\b\x01R\x05osIds\">\n" +
+	"\x06os_ids\x18\x15 \x03(\x05B\b\xfaB\x05\x92\x01\x02\b\x01R\x05osIds\x12\x1d\n" +
+	"\n" +
+	"bit_widths\x18\x16 \x03(\tR\tbitWidths\">\n" +
 	"\x12CreateSoftwareResp\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xe7\x05\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\x86\x06\n" +
 	"\x11UpdateSoftwareReq\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x02id\x12\x17\n" +
 	"\aname_zh\x18\x02 \x01(\tR\x06nameZh\x12\x17\n" +
@@ -1111,7 +1139,9 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\x15intellectual_property\x18\x13 \x01(\tR\x14intellectualProperty\x12\x16\n" +
 	"\x06status\x18\x14 \x01(\tR\x06status\x12!\n" +
 	"\findustry_ids\x18\x15 \x03(\x05R\vindustryIds\x12\x15\n" +
-	"\x06os_ids\x18\x16 \x03(\x05R\x05osIds\"H\n" +
+	"\x06os_ids\x18\x16 \x03(\x05R\x05osIds\x12\x1d\n" +
+	"\n" +
+	"bit_widths\x18\x17 \x03(\tR\tbitWidths\"H\n" +
 	"\x12UpdateSoftwareResp\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"\xed\x01\n" +

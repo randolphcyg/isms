@@ -14,7 +14,6 @@ import (
 )
 
 // SoftwareService 软件领域服务（关联行业逻辑、开发商逻辑）
-// 修改结构体定义，添加industryUsecase依赖
 type SoftwareService struct {
 	pb.UnimplementedSoftwareServer
 
@@ -72,7 +71,6 @@ func (s *SoftwareService) CreateSoftware(ctx context.Context, req *pb.CreateSoft
 		sysReqOther = &req.SysReqOther
 	}
 
-	// 转换API请求到领域模型
 	domainSoftware := &domain.IsmsSoftware{
 		NameZh:       req.NameZh,
 		NameEn:       req.NameEn,
@@ -94,6 +92,7 @@ func (s *SoftwareService) CreateSoftware(ctx context.Context, req *pb.CreateSoft
 		SizeBytes:   sizeBytes,
 		Status:      req.Status,
 		OsIDs:       req.OsIds,
+		BitWidths:   req.BitWidths,
 	}
 
 	// 调用biz层核心业务逻辑
@@ -164,30 +163,30 @@ func (s *SoftwareService) UpdateSoftware(ctx context.Context, req *pb.UpdateSoft
 		intellectualProperty = &req.IntellectualProperty
 	}
 
-	// 转换API请求到领域模型
 	domainSoftware := &domain.IsmsSoftware{
-		ID:                 int32(req.Id),
-		NameZh:             req.NameZh,
-		NameEn:             req.NameEn,
-		Version:            req.Version,
-		ReleaseYear:        releaseYear,
-		ReleaseMonth:       releaseMonth,
-		ReleaseDay:         releaseDay,
-		Description:        &req.Description,
-		DeveloperID:        req.DeveloperId,
-		CountryID:          req.CountryId,
-		Status:             req.Status,
-		OsIDs:              req.OsIds,
-		SizeBytes:          &req.SizeBytes,
-		CPUReq:             cpuReq,
-		MemoryMinGb:        memoryMinGb,
-		DiskMinGb:          diskMinGb,
-		SysReqOther:        sysReqOther,
-		DeploymentMethod:   deploymentMethod,
-		ComplianceInfo:     complianceInfo,
-		SecurityInfo:       securityInfo,
+		ID:                   int32(req.Id),
+		NameZh:               req.NameZh,
+		NameEn:               req.NameEn,
+		Version:              req.Version,
+		ReleaseYear:          releaseYear,
+		ReleaseMonth:         releaseMonth,
+		ReleaseDay:           releaseDay,
+		Description:          &req.Description,
+		DeveloperID:          req.DeveloperId,
+		CountryID:            req.CountryId,
+		Status:               req.Status,
+		OsIDs:                req.OsIds,
+		SizeBytes:            &req.SizeBytes,
+		CPUReq:               cpuReq,
+		MemoryMinGb:          memoryMinGb,
+		DiskMinGb:            diskMinGb,
+		SysReqOther:          sysReqOther,
+		DeploymentMethod:     deploymentMethod,
+		ComplianceInfo:       complianceInfo,
+		SecurityInfo:         securityInfo,
 		IntellectualProperty: intellectualProperty,
-		IndustryIDs:        req.IndustryIds,
+		IndustryIDs:          req.IndustryIds,
+		BitWidths:            req.BitWidths,
 	}
 
 	// 调用biz层核心业务逻辑
@@ -290,6 +289,7 @@ func (s *SoftwareService) ListSoftware(ctx context.Context, req *pb.ListSoftware
 			OsIds:           sw.OsIDs,
 			CreatedAt:       sw.CreatedAt.Format(time.RFC3339),
 			UpdatedAt:       sw.UpdatedAt.Format(time.RFC3339),
+			BitWidths:       sw.BitWidths,
 		})
 	}
 
@@ -379,5 +379,6 @@ func (s *SoftwareService) GetSoftwareById(ctx context.Context, req *pb.GetSoftwa
 		IndustryDetails: industryDetails,
 		CreatedAt:       sw.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:       sw.UpdatedAt.Format(time.RFC3339),
+		BitWidths:       sw.BitWidths,
 	}, nil
 }

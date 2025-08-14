@@ -38,6 +38,7 @@ message IsmsSoftware {
   string updated_at = 26; // 更新时间
   repeated string industry_names = 27; // 适用行业小类名称列表
   repeated IsmsIndustry industry_details = 28; // 适用行业详情
+  repeated string bit_widths = 29; // 支持的位宽列表
 }
 
 // 创建软件请求
@@ -63,6 +64,7 @@ message CreateSoftwareReq {
   string status = 19; // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
   repeated int32 industry_ids = 20 [(validate.rules).repeated.min_items = 1]; // 适用行业小类ID列表
   repeated int32 os_ids = 21 [(validate.rules).repeated.min_items = 1]; // 支持的操作系统ID列表
+  repeated string bit_widths = 22; // 支持的位宽列表
 }
 
 // 创建软件响应
@@ -95,6 +97,7 @@ message UpdateSoftwareReq {
   string status = 20; // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
   repeated int32 industry_ids = 21; // 适用行业小类ID列表
   repeated int32 os_ids = 22; // 支持的操作系统ID列表
+  repeated string bit_widths = 23; // 支持的位宽列表
 }
 
 // 更新软件响应

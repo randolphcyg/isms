@@ -293,7 +293,6 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 		}
 	}
 
-	// 转换数据模型到领域模型
 	var domainSoftwares []*domain.IsmsSoftware
 	for _, m := range modelSoftwares {
 		sw := &domain.IsmsSoftware{

@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	v1 "isms/api/isms/v1"
 	"isms/internal/data/model"
@@ -29,6 +30,10 @@ func NewSoftwareRepo(db *gorm.DB, logger log.Logger) domain.SoftwareRepo {
 }
 
 func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware) (*domain.IsmsSoftware, error) {
+	var bitWidths string
+	if len(software.BitWidths) > 0 {
+		bitWidths = strings.Join(software.BitWidths, ",")
+	}
 	// 领域模型转数据模型
 	dataModel := &model.IsmsSoftware{
 		NameZh:       software.NameZh,
@@ -46,6 +51,7 @@ func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware
 		DeveloperID:  software.DeveloperID,
 		SizeBytes:    software.SizeBytes,
 		Status:       software.Status,
+		BitWidths:    &bitWidths,
 	}
 
 	// 插入数据
@@ -88,6 +94,10 @@ func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware
 }
 
 func (s *softwareRepo) Update(ctx context.Context, software *domain.IsmsSoftware) error {
+	var bitWidths string
+	if len(software.BitWidths) > 0 {
+		bitWidths = strings.Join(software.BitWidths, ",")
+	}
 	// 领域模型转数据模型
 	dataModel := &model.IsmsSoftware{
 		ID:           software.ID,
@@ -106,6 +116,7 @@ func (s *softwareRepo) Update(ctx context.Context, software *domain.IsmsSoftware
 		DeveloperID:  software.DeveloperID,
 		SizeBytes:    software.SizeBytes,
 		Status:       software.Status,
+		BitWidths:    &bitWidths,
 	}
 
 	// 更新数据
@@ -200,6 +211,11 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 		osIDs = append(osIDs, rel.OsID)
 	}
 
+	var bitWidths []string
+	if dataModel.BitWidths != nil {
+		bitWidths = strings.Split(*dataModel.BitWidths, ",")
+	}
+
 	// 转换数据模型到领域模型
 	return &domain.IsmsSoftware{
 		ID:           dataModel.ID,
@@ -222,6 +238,7 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 		OsIDs:        osIDs,
 		CreatedAt:    dataModel.CreatedAt,
 		UpdatedAt:    dataModel.UpdatedAt,
+		BitWidths:    bitWidths,
 	}, nil
 }
 
@@ -295,6 +312,11 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 
 	var domainSoftwares []*domain.IsmsSoftware
 	for _, m := range modelSoftwares {
+		var bitWidths []string
+		if m.BitWidths != nil {
+			bitWidths = strings.Split(*m.BitWidths, ",")
+		}
+
 		sw := &domain.IsmsSoftware{
 			ID:           m.ID,
 			NameZh:       m.NameZh,
@@ -314,6 +336,7 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 			Status:       m.Status,
 			CreatedAt:    m.CreatedAt,
 			UpdatedAt:    m.UpdatedAt,
+			BitWidths:    bitWidths,
 		}
 
 		// 设置行业ID

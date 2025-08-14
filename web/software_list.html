@@ -14,6 +14,23 @@
         .error { background-color: #f8d7da; color: #721c24; }
         .success { background-color: #d4edda; color: #155724; }
 
+        /* 位宽标签样式 */
+        .bitwidth-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .bitwidth-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: normal;
+            background-color: #17a2b8; /* 蓝绿色 */
+            color: white;
+        }
+
         /* 描述字段样式 */
         .description-cell {
             display: inline-block;
@@ -287,8 +304,8 @@
         }
         
         /* 冻结倒数第三列 (软件大小) */
-        th:nth-child(15),
-        td:nth-child(15) {
+        th:nth-child(16),
+        td:nth-child(16) {
             position: sticky;
             right: 270px; /* 倒数第二列宽度(150px) + 最后一列宽度(120px) */
             background-color: #f2f2f2;
@@ -296,8 +313,8 @@
         }
         
         /* 冻结倒数第二列 (所属行业) */
-        th:nth-child(16),
-        td:nth-child(16) {
+        th:nth-child(17),
+        td:nth-child(17) {
             position: sticky;
             right: 120px; /* 最后一列的宽度 */
             background-color: #f2f2f2;
@@ -305,8 +322,8 @@
         }
         
         /* 冻结最后一列 (操作) */
-        th:nth-child(17),
-        td:nth-child(17) {
+        th:nth-child(18),
+        td:nth-child(18) {
             position: sticky;
             right: 0;
             background-color: #f2f2f2;
@@ -316,13 +333,13 @@
         /* 为冻结列添加右边框以增强视觉效果 */
         th:nth-child(2),
         td:nth-child(2),
-        th:nth-child(15),
-        td:nth-child(15) {
+        th:nth-child(16),
+        td:nth-child(16) {
             border-right: 2px solid #ddd;
         }
         
-        th:nth-child(17),
-        td:nth-child(17) {
+        th:nth-child(18),
+        td:nth-child(18) {
             border-left: 2px solid #ddd;
         }
     </style>
@@ -342,6 +359,7 @@
                     <th style="width: 60px;">中文名</th>
                     <th style="width: 80px;">版本</th>
                     <th style="width: 80px;">国家</th>
+                    <th style="width: 80px;">位宽</th>
                     <th style="width: 80px;">厂商</th>
                     <th style="width: 80px;">描述</th>
                     <th style="width: 100px;">发布日期</th>
@@ -548,6 +566,15 @@
                     industryTags = `<div class="industry-tags">${tagsHtml}</div>`;
                 }
 
+                // 位宽标签
+                let bitWidthTags = '<div class="bitwidth-tags">-</div>';
+                if (software.bitWidths && software.bitWidths.length > 0) {
+                    const tagsHtml = software.bitWidths.map(bitWidth => {
+                        return `<span class="bitwidth-tag">${bitWidth}</span>`;
+                    }).join('');
+                    bitWidthTags = `<div class="bitwidth-tags">${tagsHtml}</div>`;
+                }
+
                 const actions = `
                     <button class="edit-btn" data-id="${id}">修改</button>
                     <button class="delete-btn" data-id="${id}">删除</button>
@@ -560,6 +587,7 @@
                     <td>${nameZh}</td>
                     <td>${version}</td>
                     <td>${countryName}</td>
+                    <td>${bitWidthTags}</td>
                     <td>${developerName}</td>
                     <td>
                         ${description === '-' ? 

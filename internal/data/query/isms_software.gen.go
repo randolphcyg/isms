@@ -50,6 +50,7 @@ func newIsmsSoftware(db *gorm.DB, opts ...gen.DOOption) ismsSoftware {
 	_ismsSoftware.Status = field.NewString(tableName, "status")
 	_ismsSoftware.CreatedAt = field.NewTime(tableName, "created_at")
 	_ismsSoftware.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_ismsSoftware.BitWidths = field.NewString(tableName, "bit_widths")
 
 	_ismsSoftware.fillFieldMap()
 
@@ -83,6 +84,7 @@ type ismsSoftware struct {
 	Status               field.String  // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
 	CreatedAt            field.Time    // 创建时间
 	UpdatedAt            field.Time    // 更新时间
+	BitWidths            field.String  // 支持的位宽集合
 
 	fieldMap map[string]field.Expr
 }
@@ -121,6 +123,7 @@ func (i *ismsSoftware) updateTableName(table string) *ismsSoftware {
 	i.Status = field.NewString(table, "status")
 	i.CreatedAt = field.NewTime(table, "created_at")
 	i.UpdatedAt = field.NewTime(table, "updated_at")
+	i.BitWidths = field.NewString(table, "bit_widths")
 
 	i.fillFieldMap()
 
@@ -149,7 +152,7 @@ func (i *ismsSoftware) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (i *ismsSoftware) fillFieldMap() {
-	i.fieldMap = make(map[string]field.Expr, 22)
+	i.fieldMap = make(map[string]field.Expr, 23)
 	i.fieldMap["id"] = i.ID
 	i.fieldMap["name_zh"] = i.NameZh
 	i.fieldMap["name_en"] = i.NameEn
@@ -172,6 +175,7 @@ func (i *ismsSoftware) fillFieldMap() {
 	i.fieldMap["status"] = i.Status
 	i.fieldMap["created_at"] = i.CreatedAt
 	i.fieldMap["updated_at"] = i.UpdatedAt
+	i.fieldMap["bit_widths"] = i.BitWidths
 }
 
 func (i ismsSoftware) clone(db *gorm.DB) ismsSoftware {

@@ -34,6 +34,7 @@ type IsmsSoftware struct {
 	Status               string    `gorm:"column:status;type:enum('active','inactive','testing','discontinued');not null;index:idx_status,priority:1;default:active;comment:状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）" json:"status"` // 状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）
 	CreatedAt            time.Time `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                                                                                                       // 创建时间
 	UpdatedAt            time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`                                                                                                       // 更新时间
+	BitWidths            *string   `gorm:"column:bit_widths;type:set('8bit','16bit','32bit','64bit','128bit','256bit','512bit');comment:支持的位宽集合" json:"bit_widths"`                                                                                 // 支持的位宽集合
 }
 
 // TableName IsmsSoftware's table name

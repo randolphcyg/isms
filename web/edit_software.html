@@ -100,7 +100,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         /* 在较小屏幕上每行显示一个 */
         @media (max-width: 768px) {
             .subcategory-label {
@@ -127,7 +127,7 @@
             border-radius: 3px;
             font-size: 12px;
         }
-        
+
         .industry-tag .remove-tag {
             margin-left: 5px;
             cursor: pointer;
@@ -150,7 +150,7 @@
         .tree-selector-input:hover {
             border-color: #007bff;
         }
-        
+
         .tree-selector-dropdown {
             position: absolute;
             top: 100%;
@@ -220,7 +220,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 5px;
         }
-        
+
         /* 已选择的行业标签样式 */
         .selected-industries-container {
             margin-bottom: 10px;
@@ -240,7 +240,7 @@
             border-radius: 3px;
             font-size: 12px;
         }
-        
+
         .selected-industry-tag .remove-tag {
             margin-left: 5px;
             cursor: pointer;
@@ -255,8 +255,31 @@
         .tree-node input[type="checkbox"] {
             margin-right: 8px;
         }
+
+        /* 位宽标签样式 */
+        .bit-width-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            margin: 4px 2px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .bit-width-tag:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .bit-width-tag.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
         </style>
-    </style>
 </head>
 <body>
     <div class="container">
@@ -345,6 +368,20 @@
                     <div class="form-group">
                         <label for="sysReqOther">其他系统要求</label>
                         <textarea id="sysReqOther" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <!-- 位宽字段 -->
+                <div class="form-group">
+                    <label>支持的位宽</label>
+                    <div id="bitWidthTags">
+                        <span class="bit-width-tag" data-value="8bit">8bit</span>
+                        <span class="bit-width-tag" data-value="16bit">16bit</span>
+                        <span class="bit-width-tag" data-value="32bit">32bit</span>
+                        <span class="bit-width-tag" data-value="64bit">64bit</span>
+                        <span class="bit-width-tag" data-value="128bit">128bit</span>
+                        <span class="bit-width-tag" data-value="256bit">256bit</span>
+                        <span class="bit-width-tag" data-value="512bit">512bit</span>
                     </div>
                 </div>
             </fieldset>
@@ -481,6 +518,13 @@
         
         // 页面加载时获取厂商列表
         document.addEventListener('DOMContentLoaded', async function() {
+            // 添加位宽标签点击事件
+            document.getElementById('bitWidthTags').addEventListener('click', function(e) {
+                if (e.target.classList.contains('bit-width-tag')) {
+                    e.target.classList.toggle('selected');
+                }
+            });
+
             // 从URL获取软件ID
             const urlParams = new URLSearchParams(window.location.search);
             softwareId = urlParams.get('id');
@@ -1006,10 +1050,20 @@
                 }
             });
         }
-            } catch (error) {
-                showMessage(error.message, 'error');
-                console.error('加载软件数据错误:', error);
-            }
+
+        // 加载位宽数据
+        if (Array.isArray(software.bitWidths)) {
+            const bitWidthTags = document.querySelectorAll('.bit-width-tag');
+            bitWidthTags.forEach(tag => {
+                if (software.bitWidths.includes(tag.dataset.value)) {
+                    tag.classList.add('selected');
+                }
+            });
+        }
+        } catch (error) {
+            showMessage(error.message, 'error');
+            console.error('加载软件数据错误:', error);
+        }
         }
 
         // 将字节转换为合适的单位
@@ -1145,12 +1199,13 @@
                 description: document.getElementById('description').value || null,
                 size_bytes: sizeBytes, 
                 industry_ids: allSelectedSubcategories,
-                os_ids: selectedOSIds, // 更新为实际选中的操作系统ID
+                os_ids: selectedOSIds,
                 deployment_method: document.getElementById('deploymentMethod').value || null,
                 compliance_info: document.getElementById('complianceInfo').value || null,
                 security_info: document.getElementById('securityInfo').value || null,
                 intellectual_property: document.getElementById('intellectualProperty').value || null,
-                status: document.getElementById('status').value
+                status: document.getElementById('status').value,
+                bit_widths: Array.from(document.querySelectorAll('.bit-width-tag.selected')).map(tag => tag.dataset.value)
             };
 
             // 验证必填字段
@@ -1175,10 +1230,10 @@
 
                 showMessage('工业软件更新成功！', 'success');
                 
-                // 3秒后跳转回软件列表页面
-                setTimeout(() => {
-                    window.location.href = 'software_list.html';
-                }, 3000);
+                // // 3秒后跳转回软件列表页面
+                // setTimeout(() => {
+                //     window.location.href = 'software_list.html';
+                // }, 3000);
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('更新表单错误:', error);

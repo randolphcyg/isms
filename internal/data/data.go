@@ -16,6 +16,7 @@ var ProviderSet = wire.NewSet(NewData,
 	repo.NewDeveloperRepo,
 	repo.NewSoftwareRepo,
 	repo.NewCountryRepo,
+	repo.NewOSRepo,
 )
 
 // Data .

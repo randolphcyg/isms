@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作系统列表</title>
+    <style>
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .success { background-color: #d4edda; color: #155724; }
+        
+        /* 分页控件样式 */
+        .pagination { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            margin-top: 20px; 
+            gap: 10px;
+        }
+        .pagination button { 
+            padding: 8px 12px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        .pagination button:disabled { 
+            background-color: #ccc; 
+            cursor: not-allowed; 
+        }
+        .pagination input { 
+            width: 60px; 
+            padding: 6px; 
+            text-align: center; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        .pagination span { 
+            margin: 0 5px; 
+        }
+        
+        /* 搜索框样式 */
+        .search-box { 
+            margin-bottom: 20px; 
+            display: flex; 
+            gap: 10px; 
+            align-items: center; 
+        }
+        .search-box input, .search-box select { 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        .search-box button { 
+            padding: 8px 12px; 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="menu.html" class="back-link">← 返回菜单</a>
+        <h1>操作系统列表</h1>
+        <div id="message" class="message"></div>
+        
+        <!-- 搜索框 -->
+        <div class="search-box">
+            <input type="text" id="keywordInput" placeholder="搜索名称或版本">
+            <input type="text" id="manufacturerInput" placeholder="按开发商筛选">
+            <button id="searchBtn">搜索</button>
+            <button id="resetBtn">重置</button>
+        </div>
+        
+        <table id="osTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>版本</th>
+                    <th>架构</th>
+                    <th>开发商</th>
+                    <th>发布年份</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody id="osTableBody"></tbody>
+        </table>
+        
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination">
+            <button id="firstPage">首页</button>
+            <button id="prevPage">上一页</button>
+            <span>第 <input type="number" id="pageInput" min="1" value="1"> 页</span>
+            <span>/ 共 <span id="totalPages">1</span> 页</span>
+            <button id="nextPage">下一页</button>
+            <button id="lastPage">末页</button>
+            <span>每页 <input type="number" id="pageSizeInput" min="1" max="100" value="20"> 条</span>
+            <button id="goPage">跳转</button>
+        </div>
+    </div>
+
+    <script>
+        // 后端API基础URL
+        const API_BASE_URL = 'http://localhost:8000/v1';
+        
+        // 当前分页状态
+        let currentPage = 1;
+        let pageSize = 20;
+        let total = 0;
+        
+        // 搜索条件
+        let searchKeyword = '';
+        let searchManufacturer = '';
+
+        // 页面加载时获取操作系统列表
+        document.addEventListener('DOMContentLoaded', function() {
+            setupPagination();
+            setupSearch();
+            fetchOSList(currentPage, pageSize);
+        });
+
+        // 设置分页控件事件监听
+        function setupPagination() {
+            document.getElementById('firstPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    fetchOSList(1, pageSize);
+                }
+            });
+            
+            document.getElementById('prevPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    fetchOSList(currentPage - 1, pageSize);
+                }
+            });
+            
+            document.getElementById('nextPage').addEventListener('click', () => {
+                const totalPages = Math.ceil(total / pageSize);
+                if (currentPage < totalPages) {
+                    fetchOSList(currentPage + 1, pageSize);
+                }
+            });
+            
+            document.getElementById('lastPage').addEventListener('click', () => {
+                const totalPages = Math.ceil(total / pageSize);
+                if (currentPage < totalPages) {
+                    fetchOSList(totalPages, pageSize);
+                }
+            });
+            
+            document.getElementById('goPage').addEventListener('click', () => {
+                const pageInput = document.getElementById('pageInput');
+                const page = parseInt(pageInput.value);
+                const totalPages = Math.ceil(total / pageSize);
+                
+                if (page >= 1 && page <= totalPages) {
+                    fetchOSList(page, pageSize);
+                } else {
+                    showMessage(`请输入有效的页码 (1-${totalPages})`, 'error');
+                }
+            });
+            
+            document.getElementById('pageSizeInput').addEventListener('change', (e) => {
+                const newSize = parseInt(e.target.value);
+                if (newSize >= 1 && newSize <= 100) {
+                    pageSize = newSize;
+                    fetchOSList(1, pageSize); // 重置到第一页
+                } else {
+                    showMessage('每页条数应在1-100之间', 'error');
+                    e.target.value = pageSize;
+                }
+            });
+            
+            // 回车跳转页面
+            document.getElementById('pageInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('goPage').click();
+                }
+            });
+            
+            // 回车设置每页条数
+            document.getElementById('pageSizeInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('pageSizeInput').dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        // 设置搜索控件事件监听
+        function setupSearch() {
+            document.getElementById('searchBtn').addEventListener('click', () => {
+                searchKeyword = document.getElementById('keywordInput').value.trim();
+                searchManufacturer = document.getElementById('manufacturerInput').value.trim();
+                fetchOSList(1, pageSize); // 重置到第一页
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                document.getElementById('keywordInput').value = '';
+                document.getElementById('manufacturerInput').value = '';
+                searchKeyword = '';
+                searchManufacturer = '';
+                fetchOSList(1, pageSize); // 重置到第一页
+            });
+            
+            // 回车搜索
+            document.getElementById('keywordInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('searchBtn').click();
+                }
+            });
+            
+            document.getElementById('manufacturerInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('searchBtn').click();
+                }
+            });
+        }
+
+        // 获取操作系统列表
+        async function fetchOSList(page = 1, pageSize = 20) {
+            try {
+                // 构建查询参数
+                let url = `${API_BASE_URL}/os?page=${page}&page_size=${pageSize}`;
+                if (searchKeyword) {
+                    url += `&keyword=${encodeURIComponent(searchKeyword)}`;
+                }
+                if (searchManufacturer) {
+                    url += `&manufacturer=${encodeURIComponent(searchManufacturer)}`;
+                }
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`获取操作系统列表失败: ${response.status} ${response.statusText}`);
+                
+                const result = await response.json();
+                
+                // 检查响应数据结构
+                if (!result || typeof result !== 'object') {
+                    throw new Error('服务器响应格式错误');
+                }
+                
+                // 提取数据数组
+                const data = Array.isArray(result.items) ? result.items : [];
+                total = result.total || 0;
+                currentPage = result.page || page;
+                
+                // 更新分页控件
+                updatePaginationControls();
+                
+                // 渲染表格
+                renderOSTable(data);
+                
+                // 显示成功消息
+                showMessage(`成功加载 ${data.length} 条操作系统数据`, 'success');
+            } catch (error) {
+                showMessage(error.message, 'error');
+                console.error('获取操作系统列表错误:', error);
+                
+                // 渲染空表格
+                renderOSTable([]);
+            }
+        }
+
+        // 渲染操作系统表格
+        function renderOSTable(data) {
+            const tableBody = document.getElementById('osTableBody');
+            tableBody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="7" style="text-align: center;">暂无数据</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+
+            data.forEach(os => {
+                // 数据存在性检查和默认值设置
+                const id = os.id || '-';
+                const name = os.name || '未设置';
+                const version = os.version || '未设置';
+                const architecture = os.architecture || '未知';
+                const manufacturer = os.manufacturer || '未知';
+                const releaseYear = os.release_year || '-';
+                const createdAt = formatDate(os.created_at) || '-';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${id}</td>
+                    <td>${name}</td>
+                    <td>${version}</td>
+                    <td>${architecture}</td>
+                    <td>${manufacturer}</td>
+                    <td>${releaseYear}</td>
+                    <td>${createdAt}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 更新分页控件状态
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(total / pageSize);
+            
+            // 更新页码输入框
+            document.getElementById('pageInput').value = currentPage;
+            document.getElementById('pageInput').min = 1;
+            document.getElementById('pageInput').max = totalPages;
+            
+            // 更新总页数显示
+            document.getElementById('totalPages').textContent = totalPages || 1;
+            
+            // 更新按钮状态
+            document.getElementById('firstPage').disabled = currentPage <= 1;
+            document.getElementById('prevPage').disabled = currentPage <= 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+            document.getElementById('lastPage').disabled = currentPage >= totalPages;
+            
+            // 更新每页条数输入框
+            document.getElementById('pageSizeInput').value = pageSize;
+        }
+
+        // 格式化日期时间
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return '-'; // 无效日期
+                
+                // 使用中文格式化日期
+                return new Intl.DateTimeFormat('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).format(date);
+            } catch (error) {
+                console.error('日期格式化错误:', error);
+                return '-'; // 格式化失败时返回默认值
+            }
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+
+            // 3秒后自动清除消息
+            setTimeout(() => {
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

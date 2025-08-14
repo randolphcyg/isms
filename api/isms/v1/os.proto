@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package isms.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "isms/api/isms/v1;v1";
+
+// 操作系统服务
+service OS {
+  // 创建操作系统
+  rpc CreateOS (CreateOSReq) returns (OSResp) {
+    option (google.api.http) = {
+      post: "/v1/os"
+      body: "*"
+    };
+  }
+
+  // 更新操作系统
+  rpc UpdateOS (UpdateOSReq) returns (OSResp) {
+    option (google.api.http) = {
+      put: "/v1/os/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除操作系统
+  rpc DeleteOS (DeleteOSReq) returns (DeleteOSResp) {
+    option (google.api.http) = {
+      delete: "/v1/os/{id}"
+    };
+  }
+
+  // 查询单个操作系统
+  rpc GetOS (GetOSReq) returns (OSResp) {
+    option (google.api.http) = {
+      get: "/v1/os/{id}"
+    };
+  }
+
+  // 分页查询操作系统列表
+  rpc ListOS (ListOSReq) returns (ListOSResp) {
+    option (google.api.http) = {
+      get: "/v1/os"
+    };
+  }
+}
+
+// 创建操作系统请求
+message CreateOSReq {
+  string name = 1 [(validate.rules).string = {min_len: 1, max_len: 200}]; // 系统名称（如：Microsoft Windows、Ubuntu）
+  string version = 2 [(validate.rules).string = {min_len: 1, max_len: 50}]; // 系统版本（如：7、10、20.04 LTS）
+  string manufacturer = 3 [(validate.rules).string = {min_len: 1, max_len: 200}]; // 系统开发商（如：Microsoft、Canonical）
+  string architecture = 4 [(validate.rules).string = {min_len: 1, max_len: 20}]; // 硬件架构 (如 x86, x64, arm32, arm64)
+  int32 release_year = 5 [(validate.rules).int32 = {lte: 2030}]; // 发布年份
+  string description = 6 [(validate.rules).string.max_len = 65535]; // 系统说明（如包含的细分版本）
+}
+
+// 更新操作系统请求
+message UpdateOSReq {
+  uint32 id = 1 [(validate.rules).uint32 = {gt: 0}]; // 操作系统ID
+  string name = 2 [(validate.rules).string = {min_len: 1, max_len: 200}]; // 系统名称（如：Microsoft Windows、Ubuntu）
+  string version = 3 [(validate.rules).string = {min_len: 1, max_len: 50}]; // 系统版本（如：7、10、20.04 LTS）
+  string manufacturer = 4 [(validate.rules).string = {min_len: 1, max_len: 200}]; // 系统开发商（如：Microsoft、Canonical）
+  string architecture = 5 [(validate.rules).string = {min_len: 1, max_len: 20}]; // 硬件架构 (如 x86, x64, arm32, arm64)
+  int32 release_year = 6 [(validate.rules).int32 = {lte: 2030}]; // 发布年份
+  string description = 7 [(validate.rules).string.max_len = 65535]; // 系统说明（如包含的细分版本）
+}
+
+// 删除操作系统请求
+message DeleteOSReq {
+  uint32 id = 1 [(validate.rules).uint32 = {gt: 0}]; // 操作系统ID
+}
+
+// 删除操作系统响应
+message DeleteOSResp {
+  bool success = 1; // 是否删除成功
+  string message = 2; // 操作消息
+}
+
+// 查询单个操作系统请求
+message GetOSReq {
+  uint32 id = 1 [(validate.rules).uint32 = {gt: 0}]; // 操作系统ID
+}
+
+// 分页查询操作系统请求
+message ListOSReq {
+  uint32 page = 1 [(validate.rules).uint32 = {gt: 0}]; // 页码
+  uint32 page_size = 2 [(validate.rules).uint32 = {gt: 0, lte: 100}]; // 每页条数
+  string keyword = 3; // 搜索关键词(匹配名称或版本)
+  string manufacturer = 4; // 按开发商筛选
+}
+
+// 单个操作系统响应
+message OSResp {
+  uint32 id = 1; // 自增ID
+  string name = 2; // 系统名称（如：Microsoft Windows、Ubuntu）
+  string version = 3; // 系统版本（如：7、10、20.04 LTS）
+  string architecture = 4; // 硬件架构
+  string manufacturer = 5; // 系统开发商（如：Microsoft、Canonical）
+  int32 release_year = 6; // 发布年份
+  string description = 7; // 系统说明（如包含的细分版本）
+  string created_at = 8; // 创建时间(RFC3339)
+  string updated_at = 9; // 更新时间(RFC3339)
+}
+
+// 操作系统列表响应
+message ListOSResp {
+  repeated OSResp items = 1; // 操作系统列表
+  uint32 total = 2; // 总记录数
+  uint32 page = 3; // 当前页码
+  uint32 page_size = 4; // 每页条数
+}

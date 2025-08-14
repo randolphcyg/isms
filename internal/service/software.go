@@ -129,20 +129,65 @@ func (s *SoftwareService) UpdateSoftware(ctx context.Context, req *pb.UpdateSoft
 		releaseDay = &req.ReleaseDay
 	}
 
+	// 系统要求字段
+	var cpuReq *string
+	var memoryMinGb *float64
+	var diskMinGb *float64
+	var sysReqOther *string
+	var deploymentMethod *string
+	var complianceInfo *string
+	var securityInfo *string
+	var intellectualProperty *string
+
+	if req.CpuReq != "" {
+		cpuReq = &req.CpuReq
+	}
+	if req.MemoryMinGb > 0 {
+		memoryMinGb = &req.MemoryMinGb
+	}
+	if req.DiskMinGb > 0 {
+		diskMinGb = &req.DiskMinGb
+	}
+	if req.SysReqOther != "" {
+		sysReqOther = &req.SysReqOther
+	}
+	if req.DeploymentMethod != "" {
+		deploymentMethod = &req.DeploymentMethod
+	}
+	if req.ComplianceInfo != "" {
+		complianceInfo = &req.ComplianceInfo
+	}
+	if req.SecurityInfo != "" {
+		securityInfo = &req.SecurityInfo
+	}
+	if req.IntellectualProperty != "" {
+		intellectualProperty = &req.IntellectualProperty
+	}
+
 	// 转换API请求到领域模型
 	domainSoftware := &domain.IsmsSoftware{
-		ID:           int32(req.Id),
-		NameZh:       req.NameZh,
-		NameEn:       req.NameEn,
-		Version:      req.Version,
-		ReleaseYear:  releaseYear,
-		ReleaseMonth: releaseMonth,
-		ReleaseDay:   releaseDay,
-		Description:  &req.Description,
-		CountryID:    int32(req.CountryId),
-		Status:       req.Status,
-		OsIDs:        req.OsIds,
-		SizeBytes:    &req.SizeBytes,
+		ID:                 int32(req.Id),
+		NameZh:             req.NameZh,
+		NameEn:             req.NameEn,
+		Version:            req.Version,
+		ReleaseYear:        releaseYear,
+		ReleaseMonth:       releaseMonth,
+		ReleaseDay:         releaseDay,
+		Description:        &req.Description,
+		DeveloperID:        req.DeveloperId,
+		CountryID:          req.CountryId,
+		Status:             req.Status,
+		OsIDs:              req.OsIds,
+		SizeBytes:          &req.SizeBytes,
+		CPUReq:             cpuReq,
+		MemoryMinGb:        memoryMinGb,
+		DiskMinGb:          diskMinGb,
+		SysReqOther:        sysReqOther,
+		DeploymentMethod:   deploymentMethod,
+		ComplianceInfo:     complianceInfo,
+		SecurityInfo:       securityInfo,
+		IntellectualProperty: intellectualProperty,
+		IndustryIDs:        req.IndustryIds,
 	}
 
 	// 调用biz层核心业务逻辑

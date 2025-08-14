@@ -16,6 +16,7 @@ func NewGRPCServer(c *conf.Server,
 	developerService *service.DeveloperService,
 	softwareService *service.SoftwareService,
 	countryService *service.CountryService,
+	osService *service.OSService,
 	logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(

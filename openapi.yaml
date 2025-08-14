@@ -248,6 +248,120 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/isms.v1.DeveloperResp'
+    /v1/os:
+        get:
+            tags:
+                - OS
+            description: 分页查询操作系统列表
+            operationId: OS_ListOS
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: manufacturer
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.ListOSResp'
+        post:
+            tags:
+                - OS
+            description: 创建操作系统
+            operationId: OS_CreateOS
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/isms.v1.CreateOSReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.OSResp'
+    /v1/os/{id}:
+        get:
+            tags:
+                - OS
+            description: 查询单个操作系统
+            operationId: OS_GetOS
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.OSResp'
+        put:
+            tags:
+                - OS
+            description: 更新操作系统
+            operationId: OS_UpdateOS
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/isms.v1.UpdateOSReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.OSResp'
+        delete:
+            tags:
+                - OS
+            description: 删除操作系统
+            operationId: OS_DeleteOS
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/isms.v1.DeleteOSResp'
     /v1/software:
         get:
             tags:
@@ -404,6 +518,23 @@ components:
                 description:
                     type: string
             description: 创建开发商的请求参数
+        isms.v1.CreateOSReq:
+            type: object
+            properties:
+                name:
+                    type: string
+                version:
+                    type: string
+                manufacturer:
+                    type: string
+                architecture:
+                    type: string
+                releaseYear:
+                    type: integer
+                    format: int32
+                description:
+                    type: string
+            description: 创建操作系统请求
         isms.v1.CreateSoftwareReq:
             type: object
             properties:
@@ -479,6 +610,14 @@ components:
                 message:
                     type: string
             description: 删除国家响应
+        isms.v1.DeleteOSResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                message:
+                    type: string
+            description: 删除操作系统响应
         isms.v1.DeveloperResp:
             type: object
             properties:
@@ -653,6 +792,23 @@ components:
                     type: integer
                     format: uint32
             description: 分页查询开发商的响应
+        isms.v1.ListOSResp:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/isms.v1.OSResp'
+                total:
+                    type: integer
+                    format: uint32
+                page:
+                    type: integer
+                    format: uint32
+                pageSize:
+                    type: integer
+                    format: uint32
+            description: 操作系统列表响应
         isms.v1.ListSoftwareResp:
             type: object
             properties:
@@ -669,6 +825,30 @@ components:
                     type: integer
                     format: int32
             description: 查询软件响应
+        isms.v1.OSResp:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                version:
+                    type: string
+                architecture:
+                    type: string
+                manufacturer:
+                    type: string
+                releaseYear:
+                    type: integer
+                    format: int32
+                description:
+                    type: string
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+            description: 单个操作系统响应
         isms.v1.UpdateCountryReq:
             type: object
             properties:
@@ -702,6 +882,26 @@ components:
                 description:
                     type: string
             description: 更新开发商的请求参数
+        isms.v1.UpdateOSReq:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                version:
+                    type: string
+                manufacturer:
+                    type: string
+                architecture:
+                    type: string
+                releaseYear:
+                    type: integer
+                    format: int32
+                description:
+                    type: string
+            description: 更新操作系统请求
         isms.v1.UpdateSoftwareReq:
             type: object
             properties:
@@ -778,5 +978,7 @@ tags:
       description: 开发商
     - name: Industry
       description: 行业分类
+    - name: OS
+      description: 操作系统服务
     - name: Software
       description: 工业软件

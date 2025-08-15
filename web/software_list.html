@@ -10,9 +10,75 @@
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
         .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        /* 修改消息提示样式，使其居中悬浮显示 */
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 20px;
+            border-radius: 4px;
+            z-index: 1000;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
         .error { background-color: #f8d7da; color: #721c24; }
         .success { background-color: #d4edda; color: #155724; }
+
+        /* 修改表格单元格样式，让中英文名可以换行 */
+        table td:nth-child(2), /* 英文名列 */
+        table td:nth-child(3)  /* 中文名列 */
+        {
+            white-space: normal; /* 允许换行 */
+            word-wrap: break-word; /* 长单词换行 */
+            max-width: 120px; /* 设置最大宽度 */
+        }
+
+        /* 如果需要，也可以调整表头的宽度 */
+        table th:nth-child(2), /* 英文名表头 */
+        table th:nth-child(3)  /* 中文名表头 */
+        {
+            width: 120px; /* 调整宽度 */
+        }
+
+        /* 来源页面和下载链接列样式 */
+        .source-url-cell, .download-link-cell {
+            display: inline-block;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        
+        .source-url-cell {
+            color: #007bff;
+            text-decoration: underline;
+        }
+        
+        .download-link-cell {
+            position: relative;
+            padding-right: 20px; /* 为复制图标留出空间 */
+        }
+        
+        /* 复制图标样式 */
+        .copy-icon {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'%3E%3C/path%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+        
+        .download-link-cell:hover .copy-icon {
+            stroke: #007bff;
+        }
 
         /* 位宽标签样式 */
         .bitwidth-tags {
@@ -304,8 +370,8 @@
         }
         
         /* 冻结倒数第三列 (软件大小) */
-        th:nth-child(16),
-        td:nth-child(16) {
+        th:nth-child(18),
+        td:nth-child(18) {
             position: sticky;
             right: 270px; /* 倒数第二列宽度(150px) + 最后一列宽度(120px) */
             background-color: #f2f2f2;
@@ -313,8 +379,8 @@
         }
         
         /* 冻结倒数第二列 (所属行业) */
-        th:nth-child(17),
-        td:nth-child(17) {
+        th:nth-child(19),
+        td:nth-child(19) {
             position: sticky;
             right: 120px; /* 最后一列的宽度 */
             background-color: #f2f2f2;
@@ -322,8 +388,8 @@
         }
         
         /* 冻结最后一列 (操作) */
-        th:nth-child(18),
-        td:nth-child(18) {
+        th:nth-child(20),
+        td:nth-child(20) {
             position: sticky;
             right: 0;
             background-color: #f2f2f2;
@@ -333,13 +399,13 @@
         /* 为冻结列添加右边框以增强视觉效果 */
         th:nth-child(2),
         td:nth-child(2),
-        th:nth-child(16),
-        td:nth-child(16) {
+        th:nth-child(18),
+        td:nth-child(18) {
             border-right: 2px solid #ddd;
         }
         
-        th:nth-child(18),
-        td:nth-child(18) {
+        th:nth-child(20),
+        td:nth-child(20) {
             border-left: 2px solid #ddd;
         }
     </style>
@@ -362,14 +428,16 @@
                     <th style="width: 80px;">位宽</th>
                     <th style="width: 80px;">厂商</th>
                     <th style="width: 80px;">描述</th>
-                    <th style="width: 100px;">发布日期</th>
+                    <th style="width: 80px;">发布日期</th>
                     <th style="width: 80px;">状态</th>
-                    <th style="width: 120px;">CPU要求</th>
-                    <th style="width: 80px;">内存(GB)</th>
-                    <th style="width: 80px;">磁盘(GB)</th>
+                    <th style="width: 80px;">CPU要求</th>
+                    <th style="width: 50px;">内存(GB)</th>
+                    <th style="width: 50px;">磁盘(GB)</th>
                     <th style="width: 120px;">其他要求</th>
-                    <th style="width: 100px;">创建时间</th>
-                    <th style="width: 100px;">软件大小</th>
+                    <th style="width: 80px;">创建时间</th>
+                    <th style="width: 80px;">来源页面</th>
+                    <th style="width: 80px;">下载链接</th>
+                    <th style="width: 50px;">软件大小</th>
                     <th style="width: 150px;">所属行业</th>
                     <th style="width: 120px;">操作</th>
                 </tr>
@@ -510,7 +578,6 @@
             }
         }
 
-        // 在renderSoftwareTable函数中替换相关代码
         function renderSoftwareTable(data) {
             const tableBody = document.getElementById('softwareTableBody');
             tableBody.innerHTML = '';
@@ -534,6 +601,8 @@
                 const memoryMinGb = software.memoryMinGb || '-';
                 const diskMinGb = software.diskMinGb || '-';
                 const sysReqOther = software.sysReqOther || '-';
+                const sourceUrl = software.sourceUrl || '-';
+                const downloadLink = software.downloadLink || '-';
 
                 let releaseDate = '-';
                 if (software.releaseYear) {
@@ -580,6 +649,15 @@
                     <button class="delete-btn" data-id="${id}">删除</button>
                 `;
 
+                // 处理来源页面和下载链接字段
+                const sourceUrlCell = sourceUrl === '-' ? 
+                    '<td>-</td>' : 
+                    `<td><a href="${sourceUrl}" target="_blank" class="source-url-cell" title="${sourceUrl}">${truncateText(sourceUrl, 20)}</a></td>`;
+                
+                const downloadLinkCell = downloadLink === '-' ? 
+                    '<td>-</td>' : 
+                    `<td><span class="download-link-cell" title="${downloadLink}">${truncateText(downloadLink, 20)}<span class="copy-icon" onclick="event.stopPropagation(); copyToClipboard('${downloadLink}')"></span></span></td>`;
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${id}</td>
@@ -601,6 +679,8 @@
                     <td>${diskMinGb}</td>
                     <td class="sys-req-cell" data-full-text="${sysReqOther.replace(/"/g, '&quot;')}">${sysReqOther}</td>
                     <td>${createdAt}</td>
+                    ${sourceUrlCell}
+                    ${downloadLinkCell}
                     <td>${formatSize(software.sizeBytes)}</td>
                     <td>${industryTags}</td>
                     <td>${actions}</td>
@@ -649,6 +729,27 @@
                     modal.style.display = 'none';
                 }
             }
+        }
+
+        // 截断文本函数
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) {
+                return text;
+            }
+            return text.substr(0, maxLength) + '...';
+        }
+
+        // 复制到剪贴板函数
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            // 显示复制成功的提示
+            showMessage('链接已复制到剪贴板', 'success');
         }
 
         function updatePaginationControls() {
@@ -706,7 +807,12 @@
             messageEl.textContent = text;
             messageEl.className = `message ${type}`;
 
+            // 显示消息
+            messageEl.style.display = 'block';
+
+            // 3秒后隐藏消息
             setTimeout(() => {
+                messageEl.style.display = 'none';
                 messageEl.textContent = '';
                 messageEl.className = 'message';
             }, 3000);

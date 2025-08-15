@@ -46,4 +46,5 @@ INSERT INTO `isms_developer` (
   (32, '意法半导体', 'STMicroelectronics', 'www.st.com', '瑞士嵌入式设计软件', 11, NOW(), NOW()), -- 瑞士ID=11
   (33, 'Labcenter电子', 'Labcenter Electronics', 'www.labcenter.com', '英国Proteus设计软件', 10, NOW(), NOW()), -- 英国ID=10
   (34, '奥腾电子', 'Altium Limited', 'www.altium.com', '澳大利亚PCB设计', 30, NOW(), NOW()), -- 澳大利亚ID=30
-  (35, 'ASCON集团', 'ASCON Group', 'www.ascon.ru', '俄罗斯CAD软件', 21, NOW(), NOW()); -- 俄罗斯ID=21
+  (35, 'ASCON集团', 'ASCON Group', 'www.ascon.ru', '俄罗斯CAD软件', 21, NOW(), NOW()), -- 俄罗斯ID=21
+  (36, 'Model Studio CS', 'Model Studio CS', 'https://modelstudiocs.ru/', '俄罗斯工程设计软件，提供电气设计、管道设计等工业设施设计解决方案', 21, NOW(), NOW()); -- 俄罗斯ID=21

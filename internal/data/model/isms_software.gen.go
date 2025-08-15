@@ -36,7 +36,7 @@ type IsmsSoftware struct {
 	UpdatedAt            time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`                                                                                                       // 更新时间
 	BitWidths            *string   `gorm:"column:bit_widths;type:set('8bit','16bit','32bit','64bit','128bit','256bit','512bit');comment:支持的位宽集合" json:"bit_widths"`                                                                                 // 支持的位宽集合
 	SourceURL            *string   `gorm:"column:source_url;type:varchar(500);comment:来源页面URL" json:"source_url"`                                                                                                                                   // 来源页面URL
-	DownloadLink         *string   `gorm:"column:download_link;type:varchar(500);comment:下载链接（种子地址等）" json:"download_link"`                                                                                                                         // 下载链接（种子地址等）
+	DownloadLink         *string   `gorm:"column:download_link;type:varchar(1000);comment:下载链接（种子地址等）" json:"download_link"`                                                                                                                        // 下载链接（种子地址等）
 }
 
 // TableName IsmsSoftware's table name

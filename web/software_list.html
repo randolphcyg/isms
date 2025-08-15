@@ -27,22 +27,6 @@
         .error { background-color: #f8d7da; color: #721c24; }
         .success { background-color: #d4edda; color: #155724; }
 
-        /* 修改表格单元格样式，让中英文名可以换行 */
-        table td:nth-child(2), /* 英文名列 */
-        table td:nth-child(3)  /* 中文名列 */
-        {
-            white-space: normal; /* 允许换行 */
-            word-wrap: break-word; /* 长单词换行 */
-            max-width: 120px; /* 设置最大宽度 */
-        }
-
-        /* 如果需要，也可以调整表头的宽度 */
-        table th:nth-child(2), /* 英文名表头 */
-        table th:nth-child(3)  /* 中文名表头 */
-        {
-            width: 120px; /* 调整宽度 */
-        }
-
         /* 来源页面和下载链接列样式 */
         .source-url-cell, .download-link-cell {
             display: inline-block;
@@ -128,11 +112,31 @@
         }
         /* 系统要求字段样式 */
         .sys-req-cell {
-            width: 120px;
+            display: inline-block;
+            width: 100%;
+            max-width: 120px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             position: relative;
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        .sys-req-cell:hover {
+            color: #0056b3;
+        }
+
+        /* 空内容样式 */
+        .sys-req-cell.empty {
+            color: inherit;
+            text-decoration: none;
+            cursor: default;
+        }
+
+        .sys-req-cell.empty:hover {
+            color: inherit;
         }
 
         /* 分页控件样式 */
@@ -249,17 +253,6 @@
         .category-I { background-color: #F7DC6F; color: #333; }
         .category-J { background-color: #BB8FCE; }
         .category-K { background-color: #F8C471; }
-        .category-L { background-color: #85C1E9; }
-        .category-M { background-color: #82E0AA; }
-        .category-N { background-color: #F1948A; }
-        .category-O { background-color: #D7BDE2; }
-        .category-P { background-color: #A9DFBF; }
-        .category-Q { background-color: #F9E79F; color: #333; }
-        .category-R { background-color: #D5A6BD; }
-        .category-S { background-color: #AAA; }
-        .category-T { background-color: #CCC; color: #333; }
-        .category-U { background-color: #888; }
-        .category-Z { background-color: #666; }
 
         /* 默认颜色 */
         .category-default { background-color: #6c757d; }
@@ -376,6 +369,14 @@
             overflow-x: auto;
             margin-top: 20px;
         }
+
+        .col-cpu-req {
+            width: 120px;
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         
         table {
             width: 100%;
@@ -392,8 +393,7 @@
         }
         
         /* 冻结第一列 (ID) */
-        th:nth-child(1),
-        td:nth-child(1) {
+        .col-id {
             position: sticky;
             left: 0;
             background-color: #f2f2f2;
@@ -401,17 +401,15 @@
         }
         
         /* 冻结第二列 (名称) */
-        th:nth-child(2),
-        td:nth-child(2) {
+        .col-name {
             position: sticky;
-            left: 50px; /* 第一列的宽度 */
+            left: 40px; /* 第一列的宽度 */
             background-color: #f2f2f2;
             z-index: 2;
         }
         
         /* 冻结倒数第三列 (软件大小) */
-        th:nth-child(18),
-        td:nth-child(18) {
+        .col-size {
             position: sticky;
             right: 270px; /* 倒数第二列宽度(150px) + 最后一列宽度(120px) */
             background-color: #f2f2f2;
@@ -419,8 +417,7 @@
         }
         
         /* 冻结倒数第二列 (所属行业) */
-        th:nth-child(19),
-        td:nth-child(19) {
+        .col-industry {
             position: sticky;
             right: 120px; /* 最后一列的宽度 */
             background-color: #f2f2f2;
@@ -428,25 +425,28 @@
         }
         
         /* 冻结最后一列 (操作) */
-        th:nth-child(20),
-        td:nth-child(20) {
+        .col-actions {
             position: sticky;
             right: 0;
             background-color: #f2f2f2;
             z-index: 3;
         }
         
-        /* 为冻结列添加右边框以增强视觉效果 */
-        th:nth-child(2),
-        td:nth-child(2),
-        th:nth-child(18),
-        td:nth-child(18) {
-            border-right: 2px solid #ddd;
+        /* 确保特定列的样式优先级更高 */
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
         }
-        
-        th:nth-child(20),
-        td:nth-child(20) {
-            border-left: 2px solid #ddd;
+
+        /* 为需要换行的列添加更具体的选择器 */
+        .col-name,
+        .col-other-req,
+        .col-description {
+            white-space: pre-wrap !important;
+            word-wrap: break-word;
+            max-width: 150px;
         }
     </style>
 </head>
@@ -463,26 +463,25 @@
         <table id="softwareTable">
             <thead>
                 <tr>
-                    <th style="width: 50px;">ID</th>
-                    <th style="width: 80px;">name</th>
-                    <th style="width: 60px;">中文名</th>
-                    <th style="width: 80px;">版本</th>
-                    <th style="width: 80px;">国家</th>
-                    <th style="width: 80px;">位宽</th>
-                    <th style="width: 80px;">厂商</th>
-                    <th style="width: 80px;">描述</th>
-                    <th style="width: 80px;">发布日期</th>
-                    <th style="width: 80px;">状态</th>
-                    <th style="width: 80px;">CPU要求</th>
-                    <th style="width: 50px;">内存(GB)</th>
-                    <th style="width: 50px;">磁盘(GB)</th>
-                    <th style="width: 120px;">其他要求</th>
-                    <th style="width: 80px;">创建时间</th>
-                    <th style="width: 80px;">来源页面</th>
-                    <th style="width: 80px;">下载链接</th>
-                    <th style="width: 50px;">软件大小</th>
-                    <th style="width: 150px;">所属行业</th>
-                    <th style="width: 120px;">操作</th>
+                    <th class="col-id" style="width: 50px;">ID</th>
+                    <th class="col-name" style="width: 80px;">名称</th>
+                    <th class="col-version" style="width: 80px;">版本</th>
+                    <th class="col-country" style="width: 80px;">国家</th>
+                    <th class="col-bitwidth" style="width: 80px;">位宽</th>
+                    <th class="col-developer" style="width: 80px;">厂商</th>
+                    <th class="col-description" style="width: 80px;">描述</th>
+                    <th class="col-release-date" style="width: 80px;">发布日期</th>
+                    <th class="col-status" style="width: 80px;">状态</th>
+                    <th class="col-cpu-req" style="width: 120px;">CPU要求</th>
+                    <th class="col-memory" style="width: 50px;">内存(GB)</th>
+                    <th class="col-disk" style="width: 50px;">磁盘(GB)</th>
+                    <th class="col-other-req" style="width: 120px;">其他要求</th>
+                    <th class="col-created-at" style="width: 80px;">创建时间</th>
+                    <th class="col-source-url" style="width: 80px;">来源页面</th>
+                    <th class="col-download-link" style="width: 80px;">下载链接</th>
+                    <th class="col-size" style="width: 50px;">软件大小</th>
+                    <th class="col-industry" style="width: 150px;">所属行业</th>
+                    <th class="col-actions" style="width: 120px;">操作</th>
                 </tr>
             </thead>
             <tbody id="softwareTableBody"></tbody>
@@ -518,8 +517,17 @@
     <div id="descriptionModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
         <div style="background-color: white; margin: 10% auto; padding: 20px; border-radius: 5px; width: 80%; max-width: 600px; position: relative;">
             <span id="closeModal" style="position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer;">&times;</span>
-            <h3>软件描述</h3>
+            <h3>简介</h3>
             <div id="modalDescription" style="word-wrap: break-word; white-space: pre-wrap; max-height: 70vh; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- 系统要求详情模态框 -->
+    <div id="sysReqModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="background-color: white; margin: 10% auto; padding: 20px; border-radius: 5px; width: 80%; max-width: 600px; position: relative;">
+            <span id="closeSysReqModal" style="position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer;">&times;</span>
+            <h3>系统要求</h3>
+            <div id="modalSysReq" style="word-wrap: break-word; white-space: pre-wrap; max-height: 70vh; overflow-y: auto;"></div>
         </div>
     </div>
 
@@ -536,6 +544,7 @@
             document.getElementById('cancelDelete').addEventListener('click', closeConfirmDialog);
             document.getElementById('confirmDelete').addEventListener('click', performDelete);
             setupModal();
+            setupSysReqModal();
         });
 
         function setupPagination() {
@@ -703,30 +712,37 @@
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${id}</td>
-                    <td>${nameEn}</td>
-                    <td>${nameZh}</td>
-                    <td>${version}</td>
-                    <td>${countryName}</td>
-                    <td>${bitWidthTags}</td>
-                    <td>${developerName}</td>
-                    <td>
+                    <td class="col-id">${id}</td>
+                    <td class="col-name">${nameEn}</td>
+                    <td class="col-version">${version}</td>
+                    <td class="col-country">${countryName}</td>
+                    <td class="col-bitwidth">${bitWidthTags}</td>
+                    <td class="col-developer">${developerName}</td>
+                    <td class="col-description">
                         ${description === '-' ? 
                         `<span class="description-cell empty">-</span>` : 
                         `<span class="description-cell" data-description="${description.replace(/"/g, '&quot;')}">${description.substring(0, 50)}${description.length > 50 ? '...' : ''}</span>`}
                     </td>
-                    <td>${releaseDate}</td>
-                    <td>${status}</td>
-                    <td class="sys-req-cell" data-full-text="${cpuReq.replace(/"/g, '&quot;')}">${cpuReq}</td>
-                    <td>${memoryMinGb}</td>
-                    <td>${diskMinGb}</td>
-                    <td class="sys-req-cell" data-full-text="${sysReqOther.replace(/"/g, '&quot;')}">${sysReqOther}</td>
-                    <td>${createdAt}</td>
+                    <td class="col-release-date">${releaseDate}</td>
+                    <td class="col-status">${status}</td>
+                    <td class="col-cpu-req">
+                        ${cpuReq === '-' ? 
+                        `<span class="sys-req-cell empty">-</span>` : 
+                        `<span class="sys-req-cell" data-full-text="${cpuReq.replace(/"/g, '&quot;')}">${cpuReq.substring(0, 30)}${cpuReq.length > 30 ? '...' : ''}</span>`}
+                    </td>
+                    <td class="col-memory">${memoryMinGb}</td>
+                    <td class="col-disk">${diskMinGb}</td>
+                    <td class="col-other-req">
+                        ${sysReqOther === '-' ? 
+                        `<span class="sys-req-cell empty">-</span>` : 
+                        `<span class="sys-req-cell" data-full-text="${sysReqOther.replace(/"/g, '&quot;')}">${sysReqOther.substring(0, 50)}${sysReqOther.length > 50 ? '...' : ''}</span>`}
+                    </td>
+                    <td class="col-created-at">${createdAt}</td>
                     ${sourceUrlCell}
                     ${downloadLinkCell}
-                    <td>${formatSize(software.sizeBytes)}</td>
-                    <td>${industryTags}</td>
-                    <td>${actions}</td>
+                    <td class="col-size">${formatSize(software.sizeBytes)}</td>
+                    <td class="col-industry">${industryTags}</td>
+                    <td class="col-actions">${actions}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -756,12 +772,42 @@
                     document.getElementById('descriptionModal').style.display = 'block';
                 });
             });
+            document.querySelectorAll('.sys-req-cell:not(.empty)').forEach(span => {
+                span.addEventListener('click', function() {
+                    const sysReq = this.getAttribute('data-full-text');
+                    document.getElementById('modalSysReq').textContent = sysReq;
+                    document.getElementById('sysReqModal').style.display = 'block';
+                });
+            });
+            document.querySelectorAll('.sys-req-cell:not(.empty)').forEach(span => {
+                span.addEventListener('click', function() {
+                    const sysReq = this.getAttribute('data-full-text');
+                    document.getElementById('modalSysReq').textContent = sysReq;
+                    document.getElementById('sysReqModal').style.display = 'block';
+                });
+            });
         }
 
         // 添加模态框关闭功能
         function setupModal() {
             const modal = document.getElementById('descriptionModal');
             const closeBtn = document.getElementById('closeModal');
+            
+            closeBtn.onclick = function() {
+                modal.style.display = 'none';
+            }
+            
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        }
+
+        // 添加系统要求模态框关闭功能
+        function setupSysReqModal() {
+            const modal = document.getElementById('sysReqModal');
+            const closeBtn = document.getElementById('closeSysReqModal');
             
             closeBtn.onclick = function() {
                 modal.style.display = 'none';
@@ -986,8 +1032,7 @@
                     // 返回处理后的数据对象
                     return {
                         'ID': software.id || '-',
-                        'name': software.nameEn || '-',
-                        '中文名': software.nameZh || '-',
+                        '名称': software.nameEn || '-',
                         '版本': software.version || '-',
                         '国家': software.countryName || '未知',
                         '位宽': bitWidthTags,

@@ -71,6 +71,15 @@ func (s *SoftwareService) CreateSoftware(ctx context.Context, req *pb.CreateSoft
 		sysReqOther = &req.SysReqOther
 	}
 
+	var sourceUrl *string
+	var downloadLink *string
+	if req.SourceUrl != "" {
+		sourceUrl = &req.SourceUrl
+	}
+	if req.DownloadLink != "" {
+		downloadLink = &req.DownloadLink
+	}
+
 	domainSoftware := &domain.IsmsSoftware{
 		NameZh:       req.NameZh,
 		NameEn:       req.NameEn,
@@ -86,13 +95,15 @@ func (s *SoftwareService) CreateSoftware(ctx context.Context, req *pb.CreateSoft
 		DiskMinGb:   diskMinGb,
 		SysReqOther: sysReqOther,
 
-		CountryID:   req.CountryId,
-		DeveloperID: req.DeveloperId,
-		IndustryIDs: req.IndustryIds,
-		SizeBytes:   sizeBytes,
-		Status:      req.Status,
-		OsIDs:       req.OsIds,
-		BitWidths:   req.BitWidths,
+		CountryID:    req.CountryId,
+		DeveloperID:  req.DeveloperId,
+		IndustryIDs:  req.IndustryIds,
+		SizeBytes:    sizeBytes,
+		Status:       req.Status,
+		OsIDs:        req.OsIds,
+		BitWidths:    req.BitWidths,
+		SourceUrl:    sourceUrl,
+		DownloadLink: downloadLink,
 	}
 
 	// 调用biz层核心业务逻辑
@@ -163,6 +174,15 @@ func (s *SoftwareService) UpdateSoftware(ctx context.Context, req *pb.UpdateSoft
 		intellectualProperty = &req.IntellectualProperty
 	}
 
+	var sourceUrl *string
+	var downloadLink *string
+	if req.SourceUrl != "" {
+		sourceUrl = &req.SourceUrl
+	}
+	if req.DownloadLink != "" {
+		downloadLink = &req.DownloadLink
+	}
+
 	domainSoftware := &domain.IsmsSoftware{
 		ID:                   int32(req.Id),
 		NameZh:               req.NameZh,
@@ -187,6 +207,8 @@ func (s *SoftwareService) UpdateSoftware(ctx context.Context, req *pb.UpdateSoft
 		IntellectualProperty: intellectualProperty,
 		IndustryIDs:          req.IndustryIds,
 		BitWidths:            req.BitWidths,
+		SourceUrl:            sourceUrl,
+		DownloadLink:         downloadLink,
 	}
 
 	// 调用biz层核心业务逻辑
@@ -252,6 +274,15 @@ func (s *SoftwareService) ListSoftware(ctx context.Context, req *pb.ListSoftware
 			sysReqOther = *sw.SysReqOther
 		}
 
+		var sourceUrl string
+		var downloadLink string
+		if sw.SourceUrl != nil {
+			sourceUrl = *sw.SourceUrl
+		}
+		if sw.DownloadLink != nil {
+			downloadLink = *sw.DownloadLink
+		}
+
 		// 转换行业详情
 		industryDetails := make([]*pb.IsmsIndustry, 0, len(sw.IndustryDetails))
 		for _, detail := range sw.IndustryDetails {
@@ -289,6 +320,8 @@ func (s *SoftwareService) ListSoftware(ctx context.Context, req *pb.ListSoftware
 			CreatedAt:       sw.CreatedAt.Format(time.RFC3339),
 			UpdatedAt:       sw.UpdatedAt.Format(time.RFC3339),
 			BitWidths:       sw.BitWidths,
+			SourceUrl:       sourceUrl,
+			DownloadLink:    downloadLink,
 		})
 	}
 
@@ -341,6 +374,15 @@ func (s *SoftwareService) GetSoftwareById(ctx context.Context, req *pb.GetSoftwa
 		sysReqOther = *sw.SysReqOther
 	}
 
+	var sourceUrl string
+	var downloadLink string
+	if sw.SourceUrl != nil {
+		sourceUrl = *sw.SourceUrl
+	}
+	if sw.DownloadLink != nil {
+		downloadLink = *sw.DownloadLink
+	}
+
 	// 转换行业详情
 	industryDetails := make([]*pb.IsmsIndustry, 0, len(sw.IndustryDetails))
 	for _, detail := range sw.IndustryDetails {
@@ -378,5 +420,7 @@ func (s *SoftwareService) GetSoftwareById(ctx context.Context, req *pb.GetSoftwa
 		CreatedAt:       sw.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:       sw.UpdatedAt.Format(time.RFC3339),
 		BitWidths:       sw.BitWidths,
+		SourceUrl:       sourceUrl,
+		DownloadLink:    downloadLink,
 	}, nil
 }

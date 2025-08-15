@@ -52,6 +52,8 @@ func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware
 		SizeBytes:    software.SizeBytes,
 		Status:       software.Status,
 		BitWidths:    &bitWidths,
+		SourceURL:    software.SourceUrl,
+		DownloadLink: software.DownloadLink,
 	}
 
 	// 插入数据
@@ -117,6 +119,8 @@ func (s *softwareRepo) Update(ctx context.Context, software *domain.IsmsSoftware
 		SizeBytes:    software.SizeBytes,
 		Status:       software.Status,
 		BitWidths:    &bitWidths,
+		SourceURL:    software.SourceUrl,
+		DownloadLink: software.DownloadLink,
 	}
 
 	// 更新数据
@@ -239,6 +243,8 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 		CreatedAt:    dataModel.CreatedAt,
 		UpdatedAt:    dataModel.UpdatedAt,
 		BitWidths:    bitWidths,
+		SourceUrl:    dataModel.SourceURL,
+		DownloadLink: dataModel.DownloadLink,
 	}, nil
 }
 
@@ -337,6 +343,8 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 			CreatedAt:    m.CreatedAt,
 			UpdatedAt:    m.UpdatedAt,
 			BitWidths:    bitWidths,
+			SourceUrl:    m.SourceURL,
+			DownloadLink: m.DownloadLink,
 		}
 
 		// 设置行业ID

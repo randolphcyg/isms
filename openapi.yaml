@@ -597,6 +597,10 @@ components:
                     type: array
                     items:
                         type: string
+                sourceUrl:
+                    type: string
+                downloadLink:
+                    type: string
             description: 创建软件请求
         isms.v1.CreateSoftwareResp:
             type: object
@@ -757,6 +761,10 @@ components:
                     type: array
                     items:
                         type: string
+                sourceUrl:
+                    type: string
+                downloadLink:
+                    type: string
             description: 工业软件主表数据结构
         isms.v1.ListCategoriesResp:
             type: object
@@ -974,6 +982,10 @@ components:
                     type: array
                     items:
                         type: string
+                sourceUrl:
+                    type: string
+                downloadLink:
+                    type: string
             description: 更新软件请求
         isms.v1.UpdateSoftwareResp:
             type: object

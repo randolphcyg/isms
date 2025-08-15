@@ -55,6 +55,8 @@ type IsmsSoftware struct {
 	IndustryNames        []string               `protobuf:"bytes,27,rep,name=industry_names,json=industryNames,proto3" json:"industry_names,omitempty"`                      // 适用行业小类名称列表
 	IndustryDetails      []*IsmsIndustry        `protobuf:"bytes,28,rep,name=industry_details,json=industryDetails,proto3" json:"industry_details,omitempty"`                // 适用行业详情
 	BitWidths            []string               `protobuf:"bytes,29,rep,name=bit_widths,json=bitWidths,proto3" json:"bit_widths,omitempty"`                                  // 支持的位宽列表
+	SourceUrl            string                 `protobuf:"bytes,30,opt,name=source_url,json=sourceUrl,proto3" json:"source_url,omitempty"`                                  // 来源页面URL
+	DownloadLink         string                 `protobuf:"bytes,31,opt,name=download_link,json=downloadLink,proto3" json:"download_link,omitempty"`                         // 下载链接
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -292,6 +294,20 @@ func (x *IsmsSoftware) GetBitWidths() []string {
 	return nil
 }
 
+func (x *IsmsSoftware) GetSourceUrl() string {
+	if x != nil {
+		return x.SourceUrl
+	}
+	return ""
+}
+
+func (x *IsmsSoftware) GetDownloadLink() string {
+	if x != nil {
+		return x.DownloadLink
+	}
+	return ""
+}
+
 // 创建软件请求
 type CreateSoftwareReq struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
@@ -317,6 +333,8 @@ type CreateSoftwareReq struct {
 	IndustryIds          []int32                `protobuf:"varint,20,rep,packed,name=industry_ids,json=industryIds,proto3" json:"industry_ids,omitempty"`                    // 适用行业小类ID列表
 	OsIds                []int32                `protobuf:"varint,21,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`                                      // 支持的操作系统ID列表
 	BitWidths            []string               `protobuf:"bytes,22,rep,name=bit_widths,json=bitWidths,proto3" json:"bit_widths,omitempty"`                                  // 支持的位宽列表
+	SourceUrl            string                 `protobuf:"bytes,23,opt,name=source_url,json=sourceUrl,proto3" json:"source_url,omitempty"`                                  // 来源页面URL
+	DownloadLink         string                 `protobuf:"bytes,24,opt,name=download_link,json=downloadLink,proto3" json:"download_link,omitempty"`                         // 下载链接
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -505,6 +523,20 @@ func (x *CreateSoftwareReq) GetBitWidths() []string {
 	return nil
 }
 
+func (x *CreateSoftwareReq) GetSourceUrl() string {
+	if x != nil {
+		return x.SourceUrl
+	}
+	return ""
+}
+
+func (x *CreateSoftwareReq) GetDownloadLink() string {
+	if x != nil {
+		return x.DownloadLink
+	}
+	return ""
+}
+
 // 创建软件响应
 type CreateSoftwareResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -584,6 +616,8 @@ type UpdateSoftwareReq struct {
 	IndustryIds          []int32                `protobuf:"varint,21,rep,packed,name=industry_ids,json=industryIds,proto3" json:"industry_ids,omitempty"`                    // 适用行业小类ID列表
 	OsIds                []int32                `protobuf:"varint,22,rep,packed,name=os_ids,json=osIds,proto3" json:"os_ids,omitempty"`                                      // 支持的操作系统ID列表
 	BitWidths            []string               `protobuf:"bytes,23,rep,name=bit_widths,json=bitWidths,proto3" json:"bit_widths,omitempty"`                                  // 支持的位宽列表
+	SourceUrl            string                 `protobuf:"bytes,24,opt,name=source_url,json=sourceUrl,proto3" json:"source_url,omitempty"`                                  // 来源页面URL
+	DownloadLink         string                 `protobuf:"bytes,25,opt,name=download_link,json=downloadLink,proto3" json:"download_link,omitempty"`                         // 下载链接
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -777,6 +811,20 @@ func (x *UpdateSoftwareReq) GetBitWidths() []string {
 		return x.BitWidths
 	}
 	return nil
+}
+
+func (x *UpdateSoftwareReq) GetSourceUrl() string {
+	if x != nil {
+		return x.SourceUrl
+	}
+	return ""
+}
+
+func (x *UpdateSoftwareReq) GetDownloadLink() string {
+	if x != nil {
+		return x.DownloadLink
+	}
+	return ""
 }
 
 // 更新软件响应
@@ -1044,7 +1092,7 @@ var File_isms_v1_software_proto protoreflect.FileDescriptor
 
 const file_isms_v1_software_proto_rawDesc = "" +
 	"\n" +
-	"\x16isms/v1/software.proto\x12\aisms.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\x1a\x16isms/v1/industry.proto\"\xf0\a\n" +
+	"\x16isms/v1/software.proto\x12\aisms.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\x1a\x16isms/v1/industry.proto\"\xb4\b\n" +
 	"\fIsmsSoftware\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12 \n" +
 	"\aname_zh\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nameZh\x12\x17\n" +
@@ -1081,7 +1129,10 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\x0eindustry_names\x18\x1b \x03(\tR\rindustryNames\x12@\n" +
 	"\x10industry_details\x18\x1c \x03(\v2\x15.isms.v1.IsmsIndustryR\x0findustryDetails\x12\x1d\n" +
 	"\n" +
-	"bit_widths\x18\x1d \x03(\tR\tbitWidths\"\xa5\x06\n" +
+	"bit_widths\x18\x1d \x03(\tR\tbitWidths\x12\x1d\n" +
+	"\n" +
+	"source_url\x18\x1e \x01(\tR\tsourceUrl\x12#\n" +
+	"\rdownload_link\x18\x1f \x01(\tR\fdownloadLink\"\xe9\x06\n" +
 	"\x11CreateSoftwareReq\x12 \n" +
 	"\aname_zh\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nameZh\x12\x17\n" +
 	"\aname_en\x18\x02 \x01(\tR\x06nameEn\x12!\n" +
@@ -1109,10 +1160,13 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\findustry_ids\x18\x14 \x03(\x05B\b\xfaB\x05\x92\x01\x02\b\x01R\vindustryIds\x12\x1f\n" +
 	"\x06os_ids\x18\x15 \x03(\x05B\b\xfaB\x05\x92\x01\x02\b\x01R\x05osIds\x12\x1d\n" +
 	"\n" +
-	"bit_widths\x18\x16 \x03(\tR\tbitWidths\">\n" +
+	"bit_widths\x18\x16 \x03(\tR\tbitWidths\x12\x1d\n" +
+	"\n" +
+	"source_url\x18\x17 \x01(\tR\tsourceUrl\x12#\n" +
+	"\rdownload_link\x18\x18 \x01(\tR\fdownloadLink\">\n" +
 	"\x12CreateSoftwareResp\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\x86\x06\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\xca\x06\n" +
 	"\x11UpdateSoftwareReq\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x02id\x12\x17\n" +
 	"\aname_zh\x18\x02 \x01(\tR\x06nameZh\x12\x17\n" +
@@ -1141,7 +1195,10 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\findustry_ids\x18\x15 \x03(\x05R\vindustryIds\x12\x15\n" +
 	"\x06os_ids\x18\x16 \x03(\x05R\x05osIds\x12\x1d\n" +
 	"\n" +
-	"bit_widths\x18\x17 \x03(\tR\tbitWidths\"H\n" +
+	"bit_widths\x18\x17 \x03(\tR\tbitWidths\x12\x1d\n" +
+	"\n" +
+	"source_url\x18\x18 \x01(\tR\tsourceUrl\x12#\n" +
+	"\rdownload_link\x18\x19 \x01(\tR\fdownloadLink\"H\n" +
 	"\x12UpdateSoftwareResp\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"\xed\x01\n" +

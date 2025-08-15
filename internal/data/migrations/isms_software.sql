@@ -20,6 +20,8 @@ CREATE TABLE `isms_software` (
   `intellectual_property` text COMMENT '知识产权信息（如专利号、著作权登记号）',
   `status` ENUM('active','inactive','testing','discontinued') NOT NULL DEFAULT 'active' COMMENT '状态（active：有效；inactive：下架；testing：测试中；discontinued：停止维护）',
   `bit_widths` SET('8bit', '16bit', '32bit', '64bit', '128bit', '256bit', '512bit') DEFAULT NULL COMMENT '支持的位宽集合',
+  `source_url` VARCHAR(500) DEFAULT NULL COMMENT '来源页面URL',
+  `download_link` VARCHAR(500) DEFAULT NULL COMMENT '下载链接（种子地址等）',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),

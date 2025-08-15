@@ -14,7 +14,13 @@ kratos proto client api/isms/v1/industry.proto
 kratos proto server api/isms/v1/industry.proto
 
 # software
-protoc --proto_path=./api --proto_path=./third_party --go_out=paths=source_relative:./api --go-http_out=paths=source_relative:./api --go-grpc_out=paths=source_relative:./api api/isms/v1/software.proto
+protoc --proto_path=./api \
+       --proto_path=./third_party \
+       --go_out=paths=source_relative:./api \
+       --go-http_out=paths=source_relative:./api \
+       --go-grpc_out=paths=source_relative:./api \
+       --validate_out=paths=source_relative,lang=go:./api \
+       api/isms/v1/software.proto
 ```
 
 ## Docker 部署

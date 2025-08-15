@@ -23,6 +23,7 @@
             min-width: 200px;
             text-align: center;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: none;
         }
         .error { background-color: #f8d7da; color: #721c24; }
         .success { background-color: #d4edda; color: #155724; }
@@ -537,10 +538,30 @@
         let pageSize = 20;
         let total = 0;
         let softwareIdToDelete = null;
+        let targetDeveloperId = null;
+        let newSoftwareId = null;
 
         document.addEventListener('DOMContentLoaded', function() {
+            // 解析URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            targetDeveloperId = urlParams.get('developerId');
+            newSoftwareId = urlParams.get('newSoftwareId');
+
             setupPagination();
-            fetchSoftwareList(currentPage, pageSize);
+
+            // 如果有目标厂商ID，则需要找到该厂商所在的页面
+            if (targetDeveloperId) {
+                findPageForDeveloper(targetDeveloperId);
+            }
+            // 如果有新添加的软件ID，则需要找到该软件所在的页面
+            else if (newSoftwareId) {
+                findPageForNewSoftware(newSoftwareId);
+            }
+            // 否则按正常流程加载第一页
+            else {
+                fetchSoftwareList(currentPage, pageSize);
+            }
+
             document.getElementById('cancelDelete').addEventListener('click', closeConfirmDialog);
             document.getElementById('confirmDelete').addEventListener('click', performDelete);
             setupModal();
@@ -622,11 +643,104 @@
 
                 updatePaginationControls();
                 renderSoftwareTable(data);
-                showMessage(`成功加载 ${data.length} 条软件数据`, 'success');
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('获取软件列表错误:', error);
                 renderSoftwareTable([]);
+            }
+        }
+
+        // 查找指定厂商所在页面的函数
+        async function findPageForDeveloper(developerId) {
+            try {
+                // 先获取第一页数据以确定总条数
+                const response = await fetch(`${API_BASE_URL}/software?page=1&page_size=${pageSize}`);
+                if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
+                
+                const result = await response.json();
+                total = result.total || 0;
+                
+                // 计算总页数
+                const totalPages = Math.ceil(total / pageSize);
+                
+                // 遍历所有页面查找目标厂商
+                for (let page = 1; page <= totalPages; page++) {
+                    const pageResponse = await fetch(`${API_BASE_URL}/software?page=${page}&page_size=${pageSize}`);
+                    if (!pageResponse.ok) continue;
+                    
+                    const pageResult = await pageResponse.json();
+                    const data = Array.isArray(pageResult.items) ? pageResult.items : [];
+                    
+                    // 检查当前页是否包含目标厂商
+                    if (data.some(software => software.developerId == developerId)) {
+                        // 找到目标厂商所在页面，加载该页面
+                        fetchSoftwareList(page, pageSize);
+                        return;
+                    }
+                }
+                
+                // 如果没找到，加载第一页
+                fetchSoftwareList(1, pageSize);
+            } catch (error) {
+                console.error('查找厂商页面错误:', error);
+                // 出错时加载第一页
+                fetchSoftwareList(1, pageSize);
+            }
+        }
+        
+        // 添加查找新添加软件所在页面的函数
+        async function findPageForNewSoftware(softwareId) {
+            try {
+                // 先获取第一页数据以确定总条数
+                const response = await fetch(`${API_BASE_URL}/software?page=1&page_size=${pageSize}`);
+                if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
+                
+                const result = await response.json();
+                total = result.total || 0;
+                
+                // 计算总页数
+                const totalPages = Math.ceil(total / pageSize);
+                
+                // 遍历所有页面查找新添加的软件
+                for (let page = 1; page <= totalPages; page++) {
+                    const pageResponse = await fetch(`${API_BASE_URL}/software?page=${page}&page_size=${pageSize}`);
+                    if (!pageResponse.ok) continue;
+                    
+                    const pageResult = await pageResponse.json();
+                    const data = Array.isArray(pageResult.items) ? pageResult.items : [];
+                    
+                    // 检查当前页是否包含新添加的软件
+                    if (data.some(software => software.id == softwareId)) {
+                        // 找到新软件所在页面，加载该页面
+                        fetchSoftwareList(page, pageSize);
+                        // 高亮显示新添加的软件
+                        setTimeout(() => highlightNewSoftware(softwareId), 500);
+                        return;
+                    }
+                }
+                
+                // 如果没找到，加载第一页
+                fetchSoftwareList(1, pageSize);
+            } catch (error) {
+                console.error('查找新软件页面错误:', error);
+                // 出错时加载第一页
+                fetchSoftwareList(1, pageSize);
+            }
+        }
+        
+        // 添加高亮显示新添加软件的函数
+        function highlightNewSoftware(softwareId) {
+            const row = document.querySelector(`tr[data-id="${softwareId}"]`);
+            if (row) {
+                row.style.backgroundColor = '#ffffcc'; // 淡黄色背景
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // 3秒后恢复原样式
+                setTimeout(() => {
+                    if (row) {
+                        row.style.backgroundColor = '';
+                    }
+                }, 3000);
             }
         }
 
@@ -711,6 +825,8 @@
                     `<td><span class="download-link-cell" title="${downloadLink}">${truncateText(downloadLink, 20)}<span class="copy-icon" onclick="event.stopPropagation(); copyToClipboard('${downloadLink}')"></span></span></td>`;
 
                 const row = document.createElement('tr');
+                // 为每一行添加data-id属性，方便查找
+                row.setAttribute('data-id', id);
                 row.innerHTML = `
                     <td class="col-id">${id}</td>
                     <td class="col-name">${nameEn}</td>

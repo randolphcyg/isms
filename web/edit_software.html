@@ -333,7 +333,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="software_list.html" class="back-link">← 返回软件列表</a>
+        <a href="#" id="backLink" class="back-link">← 返回软件列表</a>
         <h1>编辑工业软件</h1>
         <form id="softwareForm">
         <!-- 基础信息 -->
@@ -1335,11 +1335,6 @@
                 }
 
                 showMessage('工业软件更新成功！', 'success');
-                
-                // // 3秒后跳转回软件列表页面
-                // setTimeout(() => {
-                //     window.location.href = 'software_list.html';
-                // }, 3000);
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('更新表单错误:', error);
@@ -1404,8 +1399,15 @@
 
         // 处理取消操作
         function handleCancel() {
-            if (confirm('确定要取消编辑工业软件吗？未保存的数据将会丢失。')) {
-                // 跳转回软件列表页面
+            // 从URL获取软件ID
+            const urlParams = new URLSearchParams(window.location.search);
+            const softwareId = urlParams.get('id');
+            
+            if (softwareId) {
+                // 使用软件ID作为newSoftwareId参数跳转到软件列表页面
+                window.location.href = `software_list.html?newSoftwareId=${softwareId}`;
+            } else {
+                // 如果没有软件ID，则直接跳转到软件列表页面
                 window.location.href = 'software_list.html';
             }
         }
@@ -1422,6 +1424,23 @@
                 messageEl.className = 'message';
             }, 3000);
         }
+
+        // 添加返回链接点击事件处理
+        document.getElementById('backLink').addEventListener('click', function(e) {
+            e.preventDefault(); // 阻止默认的链接跳转行为
+            
+            // 从URL获取软件ID
+            const urlParams = new URLSearchParams(window.location.search);
+            const softwareId = urlParams.get('id');
+            
+            if (softwareId) {
+                // 使用软件ID作为newSoftwareId参数跳转到软件列表页面
+                window.location.href = `software_list.html?newSoftwareId=${softwareId}`;
+            } else {
+                // 如果没有软件ID，则直接跳转到软件列表页面
+                window.location.href = 'software_list.html';
+            }
+        });
     </script>
 </body>
 </html>

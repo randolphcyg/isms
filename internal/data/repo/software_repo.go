@@ -336,6 +336,9 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 			s.query.IsmsSoftware.NameEn.Like("%"+opts.Keyword+"%"))
 	}
 
+	// 添加按创建时间倒序排序
+	q = q.Order(s.query.IsmsSoftware.CreatedAt.Desc())
+
 	// 查询总条数（不关联其他表）
 	total, err := q.Count()
 	if err != nil {

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>软件列表</title>
+    <script src="js/xlsx.full.min.js"></script>
     <style>
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
@@ -166,6 +167,45 @@
         }
 
         /* 新增按钮样式 */
+        .add-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        .add-button:hover {
+            background-color: #218838;
+        }
+        
+        /* 导出按钮样式 */
+        .export-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #17a2b8;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        .export-button:hover {
+            background-color: #138496;
+        }
+        
+        /* 工具栏样式 */
+        .toolbar {
+            display: flex;
+            align-items: center;
+        }
         .add-button {
             display: inline-block;
             margin-bottom: 20px;
@@ -414,7 +454,10 @@
     <div class="container">
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>工业软件列表</h1>
-        <a href="add_software.html" class="add-button">新增工业软件</a>
+        <div class="toolbar">
+            <a href="add_software.html" class="add-button">新增工业软件</a>
+            <button id="exportButton" class="export-button">导出到Excel</button>
+        </div>
         <div id="message" class="message"></div>
         <div class="table-container">
         <table id="softwareTable">
@@ -863,6 +906,134 @@
                 console.error('删除软件错误:', error);
             }
         }
+
+        // 修改导出表格到Excel的函数
+        async function exportTableToExcelFromRawData() {
+            // 显示正在导出的消息
+            showMessage('正在导出数据，请稍候...', 'success');
+
+            try {
+                // 获取总记录数
+                const countResponse = await fetch(`${API_BASE_URL}/software?page=1&page_size=1`);
+                if (!countResponse.ok) throw new Error(`获取软件总数失败: ${countResponse.status} ${countResponse.statusText}`);
+
+                const countResult = await countResponse.json();
+                const total = countResult.total || 0;
+
+                // 分批获取所有数据
+                const batchSize = 100; // 每批获取100条记录
+                const totalPages = Math.ceil(total / batchSize);
+                let allData = [];
+
+                for (let page = 1; page <= totalPages; page++) {
+                    const response = await fetch(`${API_BASE_URL}/software?page=${page}&page_size=${batchSize}`);
+                    if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
+
+                    const result = await response.json();
+                    const data = Array.isArray(result.items) ? result.items : [];
+                    allData = allData.concat(data);
+
+                    // 更新进度提示
+                    showMessage(`正在导出数据... (${Math.min(page * batchSize, total)}/${total})`, 'success');
+                }
+
+                // 准备导出数据
+                const exportData = allData.map(software => {
+                    // 处理日期格式
+                    let releaseDate = '-';
+                    if (software.releaseYear) {
+                        if (software.releaseMonth && software.releaseDay) {
+                            releaseDate = `${software.releaseYear}-${String(software.releaseMonth).padStart(2, '0')}-${String(software.releaseDay).padStart(2, '0')}`;
+                        } else if (software.releaseMonth) {
+                            releaseDate = `${software.releaseYear}-${String(software.releaseMonth).padStart(2, '0')}`;
+                        } else {
+                            releaseDate = software.releaseYear;
+                        }
+                    }
+
+                    // 状态映射
+                    const statusMap = {
+                        'active': '有效',
+                        'inactive': '下架',
+                        'testing': '测试中',
+                        'discontinued': '已停产'
+                    };
+                    const status = statusMap[software.status] || software.status || '未知';
+
+                    // 行业标签
+                    let industryTags = '-';
+                    if (software.industryDetails && software.industryDetails.length > 0) {
+                        industryTags = software.industryDetails.map(industry =>
+                            (industry.categoryName || '') + ' - ' + (industry.subcategoryName || '未知行业')
+                        ).join('; ');
+                    }
+
+                    // 位宽标签
+                    let bitWidthTags = '-';
+                    if (software.bitWidths && software.bitWidths.length > 0) {
+                        bitWidthTags = software.bitWidths.join('; ');
+                    }
+
+                    // 安全处理可能为null的字段
+                    const description = software.description || '-';
+                    const cpuReq = software.cpuReq || '-';
+                    const memoryMinGb = software.memoryMinGb !== undefined && software.memoryMinGb !== null ? software.memoryMinGb : '-';
+                    const diskMinGb = software.diskMinGb !== undefined && software.diskMinGb !== null ? software.diskMinGb : '-';
+                    const sysReqOther = software.sysReqOther || '-';
+                    const sourceUrl = software.sourceUrl || '-';
+                    const downloadLink = software.downloadLink || '-';
+
+                    // 返回处理后的数据对象
+                    return {
+                        'ID': software.id || '-',
+                        'name': software.nameEn || '-',
+                        '中文名': software.nameZh || '-',
+                        '版本': software.version || '-',
+                        '国家': software.countryName || '未知',
+                        '位宽': bitWidthTags,
+                        '厂商': software.developerName || '未知',
+                        '描述': description,
+                        '发布日期': releaseDate,
+                        '状态': status,
+                        'CPU要求': cpuReq,
+                        '内存(GB)': memoryMinGb,
+                        '磁盘(GB)': diskMinGb,
+                        '其他要求': sysReqOther,
+                        '来源页面': sourceUrl,
+                        '下载链接': downloadLink,
+                        '软件大小': formatSize(software.sizeBytes),
+                        '所属行业': industryTags
+                    };
+                });
+
+                // 使用SheetJS创建工作簿
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "工业软件列表");
+
+                // 导出文件
+                const now = new Date();
+                const timestamp = now.getFullYear() +
+                String(now.getMonth() + 1).padStart(2, '0') +
+                String(now.getDate()).padStart(2, '0') + '_' +
+                String(now.getHours()).padStart(2, '0') +
+                String(now.getMinutes()).padStart(2, '0') +
+                String(now.getSeconds()).padStart(2, '0');
+
+                XLSX.writeFile(wb, `工业软件列表_${timestamp}.xlsx`);
+
+                // 显示导出成功的消息
+                showMessage('导出成功！共导出 ' + allData.length + ' 条记录', 'success');
+            } catch (error) {
+                console.error('导出失败:', error);
+                showMessage('导出失败: ' + error.message, 'error');
+            }
+        }
+                
+        // 导出按钮的事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('exportButton').addEventListener('click', exportTableToExcelFromRawData);
+        });
     </script>
 </body>
 </html>

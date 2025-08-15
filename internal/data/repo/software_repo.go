@@ -100,52 +100,72 @@ func (s *softwareRepo) Update(ctx context.Context, software *domain.IsmsSoftware
 	if len(software.BitWidths) > 0 {
 		bitWidths = strings.Join(software.BitWidths, ",")
 	}
-	// 领域模型转数据模型
-	dataModel := &model.IsmsSoftware{
-		ID:           software.ID,
-		NameZh:       software.NameZh,
-		NameEn:       software.NameEn,
-		Version:      software.Version,
-		ReleaseYear:  software.ReleaseYear,
-		ReleaseMonth: software.ReleaseMonth,
-		ReleaseDay:   software.ReleaseDay,
-		Description:  software.Description,
-		CPUReq:       software.CPUReq,
-		MemoryMinGb:  software.MemoryMinGb,
-		DiskMinGb:    software.DiskMinGb,
-		SysReqOther:  software.SysReqOther,
-		CountryID:    software.CountryID,
-		DeveloperID:  software.DeveloperID,
-		SizeBytes:    software.SizeBytes,
-		Status:       software.Status,
-		BitWidths:    &bitWidths,
-		SourceURL:    software.SourceUrl,
-		DownloadLink: software.DownloadLink,
+
+	// 构建更新字段映射
+	updateFields := map[string]interface{}{
+		"name_zh":       software.NameZh,
+		"name_en":       software.NameEn,
+		"version":       software.Version,
+		"release_year":  software.ReleaseYear,
+		"release_month": software.ReleaseMonth,
+		"release_day":   software.ReleaseDay,
+		"description":   software.Description,
+		"cpu_req":       software.CPUReq,
+		"memory_min_gb": software.MemoryMinGb,
+		"disk_min_gb":   software.DiskMinGb,
+		"sys_req_other": software.SysReqOther,
+		"country_id":    software.CountryID,
+		"developer_id":  software.DeveloperID,
+		"size_bytes":    software.SizeBytes,
+		"status":        software.Status,
+		"bit_widths":    &bitWidths,
+		"source_url":    software.SourceUrl,
+		"download_link": software.DownloadLink,
 	}
 
 	// 更新数据
 	_, err := s.query.IsmsSoftware.WithContext(ctx).
-		Where(s.query.IsmsSoftware.ID.Eq(dataModel.ID)).
-		Updates(dataModel)
+		Where(s.query.IsmsSoftware.ID.Eq(software.ID)).
+		Updates(updateFields)
 	if err != nil {
 		return fmt.Errorf("更新软件失败: %w", err)
 	}
 
-	// 更新关联关系（先删除旧关系，再添加新关系）
-	if len(software.IndustryIDs) > 0 {
-		// 删除旧关系
-		_, err := s.query.IsmsSoftwareIndustry.WithContext(ctx).
+	// 更新关联关系（通过计算差异来精确处理）
+	// 处理行业关联
+	{
+		// 查询当前关联的行业ID
+		currentIndustryRelations, err := s.query.IsmsSoftwareIndustry.WithContext(ctx).
 			Where(s.query.IsmsSoftwareIndustry.SoftwareID.Eq(int32(software.ID))).
-			Delete()
+			Find()
 		if err != nil {
-			return fmt.Errorf("删除旧行业关联失败: %w", err)
+			return fmt.Errorf("查询当前行业关联失败: %w", err)
 		}
 
-		// 添加新关系
-		for _, id := range software.IndustryIDs {
+		currentIndustryIDs := make([]int32, 0, len(currentIndustryRelations))
+		for _, rel := range currentIndustryRelations {
+			currentIndustryIDs = append(currentIndustryIDs, rel.IndustryID)
+		}
+
+		// 计算差异
+		toAddIndustries, toDeleteIndustries := calculateDifferences(currentIndustryIDs, software.IndustryIDs)
+
+		// 删除需要删除的关联
+		if len(toDeleteIndustries) > 0 {
+			_, err := s.query.IsmsSoftwareIndustry.WithContext(ctx).
+				Where(s.query.IsmsSoftwareIndustry.SoftwareID.Eq(int32(software.ID)),
+					s.query.IsmsSoftwareIndustry.IndustryID.In(toDeleteIndustries...)).
+				Delete()
+			if err != nil {
+				return fmt.Errorf("删除行业关联失败: %w", err)
+			}
+		}
+
+		// 添加需要新增的关联
+		for _, id := range toAddIndustries {
 			err := s.query.IsmsSoftwareIndustry.WithContext(ctx).Create(&model.IsmsSoftwareIndustry{
-				SoftwareID: int32(software.ID),
-				IndustryID: int32(id),
+				SoftwareID: software.ID,
+				IndustryID: id,
 			})
 			if err != nil {
 				return fmt.Errorf("关联新行业失败: %w", err)
@@ -153,20 +173,40 @@ func (s *softwareRepo) Update(ctx context.Context, software *domain.IsmsSoftware
 		}
 	}
 
-	if len(software.OsIDs) > 0 {
-		// 删除旧关系
-		_, err := s.query.IsmsSoftwareOS.WithContext(ctx).
-			Where(s.query.IsmsSoftwareOS.SoftwareID.Eq(int32(software.ID))).
-			Delete()
+	// 处理操作系统关联
+	{
+		// 查询当前关联的操作系统ID
+		currentOSRelations, err := s.query.IsmsSoftwareOS.WithContext(ctx).
+			Where(s.query.IsmsSoftwareOS.SoftwareID.Eq(software.ID)).
+			Find()
 		if err != nil {
-			return fmt.Errorf("删除旧操作系统关联失败: %w", err)
+			return fmt.Errorf("查询当前操作系统关联失败: %w", err)
 		}
 
-		// 添加新关系
-		for _, id := range software.OsIDs {
+		currentOSIDs := make([]int32, 0, len(currentOSRelations))
+		for _, rel := range currentOSRelations {
+			currentOSIDs = append(currentOSIDs, rel.OsID)
+		}
+
+		// 计算差异
+		toAddOS, toDeleteOS := calculateDifferences(currentOSIDs, software.OsIDs)
+
+		// 删除需要删除的关联
+		if len(toDeleteOS) > 0 {
+			_, err := s.query.IsmsSoftwareOS.WithContext(ctx).
+				Where(s.query.IsmsSoftwareOS.SoftwareID.Eq(software.ID),
+					s.query.IsmsSoftwareOS.OsID.In(toDeleteOS...)).
+				Delete()
+			if err != nil {
+				return fmt.Errorf("删除操作系统关联失败: %w", err)
+			}
+		}
+
+		// 添加需要新增的关联
+		for _, id := range toAddOS {
 			err := s.query.IsmsSoftwareOS.WithContext(ctx).Create(&model.IsmsSoftwareOS{
 				SoftwareID: software.ID,
-				OsID:       int32(id),
+				OsID:       id,
 			})
 			if err != nil {
 				return fmt.Errorf("关联新操作系统失败: %w", err)
@@ -175,6 +215,38 @@ func (s *softwareRepo) Update(ctx context.Context, software *domain.IsmsSoftware
 	}
 
 	return nil
+}
+
+// calculateDifferences 计算新旧ID列表的差异
+func calculateDifferences(oldIDs, newIDs []int32) (toAdd, toDelete []int32) {
+	oldSet := make(map[int32]bool)
+	newSet := make(map[int32]bool)
+
+	// 构建旧ID集合
+	for _, id := range oldIDs {
+		oldSet[id] = true
+	}
+
+	// 构建新ID集合
+	for _, id := range newIDs {
+		newSet[id] = true
+	}
+
+	// 计算需要新增的ID
+	for id := range newSet {
+		if !oldSet[id] {
+			toAdd = append(toAdd, id)
+		}
+	}
+
+	// 计算需要删除的ID
+	for id := range oldSet {
+		if !newSet[id] {
+			toDelete = append(toDelete, id)
+		}
+	}
+
+	return toAdd, toDelete
 }
 
 func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSoftware, error) {

@@ -279,6 +279,56 @@
             color: white;
             border-color: #007bff;
         }
+
+        .os-controls {
+            margin-bottom: 10px;
+        }
+
+        .os-control-btn {
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+            padding: 8px 12px;
+            margin-right: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        /* 添加清空按钮的特殊样式 */
+        .clear-os-btn {
+            background-color: #dc3545; /* 红色背景 */
+            border: 1px solid #dc3545;
+        }
+
+        .os-control-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* 操作系统选择框选中项样式 */
+        #osIds option:checked {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .os-columns {
+            display: flex;
+            gap: 20px;
+        }
+
+        .os-column {
+            flex: 1;
+        }
+
+        .os-column h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        /* 保持原有的操作系统选中项样式 */
+        #osIds option:checked, #windowsOSIds option:checked, #otherOSIds option:checked {
+            background-color: #007bff;
+            color: white;
+        }
         </style>
 </head>
 <body>
@@ -412,9 +462,26 @@
                 
             <div class="form-group">
                 <label for="osIds">关联操作系统</label>
-                 <select id="osIds" multiple style="height: 150px;">
-                    <!-- 操作系统选项将通过JavaScript动态生成 -->
-                </select>
+                <div class="os-controls">
+                    <button type="button" id="clearOSBtn" class="os-control-btn  clear-os-btn">清空</button>
+                    <button type="button" id="selectWin64Btn" class="os-control-btn">Win x64</button>
+                    <button type="button" id="selectAllWindowsBtn" class="os-control-btn">选择所有Windows</button>
+                    <button type="button" id="selectAllLinuxBtn" class="os-control-btn">选择所有Linux</button>
+                </div>
+                <div class="os-columns">
+                    <div class="os-column">
+                        <h4>Windows系统</h4>
+                        <select id="windowsOSIds" multiple style="height: 200px; width: 100%;">
+                            <!-- Windows操作系统选项将通过JavaScript动态生成 -->
+                        </select>
+                    </div>
+                    <div class="os-column">
+                        <h4>其他系统</h4>
+                        <select id="otherOSIds" multiple style="height: 200px; width: 100%;">
+                            <!-- 其他操作系统选项将通过JavaScript动态生成 -->
+                        </select>
+                    </div>
+                </div>
                 <small>按住Ctrl键(Windows)或Command键(Mac)可多选</small>
             </div>
             
@@ -505,24 +572,32 @@
 
         // 渲染操作系统选项
         function renderOSOptions() {
-            const select = document.getElementById('osIds');
-            if (!select) return;
+            const windowsSelect = document.getElementById('windowsOSIds');
+            const otherSelect = document.getElementById('otherOSIds');
+            if (!windowsSelect || !otherSelect) return;
             
             // 清空现有选项
-            select.innerHTML = '';
+            windowsSelect.innerHTML = '';
+            otherSelect.innerHTML = '';
             
-            // 添加默认选项
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = '请选择操作系统';
-            select.appendChild(defaultOption);
+            // 分离Windows和其他系统
+            const windowsOS = osList.filter(os => os.name.toLowerCase().includes('windows'));
+            const otherOS = osList.filter(os => !os.name.toLowerCase().includes('windows'));
             
-            // 添加操作系统选项
-            osList.forEach(os => {
+            // 添加Windows系统选项
+            windowsOS.forEach(os => {
                 const option = document.createElement('option');
                 option.value = os.id;
-                option.textContent = `${os.name} ${os.version} (${os.manufacturer})`;
-                select.appendChild(option);
+                option.textContent = `${os.name} ${os.version} (${os.architecture})`;
+                windowsSelect.appendChild(option);
+            });
+            
+            // 添加其他系统选项
+            otherOS.forEach(os => {
+                const option = document.createElement('option');
+                option.value = os.id;
+                option.textContent = `${os.name} ${os.version} (${os.architecture})`;
+                otherSelect.appendChild(option);
             });
         }
         
@@ -1015,63 +1090,73 @@
                 document.getElementById('status').value = software.status || 'active';
                 
                 // 处理行业分类数据 - 从industryDetails字段获取数据
-        if (Array.isArray(software.industryDetails)) {
-            // 清空当前选择
-            selectedIndustries.clear();
-            
-            // 重新构建选择的行业分类
-            software.industryDetails.forEach(industry => {
-                // 从industryDetails中获取行业信息
-                const categoryCode = industry.categoryCode;
-                const subcategoryId = industry.id;
-                const categoryName = industry.categoryName;
-                const subcategoryName = `${industry.subcategoryName} (${industry.subcategoryCode})`;
-                
-                // 确保大类条目存在
-                if (!selectedIndustries.has(categoryCode)) {
-                    selectedIndustries.set(categoryCode, {
-                        categoryName: categoryName,
-                        subcategories: new Map()
+                if (Array.isArray(software.industryDetails)) {
+                    // 清空当前选择
+                    selectedIndustries.clear();
+                    
+                    // 重新构建选择的行业分类
+                    software.industryDetails.forEach(industry => {
+                        // 从industryDetails中获取行业信息
+                        const categoryCode = industry.categoryCode;
+                        const subcategoryId = industry.id;
+                        const categoryName = industry.categoryName;
+                        const subcategoryName = `${industry.subcategoryName} (${industry.subcategoryCode})`;
+                        
+                        // 确保大类条目存在
+                        if (!selectedIndustries.has(categoryCode)) {
+                            selectedIndustries.set(categoryCode, {
+                                categoryName: categoryName,
+                                subcategories: new Map()
+                            });
+                        }
+                        
+                        // 添加小类
+                        const categoryData = selectedIndustries.get(categoryCode);
+                        categoryData.subcategories.set(subcategoryId, subcategoryName);
+                    });
+                    
+                    // 更新UI
+                    updateIndustrySelectionUI();
+                    updateIndustryTreeCheckboxes();
+                }
+
+                // 处理操作系统数据 - 修正后移到try块内
+                if (Array.isArray(software.osIds)) {
+                    const windowsSelect = document.getElementById('windowsOSIds');
+                    const otherSelect = document.getElementById('otherOSIds');
+                    
+                    // 清空之前的选择
+                    Array.from(windowsSelect.options).forEach(option => option.selected = false);
+                    Array.from(otherSelect.options).forEach(option => option.selected = false);
+                    
+                    // 重新渲染选项
+                    renderOSOptions();
+                    
+                    // 选择对应的操作系统
+                    software.osIds.forEach(osId => {
+                        // 在Windows列表中查找
+                        let option = windowsSelect.querySelector(`option[value="${osId}"]`);
+                        if (option) {
+                            option.selected = true;
+                        } else {
+                            // 在其他系统列表中查找
+                            option = otherSelect.querySelector(`option[value="${osId}"]`);
+                            if (option) {
+                                option.selected = true;
+                            }
+                        }
                     });
                 }
-                
-                // 添加小类
-                const categoryData = selectedIndustries.get(categoryCode);
-                categoryData.subcategories.set(subcategoryId, subcategoryName);
-            });
-            
-            // 更新UI
-            updateIndustrySelectionUI();
-            updateIndustryTreeCheckboxes();
-        }
 
-        // 处理操作系统数据 - 修正后移到try块内
-        if (Array.isArray(software.osIds)) {
-            const osSelect = document.getElementById('osIds');
-            // 清空之前的选择
-            Array.from(osSelect.options).forEach(option => option.selected = false);
-            
-            // 重新渲染选项
-            renderOSOptions();
-            
-            // 选择对应的操作系统
-            software.osIds.forEach(osId => {
-                const option = osSelect.querySelector(`option[value="${osId}"]`);
-                if (option) {
-                    option.selected = true;
+                // 加载位宽数据
+                if (Array.isArray(software.bitWidths)) {
+                    const bitWidthTags = document.querySelectorAll('.bit-width-tag');
+                    bitWidthTags.forEach(tag => {
+                        if (software.bitWidths.includes(tag.dataset.value)) {
+                            tag.classList.add('selected');
+                        }
+                    });
                 }
-            });
-        }
-
-        // 加载位宽数据
-        if (Array.isArray(software.bitWidths)) {
-            const bitWidthTags = document.querySelectorAll('.bit-width-tag');
-            bitWidthTags.forEach(tag => {
-                if (software.bitWidths.includes(tag.dataset.value)) {
-                    tag.classList.add('selected');
-                }
-            });
-        }
         } catch (error) {
             showMessage(error.message, 'error');
             console.error('加载软件数据错误:', error);
@@ -1165,7 +1250,7 @@
                     const date = new Date(releaseDate);
                     if (date instanceof Date && !isNaN(date)) {
                         // 确保日期与输入一致（防止自动调整）
-                        if (date.getFullYear() !== releaseYear || date.getMonth() + 1 !== releaseMonth || date.getDate() !== releaseDay) {
+                        if (date.getFullYear() != releaseYear || date.getMonth() + 1 != releaseMonth || date.getDate() != releaseDay) {
                             showMessage('请输入有效的日期', 'error');
                             return;
                         }
@@ -1189,8 +1274,11 @@
             const selectedManufacturer = manufacturerData.find(m => m.id === selectedManufacturerId);
             
             // 获取选中的操作系统ID
-            const osSelect = document.getElementById('osIds');
-            const selectedOSIds = Array.from(osSelect.selectedOptions).map(option => parseInt(option.value));
+            const windowsSelect = document.getElementById('windowsOSIds');
+            const otherSelect = document.getElementById('otherOSIds');
+            const selectedWindowsOSIds = Array.from(windowsSelect.selectedOptions).map(option => parseInt(option.value));
+            const selectedOtherOSIds = Array.from(otherSelect.selectedOptions).map(option => parseInt(option.value));
+            const selectedOSIds = [...selectedWindowsOSIds, ...selectedOtherOSIds];
 
             // 构建更新数据对象
             const updateData = {
@@ -1257,6 +1345,62 @@
                 console.error('更新表单错误:', error);
             }
         }
+
+        // 添加清空操作系统选择功能
+        function clearOS() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            const otherSelect = document.getElementById('otherOSIds');
+            
+            Array.from(windowsSelect.options).forEach(option => option.selected = false);
+            Array.from(otherSelect.options).forEach(option => option.selected = false);
+            
+            showMessage('已清空操作系统选择', 'success');
+        }
+
+        document.getElementById('clearOSBtn').addEventListener('click', clearOS);
+
+        // 添加选择Windows x64系统功能
+        function selectWin64() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            Array.from(windowsSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                // 选择包含Windows和x64或64-bit的选项
+                if (text.includes('windows') && (text.includes('x64') || text.includes('64-bit'))) {
+                    option.selected = true;
+                }
+            });
+            showMessage('已选择Windows x64系统', 'success');
+        }
+
+        document.getElementById('selectWin64Btn').addEventListener('click', selectWin64);
+
+        // 添加选择所有Windows系统功能
+        function selectAllWindows() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            Array.from(windowsSelect.options).forEach(option => {
+                option.selected = true;
+            });
+            showMessage('已选择所有Windows系统', 'success');
+        }
+
+        document.getElementById('selectAllWindowsBtn').addEventListener('click', selectAllWindows);
+
+        // 添加选择所有Linux系统功能
+        function selectAllLinux() {
+            const otherSelect = document.getElementById('otherOSIds');
+            Array.from(otherSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                if (text.includes('ubuntu') || text.includes('centos') || 
+                    text.includes('linux') || text.includes('red hat') || 
+                    text.includes('debian') || text.includes('fedora') ||
+                    text.includes('suse')) {
+                    option.selected = true;
+                }
+            });
+            showMessage('已选择所有Linux系统', 'success');
+        }
+
+        document.getElementById('selectAllLinuxBtn').addEventListener('click', selectAllLinux);
 
         // 处理取消操作
         function handleCancel() {

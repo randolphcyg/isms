@@ -47,4 +47,8 @@ INSERT INTO `isms_developer` (
   (33, 'Labcenter电子', 'Labcenter Electronics', 'www.labcenter.com', '英国Proteus设计软件', 10, NOW(), NOW()), -- 英国ID=10
   (34, '奥腾电子', 'Altium Limited', 'www.altium.com', '澳大利亚PCB设计', 30, NOW(), NOW()), -- 澳大利亚ID=30
   (35, 'ASCON集团', 'ASCON Group', 'www.ascon.ru', '俄罗斯CAD软件', 21, NOW(), NOW()), -- 俄罗斯ID=21
-  (36, 'Model Studio CS', 'Model Studio CS', 'https://modelstudiocs.ru/', '俄罗斯工程设计软件，提供电气设计、管道设计等工业设施设计解决方案', 21, NOW(), NOW()); -- 俄罗斯ID=21
+  (36, 'Model Studio CS', 'Model Studio CS', 'https://modelstudiocs.ru/', '俄罗斯工程设计软件，提供电气设计、管道设计等工业设施设计解决方案', 21, NOW(), NOW()), -- 俄罗斯ID=21
+  (37, 'Alibre公司', 'Alibre, Inc.', 'www.alibre.com', '专业的3D CAD/CAM软件开发商', 26, NOW(), NOW()),
+  (38, 'ntop', 'ntop', 'ntop.com', '开源网络监控工具，用于实时监控网络流量和使用情况', 26, NOW(), NOW()),
+  (39, 'Ascon', 'Ascon', 'https://ascon.net/', '俄罗斯最大的工业软件厂商,是工业和建筑数字化的技术促进者，专注于设计和制造流程自动化领域，其产品用于 3D 建模、生产流程、管理工程数据、管理产品周期等，在汽车、重型机械、航空航天、国防等多个行业都有应用，全球有超过 14000 家客户。', 21, NOW(), NOW()),
+  (40, 'Metalix公司', 'Metalix', 'www.metalix.com', '专业的钣金设计和制造软件', 26, NOW(), NOW());

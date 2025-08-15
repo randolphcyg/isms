@@ -139,7 +139,7 @@ func (s *DeveloperService) ListDevelopers(ctx context.Context, req *pb.ListDevel
 	}, nil
 }
 
-func (s *DeveloperService) UpdateDevelopers(ctx context.Context, req *pb.UpdateDeveloperReq) (*pb.DeveloperResp, error) {
+func (s *DeveloperService) UpdateDeveloper(ctx context.Context, req *pb.UpdateDeveloperReq) (*pb.DeveloperResp, error) {
 	s.log.WithContext(ctx).Infof("收到更新开发商请求: ID=%d, 中文名称=%s", req.Id, req.NameZh)
 
 	domainDev := &domain.Developer{
@@ -158,11 +158,19 @@ func (s *DeveloperService) UpdateDevelopers(ctx context.Context, req *pb.UpdateD
 		return nil, status.Errorf(codes.Internal, "更新开发商失败")
 	}
 
+	// 获取国家信息以设置CountryName字段
+	country, err := s.countryUc.GetCountryByID(ctx, uint32(updatedDev.CountryID))
+	if err != nil {
+		s.log.WithContext(ctx).Errorf("查询国家[%d]失败: %v", updatedDev.CountryID, err)
+		// 即使获取国家信息失败，也不应该影响更新操作的成功
+	}
+
 	return &pb.DeveloperResp{
 		Id:          uint32(updatedDev.ID),
 		NameZh:      updatedDev.NameZh,
 		NameEn:      updatedDev.NameEn,
 		CountryId:   uint32(updatedDev.CountryID),
+		CountryName: country.NameZh,
 		Website:     *updatedDev.Website,
 		Description: *updatedDev.Description,
 		CreatedAt:   updatedDev.CreatedAt.Format(time.RFC3339),

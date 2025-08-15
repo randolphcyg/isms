@@ -5,39 +5,253 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>开发商列表</title>
     <style>
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto; min-width: 1000px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; white-space: nowrap; }
         th { background-color: #f2f2f2; }
         .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
         .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
         .error { background-color: #f8d7da; color: #721c24; }
+        .success { background-color: #d4edda; color: #155724; }
         .pagination { margin-top: 20px; display: flex; justify-content: center; }
         .pagination button { margin: 0 5px; padding: 8px 12px; cursor: pointer; }
         .pagination .current { background-color: #007bff; color: white; border: none; }
         .pagination input { width: 50px; text-align: center; margin: 0 5px; }
         .pagination-info { text-align: center; margin-top: 10px; }
+        
+        /* 描述字段样式 */
+        .description-cell {
+            display: inline-block;
+            width: 100%;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+            cursor: pointer;
+            color: #007bff;
+            /* 移除下划线 */
+            text-decoration: none;
+        }
+        
+        .description-cell:hover {
+            color: #0056b3;
+        }
+        
+        /* 空内容样式 */
+        .description-cell.empty {
+            color: inherit;
+            text-decoration: none;
+            cursor: default;
+        }
+        
+        .description-cell.empty:hover {
+            color: inherit;
+        }
+        
+        /* 自定义tooltip样式 */
+        .tooltip {
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 1000;
+            white-space: normal;
+            word-wrap: break-word;
+            max-width: 300px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        /* 新增按钮样式 */
+        .add-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        .add-button:hover {
+            background-color: #218838;
+        }
+        
+        /* 冻结列样式 */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        /* 冻结第一列 (ID) */
+        .col-id {
+            position: sticky;
+            left: 0;
+            background-color: #f2f2f2;
+            z-index: 3;
+        }
+        
+        /* 冻结第二列 (开发商名称) */
+        .col-name {
+            position: sticky;
+            left: 50px; /* 第一列的宽度 */
+            background-color: #f2f2f2;
+            z-index: 2;
+        }
+
+        /* 冻结国家列 */
+        .col-country {
+            position: sticky;
+            left: 550px; /* 前两列的总宽度 */
+            background-color: #f2f2f2;
+            z-index: 1;
+        }
+        
+        /* 网站链接样式 */
+        .website-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .website-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* 操作按钮样式 */
+        .btn-edit, .btn-save, .btn-cancel {
+            padding: 6px 12px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+        
+        .btn-save {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background-color: #218838;
+        }
+        
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+        
+        /* 编辑模式下的输入框样式 */
+        .edit-input {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        /* 操作列样式 */
+        .col-actions {
+            position: sticky;
+            right: 0;
+            background-color: #f2f2f2;
+            z-index: 2;
+            width: 150px;
+            text-align: center;
+        }
+        
+        /* 编辑模式下的操作列 */
+        .col-actions.edit-mode {
+            background-color: white;
+        }
+        
+        /* 确认对话框样式 */
+        .confirm-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            display: none;
+        }
+        
+        .confirm-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .confirm-buttons {
+            margin-top: 20px;
+        }
+        
+        .confirm-buttons button {
+            margin: 0 10px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .confirm-yes {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .confirm-no {
+            background-color: #6c757d;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>开发商列表</h1>
-        <div id="message" class="message"></div>
+        <button class="add-button" onclick="addManufacturer()">新增开发商</button>
+        <div id="message" class="message" style="display: none;"></div>
+        <div class="table-container">
         <table id="manufacturersTable">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>开发商名称</th>
-                    <th>英文名称</th>
-                    <th>国家</th>
-                    <th>描述</th>
-                    <th>创建时间</th>
-                    <th>更新时间</th>
+                    <th class="col-id" style="width: 50px;">ID</th>
+                    <th class="col-name" style="width: 150px;">开发商名称</th>
+                    <th class="col-en-name" style="width: 150px;">英文名称</th>
+                    <th class="col-website" style="width: 150px;">官网</th>
+                    <th class="col-description" style="width: 50px;">描述</th>
+                    <th class="col-country" style="width: 100px;">国家</th>
+                    <th class="col-actions" style="width: 150px;">操作</th>
                 </tr>
             </thead>
             <tbody id="manufacturersTableBody"></tbody>
         </table>
+        </div>
         
         <!-- 分页控件 -->
         <div class="pagination" id="pagination">
@@ -64,6 +278,10 @@
         let pageSize = 20;
         let totalPages = 1;
         let totalItems = 0;
+        
+        // 当前正在编辑的行
+        let currentEditingRow = null;
+        let currentEditingData = null;
 
         // 页面加载时获取开发商列表
         document.addEventListener('DOMContentLoaded', () => {
@@ -123,99 +341,481 @@
                 // 检查数据是否存在
                 if (!data || data.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="5" style="text-align: center;">暂无数据</td>`;
+                    row.innerHTML = `<td colspan="7" style="text-align: center;">暂无数据</td>`;
                     tableBody.appendChild(row);
                     return;
                 }
 
+                // 渲染表格行
                 data.forEach(manufacturer => {
-                    // 确保字段存在，如果不存在则使用默认值
-                    const id = manufacturer.id || '-';
-                    const nameZh = manufacturer.nameZh || '未知';
-                    const nameEn = manufacturer.nameEn || '-';
-                    const countryName = manufacturer.countryName || '未知';
-                    const description = manufacturer.description || '-';
-                    const createdAt = formatDate(manufacturer.createdAt);
-                    const updatedAt = formatDate(manufacturer.updatedAt);
-                    
                     const row = document.createElement('tr');
+                    row.dataset.id = manufacturer.id;
+                    
+                    // 处理国家名称
+                    const countryName = manufacturer.countryName || '-';
+                    
+                    // 处理网站字段
+                    const website = manufacturer.website || '-';
+                    const websiteCell = website === '-' ? 
+                        '-' : 
+                        `<a href="${website}" target="_blank" class="website-link" title="${website}">${website.length > 30 ? website.substring(0, 30) + '...' : website}</a>`;
+                    
+                    // 处理描述字段 - 使用自定义tooltip显示完整内容
+                    const description = manufacturer.description || '-';
+                    const descriptionCell = description === '-' ? 
+                        `<span class="description-cell empty">-</span>` : 
+                        `<span class="description-cell" data-description="${description.replace(/"/g, '&quot;')}">${description.substring(0, 50)}${description.length > 50 ? '...' : ''}</span>`;
+                    
                     row.innerHTML = `
-                        <td>${id}</td>
-                        <td>${nameZh}</td>
-                        <td>${nameEn}</td>
-                        <td>${countryName}</td>
-                        <td>${description}</td>
-                        <td>${createdAt}</td>
-                        <td>${updatedAt}</td>
+                        <td class="col-id">${manufacturer.id || '-'}</td>
+                        <td class="col-name">${manufacturer.nameZh || '-'}</td>
+                        <td class="col-en-name">${manufacturer.nameEn || '-'}</td>
+                        <td class="col-website">${websiteCell}</td>
+                        <td class="col-description">${descriptionCell}</td>
+                        <td class="col-country">${countryName}</td>
+                        <td class="col-actions">
+                            <button class="btn-edit" onclick="editManufacturer(${manufacturer.id})">编辑</button>
+                        </td>
                     `;
                     tableBody.appendChild(row);
                 });
+                
+                // 绑定自定义tooltip事件
+                bindTooltipEvents();
             } catch (error) {
-                showMessage(error.message, 'error');
-                console.error('获取开发商列表错误:', error);
+                console.error('获取开发商列表失败:', error);
+                showMessage('获取开发商列表失败: ' + error.message, 'error');
             }
         }
 
-        // 更新分页控件UI
+        // 更新分页UI
         function updatePaginationUI() {
-            // 更新页码输入框
             document.getElementById('pageInput').value = currentPage;
-            document.getElementById('pageInput').max = totalPages;
-            
-            // 更新总页数显示
             document.getElementById('totalPages').textContent = totalPages;
-            
-            // 更新记录总数显示
             document.getElementById('totalInfo').textContent = `共 ${totalItems} 条记录`;
             
-            // 更新按钮状态
-            document.getElementById('firstPage').disabled = currentPage <= 1;
+            // 更新分页按钮状态
             document.getElementById('prevPage').disabled = currentPage <= 1;
             document.getElementById('nextPage').disabled = currentPage >= totalPages;
+            document.getElementById('firstPage').disabled = currentPage <= 1;
             document.getElementById('lastPage').disabled = currentPage >= totalPages;
         }
 
-        // 跳转到指定页
+        // 跳转到指定页面
         function goToPage(page) {
             if (page >= 1 && page <= totalPages) {
                 fetchManufacturersList(page, pageSize);
             }
         }
 
+        // 显示消息
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
         // 格式化日期
         function formatDate(dateString) {
-            // 检查日期字符串是否存在且不为空
-            if (!dateString || dateString === '') return '-';
+            if (!dateString) return '-';
             
             try {
                 const date = new Date(dateString);
-                // 检查日期是否有效
                 if (isNaN(date.getTime())) return '-';
-                return date.toLocaleString('zh-CN', {
+                
+                return new Intl.DateTimeFormat('zh-CN', {
                     year: 'numeric',
                     month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-            } catch (e) {
-                console.error('日期格式化错误:', e);
+                    day: '2-digit'
+                }).format(date);
+            } catch (error) {
+                console.error('日期格式化错误:', error);
                 return '-';
             }
         }
+        
+        // 自定义tooltip功能
+        function bindTooltipEvents() {
+            const existingTooltip = document.getElementById('customTooltip');
+            if (existingTooltip) {
+                existingTooltip.remove();
+            }
+            
+            // 创建tooltip元素
+            const tooltip = document.createElement('div');
+            tooltip.id = 'customTooltip';
+            tooltip.className = 'tooltip';
+            document.body.appendChild(tooltip);
+            
+            // 为所有描述字段绑定事件
+            document.querySelectorAll('.description-cell:not(.empty)').forEach(span => {
+                span.addEventListener('mouseenter', function(e) {
+                    const description = this.getAttribute('data-description');
+                    tooltip.textContent = description;
+                    tooltip.style.display = 'block';
+                    
+                    // 获取鼠标位置
+                    const x = e.pageX;
+                    const y = e.pageY;
+                    
+                    // 设置tooltip位置
+                    tooltip.style.left = (x + 10) + 'px';
+                    tooltip.style.top = (y + 10) + 'px';
+                });
+                
+                span.addEventListener('mousemove', function(e) {
+                    // 跟随鼠标移动
+                    tooltip.style.left = (e.pageX + 10) + 'px';
+                    tooltip.style.top = (e.pageY + 10) + 'px';
+                });
+                
+                span.addEventListener('mouseleave', function() {
+                    tooltip.style.display = 'none';
+                });
+            });
+        }
+        
+        // 编辑开发商
+        function editManufacturer(id) {
+            // 如果正在编辑其他行，先取消编辑
+            if (currentEditingRow) {
+                cancelEdit();
+            }
+            
+            // 找到要编辑的行
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (!row) return;
+            
+            // 保存当前行和数据
+            currentEditingRow = row;
+            currentEditingData = {
+                id: id,
+                nameZh: row.querySelector('.col-name').textContent,
+                nameEn: row.querySelector('.col-en-name').textContent,
+                website: row.querySelector('.col-website').textContent,
+                description: row.querySelector('.col-description').textContent === '-' ? '' : row.querySelector('.col-description').textContent,
+                country: row.querySelector('.col-country').textContent,
+            };
+            
+            // 获取国家列表用于下拉框
+            fetchCountriesForEdit().then(countries => {
+                // 转换行内容为编辑模式
+                const manufacturer = {
+                    id: id,
+                    nameZh: row.querySelector('.col-name').textContent,
+                    nameEn: row.querySelector('.col-en-name').textContent,
+                    website: row.querySelector('.col-website').textContent,
+                    description: row.querySelector('.col-description').textContent === '-' ? '' : row.querySelector('.col-description').textContent,
+                    countryId: null, // 需要通过国家名称匹配ID
+                };
+                
+                // 查找国家ID
+                const countryName = row.querySelector('.col-country').textContent;
+                const country = countries.find(c => `${c.nameZh} (${c.nameEn})` === countryName || c.nameZh === countryName);
+                if (country) {
+                    manufacturer.countryId = country.id;
+                }
+                
+                // 更新行内容为编辑模式
+                row.querySelector('.col-name').innerHTML = `<input type="text" class="edit-input" value="${manufacturer.nameZh}" data-field="nameZh">`;
+                row.querySelector('.col-en-name').innerHTML = `<input type="text" class="edit-input" value="${manufacturer.nameEn}" data-field="nameEn">`;
+                row.querySelector('.col-website').innerHTML = `<input type="url" class="edit-input" value="${manufacturer.website}" data-field="website" placeholder="https://example.com">`;
+                
+                // 创建国家选择下拉框
+                let countryOptions = '<option value="">请选择国家</option>';
+                countries.forEach(country => {
+                    const selected = country.id === manufacturer.countryId ? 'selected' : '';
+                    countryOptions += `<option value="${country.id}" ${selected}>${country.nameZh} (${country.nameEn})</option>`;
+                });
+                
+                row.querySelector('.col-description').innerHTML = `<textarea class="edit-input" data-field="description" rows="2">${manufacturer.description}</textarea>`;
+                row.querySelector('.col-country').innerHTML = `<select class="edit-input" data-field="countryId">${countryOptions}</select>`;
+                
+                // 更新操作列
+                row.querySelector('.col-actions').innerHTML = `
+                    <button class="btn-save" onclick="saveEdit(${id})">保存</button>
+                    <button class="btn-cancel" onclick="cancelEdit()">取消</button>
+                `;
+                row.querySelector('.col-actions').classList.add('edit-mode');
+            });
+        }
+        
+        // 获取国家列表用于编辑
+        async function fetchCountriesForEdit() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/countries?page=1&page_size=1000`);
+                if (!response.ok) throw new Error('获取国家列表失败');
+                
+                const result = await response.json();
+                return result.items || [];
+            } catch (error) {
+                console.error('获取国家列表失败:', error);
+                showMessage('获取国家列表失败: ' + error.message, 'error');
+                return [];
+            }
+        }
+        
+        // 保存编辑
+        async function saveEdit(id) {
+            if (!currentEditingRow) return;
+            
+            // 获取编辑后的数据
+            const editedData = {
+                id: id,
+                nameZh: currentEditingRow.querySelector('input[data-field="nameZh"]').value,
+                nameEn: currentEditingRow.querySelector('input[data-field="nameEn"]').value,
+                website: currentEditingRow.querySelector('input[data-field="website"]').value,
+                countryId: parseInt(currentEditingRow.querySelector('select[data-field="countryId"]').value),
+                description: currentEditingRow.querySelector('textarea[data-field="description"]').value
+            };
+            
+            // 验证必填字段
+            if (!editedData.nameZh || !editedData.countryId) {
+                showMessage('请填写所有必填字段', 'error');
+                return;
+            }
+            
+            // 发送更新请求
+            try {
+                const response = await fetch(`${API_BASE_URL}/developers/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(editedData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '更新开发商失败');
+                }
+                
+                const result = await response.json();
+                
+                // 更新成功后，更新表格显示
+                currentEditingRow.querySelector('.col-name').textContent = result.nameZh;
+                currentEditingRow.querySelector('.col-en-name').textContent = result.nameEn;
+                
+                // 更新网站显示
+                if (result.website) {
+                    currentEditingRow.querySelector('.col-website').innerHTML = `<a href="${result.website}" target="_blank" class="website-link" title="${result.website}">${result.website.length > 30 ? result.website.substring(0, 30) + '...' : result.website}</a>`;
+                } else {
+                    currentEditingRow.querySelector('.col-website').textContent = '-';
+                }
+                
+                // 更新描述显示
+                if (result.description) {
+                    currentEditingRow.querySelector('.col-description').innerHTML = `<span class="description-cell" data-description="${result.description.replace(/"/g, '&quot;')}">${result.description.substring(0, 50)}${result.description.length > 50 ? '...' : ''}</span>`;
+                } else {
+                    currentEditingRow.querySelector('.col-description').innerHTML = `<span class="description-cell empty">-</span>`;
+                }
 
-        // 显示消息
-        function showMessage(text, type) {
-            const messageEl = document.getElementById('message');
-            messageEl.textContent = text;
-            messageEl.className = `message ${type}`;
+                // 更新国家显示
+                currentEditingRow.querySelector('.col-country').textContent = result.countryName || '-';
+                
+                // 恢复操作列
+                currentEditingRow.querySelector('.col-actions').innerHTML = `
+                    <button class="btn-edit" onclick="editManufacturer(${id})">编辑</button>
+                `;
+                currentEditingRow.querySelector('.col-actions').classList.remove('edit-mode');
+                
+                // 清除编辑状态
+                currentEditingRow = null;
+                currentEditingData = null;
+                
+                showMessage('开发商更新成功', 'success');
+                
+                // 重新绑定tooltip事件
+                bindTooltipEvents();
+            } catch (error) {
+                console.error('更新开发商失败:', error);
+                showMessage('更新开发商失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 取消编辑
+        function cancelEdit() {
+            if (!currentEditingRow || !currentEditingData) return;
+            
+            // 恢复原始数据
+            currentEditingRow.querySelector('.col-name').textContent = currentEditingData.nameZh;
+            currentEditingRow.querySelector('.col-en-name').textContent = currentEditingData.nameEn;
+            
+            // 恢复网站显示
+            if (currentEditingData.website && currentEditingData.website !== '-') {
+                currentEditingRow.querySelector('.col-website').innerHTML = `<a href="${currentEditingData.website}" target="_blank" class="website-link" title="${currentEditingData.website}">${currentEditingData.website.length > 30 ? currentEditingData.website.substring(0, 30) + '...' : currentEditingData.website}</a>`;
+            } else {
+                currentEditingRow.querySelector('.col-website').textContent = '-';
+            }
+            
+            // 恢复描述显示
+            if (currentEditingData.description) {
+                currentEditingRow.querySelector('.col-description').innerHTML = `<span class="description-cell" data-description="${currentEditingData.description.replace(/"/g, '&quot;')}" title="${currentEditingData.description}">${currentEditingData.description.substring(0, 50)}${currentEditingData.description.length > 50 ? '...' : ''}</span>`;
+            } else {
+                currentEditingRow.querySelector('.col-description').innerHTML = `<span class="description-cell empty">-</span>`;
+            }
 
-            // 3秒后自动清除消息
-            setTimeout(() => {
-                messageEl.textContent = '';
-                messageEl.className = 'message';
-            }, 3000);
+            // 恢复国家显示
+            currentEditingRow.querySelector('.col-country').textContent = currentEditingData.country;
+            
+            // 恢复操作列
+            const id = currentEditingRow.dataset.id;
+            currentEditingRow.querySelector('.col-actions').innerHTML = `
+                <button class="btn-edit" onclick="editManufacturer(${id})">编辑</button>
+            `;
+            currentEditingRow.querySelector('.col-actions').classList.remove('edit-mode');
+            
+            // 清除编辑状态
+            currentEditingRow = null;
+            currentEditingData = null;
+            
+            // 重新绑定tooltip事件
+            bindTooltipEvents();
+        }
+        
+        // 新增开发商
+        function addManufacturer() {
+            // 如果正在编辑其他行，先取消编辑
+            if (currentEditingRow) {
+                cancelEdit();
+            }
+            
+            const tableBody = document.getElementById('manufacturersTableBody');
+            
+            // 创建新行
+            const newRow = document.createElement('tr');
+            newRow.dataset.id = 'new'; // 标记为新增行
+            
+            // 获取国家列表用于下拉框
+            fetchCountriesForEdit().then(countries => {
+                // 创建国家选择下拉框
+                let countryOptions = '<option value="">请选择国家</option>';
+                countries.forEach(country => {
+                    countryOptions += `<option value="${country.id}">${country.nameZh} (${country.nameEn})</option>`;
+                });
+                
+                // 填充新行内容
+                newRow.innerHTML = `
+                    <td class="col-id">-</td>
+                    <td class="col-name"><input type="text" class="edit-input" data-field="nameZh" placeholder="请输入开发商名称"></td>
+                    <td class="col-en-name"><input type="text" class="edit-input" data-field="nameEn" placeholder="请输入英文名称"></td>
+                    <td class="col-website"><input type="url" class="edit-input" data-field="website" placeholder="https://example.com"></td>
+                    <td class="col-description"><textarea class="edit-input" data-field="description" rows="2" placeholder="请输入描述"></textarea></td>
+                    <td class="col-country"><select class="edit-input" data-field="countryId">${countryOptions}</select></td>
+                    <td class="col-actions edit-mode">
+                        <button class="btn-save" onclick="saveNew()">保存</button>
+                        <button class="btn-cancel" onclick="cancelAdd()">取消</button>
+                    </td>
+                `;
+                
+                // 将新行插入到表格的第一行
+                if (tableBody.firstChild) {
+                    tableBody.insertBefore(newRow, tableBody.firstChild);
+                } else {
+                    tableBody.appendChild(newRow);
+                }
+                
+                // 聚焦到第一个输入框
+                newRow.querySelector('input[data-field="nameZh"]').focus();
+            });
+        }
+        
+        // 保存新增
+        async function saveNew() {
+            // 找到新增行
+            const newRow = document.querySelector('tr[data-id="new"]');
+            if (!newRow) return;
+            
+            // 获取新增的数据
+            const newData = {
+                nameZh: newRow.querySelector('input[data-field="nameZh"]').value,
+                nameEn: newRow.querySelector('input[data-field="nameEn"]').value,
+                website: newRow.querySelector('input[data-field="website"]').value,
+                countryId: parseInt(newRow.querySelector('select[data-field="countryId"]').value),
+                description: newRow.querySelector('textarea[data-field="description"]').value
+            };
+            
+            // 验证必填字段
+            if (!newData.nameZh || !newData.countryId) {
+                showMessage('请填写所有必填字段', 'error');
+                return;
+            }
+            
+            // 发送创建请求
+            try {
+                const response = await fetch(`${API_BASE_URL}/developers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '创建开发商失败');
+                }
+                
+                const result = await response.json();
+                
+                // 创建成功后，更新表格显示
+                newRow.dataset.id = result.id;
+                newRow.querySelector('.col-id').textContent = result.id;
+                newRow.querySelector('.col-name').textContent = result.nameZh;
+                newRow.querySelector('.col-en-name').textContent = result.nameEn;
+                
+                // 更新网站显示
+                if (result.website) {
+                    newRow.querySelector('.col-website').innerHTML = `<a href="${result.website}" target="_blank" class="website-link" title="${result.website}">${result.website.length > 30 ? result.website.substring(0, 30) + '...' : result.website}</a>`;
+                } else {
+                    newRow.querySelector('.col-website').textContent = '-';
+                }
+                
+                // 更新描述显示
+                if (result.description) {
+                    newRow.querySelector('.col-description').innerHTML = `<span class="description-cell" data-description="${result.description.replace(/"/g, '&quot;')}" title="${result.description}">${result.description.substring(0, 50)}${result.description.length > 50 ? '...' : ''}</span>`;
+                } else {
+                    newRow.querySelector('.col-description').innerHTML = `<span class="description-cell empty">-</span>`;
+                }
+
+                // 更新国家显示
+                newRow.querySelector('.col-country').textContent = result.countryName || '-';
+                
+                // 更新操作列
+                newRow.querySelector('.col-actions').innerHTML = `
+                    <button class="btn-edit" onclick="editManufacturer(${result.id})">编辑</button>
+                `;
+                newRow.querySelector('.col-actions').classList.remove('edit-mode');
+                
+                showMessage('开发商创建成功', 'success');
+                
+                // 重新绑定tooltip事件
+                bindTooltipEvents();
+                
+                // 更新分页信息
+                totalItems++;
+                totalPages = Math.ceil(totalItems / pageSize);
+                updatePaginationUI();
+            } catch (error) {
+                console.error('创建开发商失败:', error);
+                showMessage('创建开发商失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 取消新增
+        function cancelAdd() {
+            // 找到新增行
+            const newRow = document.querySelector('tr[data-id="new"]');
+            if (!newRow) return;
+            
+            // 移除新增行
+            newRow.remove();
         }
     </script>
 </body>

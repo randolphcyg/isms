@@ -464,9 +464,18 @@
                 <label for="osIds">关联操作系统</label>
                 <div class="os-controls">
                     <button type="button" id="clearOSBtn" class="os-control-btn clear-os-btn">清空选择</button>
+                    <button type="button" id="selectWinXPAndAboveBtn" class="btn btn-secondary btn-sm">Win XP及以上</button>
                     <button type="button" id="selectWin64Btn" class="os-control-btn">Win x64</button>
                     <button type="button" id="selectAllWindowsBtn" class="os-control-btn">选择所有Windows</button>
                     <button type="button" id="selectAllLinuxBtn" class="os-control-btn">选择所有Linux</button>
+                </div>
+                <div class="os-controls" style="margin-top: 8px;">
+                    <button type="button" id="selectWinXPBtn" class="os-control-btn">Windows XP</button>
+                    <button type="button" id="selectWinVistaBtn" class="os-control-btn">Windows Vista</button>
+                    <button type="button" id="selectWin7Btn" class="os-control-btn">Windows 7</button>
+                    <button type="button" id="selectWin8Btn" class="os-control-btn">Windows 8</button>
+                    <button type="button" id="selectWin10Btn" class="os-control-btn">Windows 10</button>
+                    <button type="button" id="selectWin11Btn" class="os-control-btn">Windows 11</button>
                 </div>
                 <div class="os-columns">
                     <div class="os-column">
@@ -594,12 +603,16 @@
                 manufacturerData = Array.isArray(result.items) ? result.items : [];
                 const select = document.getElementById('manufacturer');
                 
-                select.innerHTML = '<option value="">请选择厂商</option>';
+                select.innerHTML = '<option value="1" selected>未知开发商</option>';
                 
                 manufacturerData.forEach(manufacturer => {
+                    if (manufacturer.id === 1) return;
+                    
                     const option = document.createElement('option');
                     option.value = manufacturer.id;
-                    option.textContent = manufacturer.nameZh || manufacturer.name || '未知厂商';
+                    option.textContent = manufacturer.nameZh && manufacturer.nameEn ? 
+                        `${manufacturer.nameZh}(${manufacturer.nameEn})` : 
+                        (manufacturer.nameZh || manufacturer.nameEn || manufacturer.name || '未知厂商');
                     select.appendChild(option);
                 });
             } catch (error) {
@@ -1139,6 +1152,181 @@
         }
 
         document.getElementById('clearOSBtn').addEventListener('click', clearOS);
+        
+        // 选择Windows XP系统功能
+        function selectWinXP() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            let hasNewSelection = false;
+            
+            Array.from(windowsSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                // 检查是否已选中
+                if (!option.selected) {
+                    // 选择Windows XP系统
+                    if (text.includes('windows xp')) {
+                        option.selected = true;
+                        hasNewSelection = true;
+                    }
+                }
+            });
+            
+            if (hasNewSelection) {
+                showMessage('已选择Windows XP系统', 'success');
+            } else {
+                showMessage('没有新的Windows XP系统可选择', 'info');
+            }
+        }
+
+        document.getElementById('selectWinXPBtn').addEventListener('click', selectWinXP);
+
+        // 选择Windows Vista系统功能
+        function selectWinVista() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            let hasNewSelection = false;
+            
+            Array.from(windowsSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                // 检查是否已选中
+                if (!option.selected) {
+                    // 选择Windows Vista系统
+                    if (text.includes('windows vista')) {
+                        option.selected = true;
+                        hasNewSelection = true;
+                    }
+                }
+            });
+            
+            if (hasNewSelection) {
+                showMessage('已选择Windows Vista系统', 'success');
+            } else {
+                showMessage('没有新的Windows Vista系统可选择', 'info');
+            }
+        }
+
+        document.getElementById('selectWinVistaBtn').addEventListener('click', selectWinVista);
+
+        // 选择Windows 7系统功能
+        function selectWin7() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            let hasNewSelection = false;
+            
+            Array.from(windowsSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                // 检查是否已选中
+                if (!option.selected) {
+                    // 选择Windows 7系统
+                    if (text.includes('windows 7')) {
+                        option.selected = true;
+                        hasNewSelection = true;
+                    }
+                }
+            });
+            
+            if (hasNewSelection) {
+                showMessage('已选择Windows 7系统', 'success');
+            } else {
+                showMessage('没有新的Windows 7系统可选择', 'info');
+            }
+        }
+
+        document.getElementById('selectWin7Btn').addEventListener('click', selectWin7);
+
+        // 选择Windows 8系统功能
+        function selectWin8() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            let hasNewSelection = false;
+            
+            Array.from(windowsSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                // 检查是否已选中
+                if (!option.selected) {
+                    // 选择Windows 8系统
+                    if (text.includes('windows 8') && !text.includes('windows 8.1')) {
+                        option.selected = true;
+                        hasNewSelection = true;
+                    }
+                }
+            });
+            
+            if (hasNewSelection) {
+                showMessage('已选择Windows 8系统', 'success');
+            } else {
+                showMessage('没有新的Windows 8系统可选择', 'info');
+            }
+        }
+
+        document.getElementById('selectWin8Btn').addEventListener('click', selectWin8);
+
+        // 选择Windows 10系统功能
+        function selectWin10() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            let hasNewSelection = false;
+            
+            Array.from(windowsSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                // 检查是否已选中
+                if (!option.selected) {
+                    // 选择Windows 10系统
+                    if (text.includes('windows 10')) {
+                        option.selected = true;
+                        hasNewSelection = true;
+                    }
+                }
+            });
+            
+            if (hasNewSelection) {
+                showMessage('已选择Windows 10系统', 'success');
+            } else {
+                showMessage('没有新的Windows 10系统可选择', 'info');
+            }
+        }
+
+        document.getElementById('selectWin10Btn').addEventListener('click', selectWin10);
+
+        // 选择Windows 11系统功能
+        function selectWin11() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            let hasNewSelection = false;
+            
+            Array.from(windowsSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                // 检查是否已选中
+                if (!option.selected) {
+                    // 选择Windows 11系统
+                    if (text.includes('windows 11')) {
+                        option.selected = true;
+                        hasNewSelection = true;
+                    }
+                }
+            });
+            
+            if (hasNewSelection) {
+                showMessage('已选择Windows 11系统', 'success');
+            } else {
+                showMessage('没有新的Windows 11系统可选择', 'info');
+            }
+        }
+
+        document.getElementById('selectWin11Btn').addEventListener('click', selectWin11);
+
+        // 选择Windows XP及以上系统功能
+        function selectWinXPAndAbove() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            Array.from(windowsSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                // 选择Windows XP及以上版本
+                if (text.includes('windows') && 
+                    (text.includes('xp') || text.includes('vista') || 
+                    text.includes('7 ') || text.includes('8 ') || text.includes('10') || text.includes('11') ||
+                    text.includes('server 2008') || text.includes('server 2012') || 
+                    text.includes('server 2016') || text.includes('server 2019') || text.includes('server 2022'))) {
+                    option.selected = true;
+                }
+            });
+            showMessage('已选择Windows XP及以上系统', 'success');
+        }
+
+        document.getElementById('selectWinXPAndAboveBtn').addEventListener('click', selectWinXPAndAbove);
 
         // 添加选择Windows x64系统功能
         function selectWin64() {

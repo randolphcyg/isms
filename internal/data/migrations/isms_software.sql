@@ -25,7 +25,7 @@ CREATE TABLE `isms_software` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_name_version` (`name_zh`, `version`) COMMENT '同一软件的版本唯一',
+  UNIQUE KEY `uk_name_version` (`name_en`, `version`) COMMENT '同一软件的版本唯一',
   KEY `idx_developer` (`developer_id`),
   KEY `idx_country` (`country_id`),
   KEY `idx_status` (`status`),

@@ -176,7 +176,7 @@ func (uc *SoftwareUsecase) CreateSoftware(ctx context.Context, software *domain.
 	}
 
 	// 检查软件是否已存在（根据名称和版本）
-	exists, err := uc.repo.ExistByNameAndVersion(ctx, software.NameZh, software.Version)
+	exists, err := uc.repo.ExistByNameAndVersion(ctx, software.NameEn, software.Version)
 	if err != nil {
 		return nil, err
 	}

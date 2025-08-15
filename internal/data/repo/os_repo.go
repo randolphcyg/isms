@@ -118,8 +118,8 @@ func (r *osRepo) List(ctx context.Context, page, pageSize uint32, keyword, manuf
 
 	// 条件筛选
 	if keyword != "" {
-		q = q.Where(r.query.IsmsOS.Name.Like("%"+keyword+"%")).
-			Or(r.query.IsmsOS.Version.Like("%"+keyword+"%"))
+		q = q.Where(r.query.IsmsOS.Name.Like("%" + keyword + "%")).
+			Or(r.query.IsmsOS.Version.Like("%" + keyword + "%"))
 	}
 	if manufacturer != "" {
 		// 需要正确构造manufacturer查询条件
@@ -143,7 +143,8 @@ func (r *osRepo) List(ctx context.Context, page, pageSize uint32, keyword, manuf
 	dataModels, err := q.
 		Offset(int(offset)).
 		Limit(int(pageSize)).
-		Order(r.query.IsmsOS.ID.Asc()).
+		Order(r.query.IsmsOS.Name.Asc()).
+		Order(r.query.IsmsOS.Version.Asc()).
 		Find()
 	if err != nil {
 		return nil, 0, fmt.Errorf("查询操作系统列表失败: %w", err)

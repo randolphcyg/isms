@@ -28,6 +28,52 @@
         .error { background-color: #f8d7da; color: #721c24; }
         .success { background-color: #d4edda; color: #155724; }
 
+        /* 描述字段样式 */
+        .description-cell {
+            display: inline-block;
+            width: 100%;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+            cursor: pointer;
+            color: #007bff;
+            /* 移除下划线 */
+            text-decoration: none;
+        }
+
+        .description-cell:hover {
+            color: #0056b3;
+        }
+
+        /* 空内容样式 */
+        .description-cell.empty {
+            color: inherit;
+            text-decoration: none;
+            cursor: default;
+        }
+
+        .description-cell.empty:hover {
+            color: inherit;
+        }
+
+        /* 自定义tooltip样式 */
+        .tooltip {
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 1000;
+            white-space: normal;
+            word-wrap: break-word;
+            max-width: 300px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+        }
+
         /* 来源页面和下载链接列样式 */
         .source-url-cell, .download-link-cell {
             display: inline-block;
@@ -83,34 +129,6 @@
             color: white;
         }
 
-        /* 描述字段样式 */
-        .description-cell {
-            display: inline-block;
-            width: 100%;
-            max-width: 150px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            position: relative;
-            cursor: pointer;
-            color: #007bff;
-            text-decoration: underline;
-        }
-        
-        .description-cell:hover {
-            color: #0056b3;
-        }
-        
-        /* 空内容样式 */
-        .description-cell.empty {
-            color: inherit;
-            text-decoration: none;
-            cursor: default;
-        }
-        
-        .description-cell.empty:hover {
-            color: inherit;
-        }
         /* 系统要求字段样式 */
         .sys-req-cell {
             display: inline-block;
@@ -430,8 +448,7 @@
 
         /* 为需要换行的列添加更具体的选择器 */
         .col-name,
-        .col-other-req,
-        .col-description {
+        .col-other-req {
             white-space: pre-wrap !important;
             word-wrap: break-word;
             max-width: 150px;
@@ -501,15 +518,6 @@
         </div>
     </div>
 
-    <!-- 描述详情模态框 -->
-    <div id="descriptionModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-        <div style="background-color: white; margin: 10% auto; padding: 20px; border-radius: 5px; width: 80%; max-width: 600px; position: relative;">
-            <span id="closeModal" style="position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer;">&times;</span>
-            <h3>简介</h3>
-            <div id="modalDescription" style="word-wrap: break-word; white-space: pre-wrap; max-height: 70vh; overflow-y: auto;"></div>
-        </div>
-    </div>
-
     <!-- 系统要求详情模态框 -->
     <div id="sysReqModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
         <div style="background-color: white; margin: 10% auto; padding: 20px; border-radius: 5px; width: 80%; max-width: 600px; position: relative;">
@@ -529,7 +537,6 @@
         let newSoftwareId = null;
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 解析URL参数
             const urlParams = new URLSearchParams(window.location.search);
             targetDeveloperId = urlParams.get('developerId');
             newSoftwareId = urlParams.get('newSoftwareId');
@@ -749,13 +756,18 @@
                 const version = software.version || '-';
                 const countryName = software.countryName || '未知';
                 const developerName = software.developerName || '未知';
-                const description = software.description || '-';
                 const cpuReq = software.cpuReq || '-';
                 const memoryMinGb = software.memoryMinGb || '-';
                 const diskMinGb = software.diskMinGb || '-';
                 const sysReqOther = software.sysReqOther || '-';
                 const sourceUrl = software.sourceUrl || '-';
                 const downloadLink = software.downloadLink || '-';
+
+                // 处理描述字段 - 使用自定义tooltip显示完整内容
+                const description = software.description || '-';
+                const descriptionCell = description === '-' ?
+                    `<span class="description-cell empty">-</span>` :
+                    `<span class="description-cell" data-description="${description.replace(/"/g, '&quot;')}">${description.substring(0, 50)}${description.length > 50 ? '...' : ''}</span>`;
 
                 let releaseDate = '-';
                 if (software.releaseYear) {
@@ -821,11 +833,7 @@
                     <td class="col-country">${countryName}</td>
                     <td class="col-bitwidth">${bitWidthTags}</td>
                     <td class="col-developer">${developerName}</td>
-                    <td class="col-description">
-                        ${description === '-' ? 
-                        `<span class="description-cell empty">-</span>` : 
-                        `<span class="description-cell" data-description="${description.replace(/"/g, '&quot;')}">${description.substring(0, 50)}${description.length > 50 ? '...' : ''}</span>`}
-                    </td>
+                    <td class="col-description">${descriptionCell}</td>
                     <td class="col-release-date">${releaseDate}</td>
                     <td class="col-status">${status}</td>
                     <td class="col-cpu-req">
@@ -850,6 +858,9 @@
                 tableBody.appendChild(row);
             });
 
+            // 绑定自定义tooltip事件
+            bindTooltipEvents();
+
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const softwareId = this.getAttribute('data-id');
@@ -868,13 +879,6 @@
                 });
             });
 
-            document.querySelectorAll('.description-cell:not(.empty)').forEach(span => {
-                span.addEventListener('click', function() {
-                    const description = this.getAttribute('data-description');
-                    document.getElementById('modalDescription').textContent = description;
-                    document.getElementById('descriptionModal').style.display = 'block';
-                });
-            });
             document.querySelectorAll('.sys-req-cell:not(.empty)').forEach(span => {
                 span.addEventListener('click', function() {
                     const sysReq = this.getAttribute('data-full-text');
@@ -889,22 +893,6 @@
                     document.getElementById('sysReqModal').style.display = 'block';
                 });
             });
-        }
-
-        // 添加模态框关闭功能
-        function setupModal() {
-            const modal = document.getElementById('descriptionModal');
-            const closeBtn = document.getElementById('closeModal');
-            
-            closeBtn.onclick = function() {
-                modal.style.display = 'none';
-            }
-            
-            window.onclick = function(event) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            }
         }
 
         // 添加系统要求模态框关闭功能
@@ -1054,6 +1042,47 @@
                 showMessage(error.message, 'error');
                 console.error('删除软件错误:', error);
             }
+        }
+
+        // 自定义tooltip功能
+        function bindTooltipEvents() {
+            const existingTooltip = document.getElementById('customTooltip');
+            if (existingTooltip) {
+                existingTooltip.remove();
+            }
+
+            // 创建tooltip元素
+            const tooltip = document.createElement('div');
+            tooltip.id = 'customTooltip';
+            tooltip.className = 'tooltip';
+            document.body.appendChild(tooltip);
+
+            // 为所有描述字段绑定事件
+            document.querySelectorAll('.description-cell:not(.empty)').forEach(span => {
+                span.addEventListener('mouseenter', function(e) {
+                    const description = this.getAttribute('data-description');
+                    tooltip.textContent = description;
+                    tooltip.style.display = 'block';
+
+                    // 获取鼠标位置
+                    const x = e.pageX;
+                    const y = e.pageY;
+
+                    // 设置tooltip位置
+                    tooltip.style.left = (x + 10) + 'px';
+                    tooltip.style.top = (y + 10) + 'px';
+                });
+
+                span.addEventListener('mousemove', function(e) {
+                    // 跟随鼠标移动
+                    tooltip.style.left = (e.pageX + 10) + 'px';
+                    tooltip.style.top = (e.pageY + 10) + 'px';
+                });
+
+                span.addEventListener('mouseleave', function() {
+                    tooltip.style.display = 'none';
+                });
+            });
         }
 
         // 修改导出表格到Excel的函数

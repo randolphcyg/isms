@@ -76,3 +76,6 @@ INSERT INTO `isms_developer` (
   (62, 'MHJ-Software公司', 'MHJ-Software', 'https://www.mhj-tools.com/', '专注于自动化技术软件，提供PLC培训软件、数字孪生服务、机电一体化系统的3D模拟等', 8, NOW(), NOW()),
   (63, 'IAR Systems', 'IAR Systems AB', 'https://www.iar.com/', '瑞典著名嵌入式系统开发工具供应商，提供IAR Embedded Workbench等产品', 6, NOW(), NOW()),
   (64, 'LPKF激光电子股份公司', 'LPKF Laser & Electronics AG', 'https://www.lpkf.com/', '德国领先的激光技术解决方案提供商，专注于PCB原型制作、太阳能电池、塑料焊接、医疗技术等领域的精密激光加工', 8, NOW(), NOW());
+  (65, '库卡', 'KUKA AG', 'www.kuka.com', '世界领先的工业机器人制造商之一，成立于1898年，总部位于德国奥格斯堡', 8, NOW(), NOW()),
+  (66, 'TP-LINK', 'TP-LINK Corporation', 'www.tp-link.com', '全球领先的网络通讯设备供应商，致力于提供全面的ICT设备与解决方案', 2, NOW(), NOW()),
+  (67, '中控技术股份有限公司', 'SUPCON Technology Co., Ltd.', 'www.supcon.com', '国内领先、全球化布局的智能制造整体解决方案供应商，致力于"AI+数据"核心能力的构建及落地应用，已累计服务海内外客户3万多家，覆盖化工、石化、油气、电力、制药等数十个重点行业。', 2, NOW(), NOW());

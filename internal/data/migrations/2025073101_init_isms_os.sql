@@ -54,15 +54,7 @@ INSERT INTO `isms_os` (
   ('SUSE Linux Enterprise Server', '15 SP3', 'x64', 'SUSE', 2021, '企业级Linux发行版', NOW(), NOW()),
   ('SUSE Linux Enterprise Server', '15 SP4', 'x64', 'SUSE', 2022, '企业级Linux发行版', NOW(), NOW()),
 
-  -- 补充 Fedora 系统
-  ('Fedora', '37', 'x64', 'Red Hat', 2022, '由Fedora Project社群开发、Red Hat赞助的Linux发行版', NOW(), NOW()),
-  ('Fedora', '37', 'arm64', 'Red Hat', 2022, '适用于ARM64架构设备', NOW(), NOW()),
-
-  -- 补充 macOS 系统
-  ('macOS', '13 Ventura', 'x64', 'Apple', 2022, 'Apple开发的Mac操作系统，支持Apple Silicon和Intel处理器', NOW(), NOW()),
-  ('macOS', '14 Sonoma', 'x64', 'Apple', 2023, 'Apple开发的Mac操作系统，引入桌面小组件、Safari浏览器配置文件等功能', NOW(), NOW()),
-
-    -- 补充Windows历史系统
+  -- 补充Windows历史系统
   ('Microsoft Windows', 'Vista', 'x86', 'Microsoft', 2007, '包含家庭版、商业版、旗舰版等所有细分版本', NOW(), NOW()),
   ('Microsoft Windows', 'Vista', 'x64', 'Microsoft', 2007, '64位版本，包含家庭版、商业版、旗舰版等所有细分版本', NOW(), NOW()),
   ('Microsoft Windows', 'XP', 'x86', 'Microsoft', 2001, '包含家庭版、专业版等所有细分版本（SP1及后续更新）', NOW(), NOW()),
@@ -72,20 +64,22 @@ INSERT INTO `isms_os` (
   ('Microsoft Windows', '98', 'x86', 'Microsoft', 1998, '包含第二版(SE)在内的所有更新版本', NOW(), NOW()),
   ('Microsoft Windows', '95', 'x86', 'Microsoft', 1995, '包含OSR2在内的所有更新版本', NOW(), NOW()),
   ('Microsoft Windows', 'XP', 'x64', 'Microsoft', 2005, '64位版本，基于Windows Server 2003代码', NOW(), NOW()),
-  ('Microsoft Windows Server', '2008', 'x64', 'Microsoft', 2008, '包含Standard、Datacenter等版本', NOW(), NOW()),
-
-  ('Microsoft Windows Server', '2003', 'x86', 'Microsoft', 2003, '包含Standard、Enterprise等版本（SP2及后续更新）', NOW(), NOW()),
-  ('Microsoft Windows Server', '2003', 'x64', 'Microsoft', 2003, '包含Standard、Enterprise等版本（SP2及后续更新）', NOW(), NOW()),
-  ('Microsoft Windows Server', '2008', 'x86', 'Microsoft', 2008, '包含Standard、Enterprise等版本（SP2及后续更新）', NOW(), NOW()),
-  ('Microsoft Windows Server', '2012', 'x86', 'Microsoft', 2012, '包含Standard、Datacenter等版本', NOW(), NOW()),
-  ('Microsoft Windows Server', '2016', 'x86', 'Microsoft', 2016, '包含Standard、Datacenter等版本', NOW(), NOW()),
-  ('Microsoft Windows Server', '2019', 'x86', 'Microsoft', 2019, '包含Standard、Datacenter等版本', NOW(), NOW()),
-  ('Microsoft Windows Server', '2022', 'x86', 'Microsoft', 2022, '包含Standard、Datacenter等版本', NOW(), NOW()),
 
   -- 补充 Fedora 系统
-  ('Fedora', '29', 'x64', 'Red Hat', 2018, '由Fedora Project社群开发、Red Hat赞助的Linux发行版', NOW(), NOW()),
-  ('Fedora', '31', 'x64', 'Red Hat', 2019, '由Fedora Project社群开发、Red Hat赞助的Linux发行版', NOW(), NOW()),
+  ('Fedora', '37', 'x64', 'Red Hat', 2022, '由Fedora Project社群开发、Red Hat赞助的Linux发行版', NOW(), NOW()),
+  ('Fedora', '37', 'arm64', 'Red Hat', 2022, '适用于ARM64架构设备', NOW(), NOW()),
 
   -- 补充 macOS 系统
-  ('macOS', '10.15 Catalina', 'x64', 'Apple', 2019, 'Apple开发的Mac操作系统，引入了全新的音视频应用和系统完整性保护', NOW(), NOW()),
-  ('macOS', '11 Big Sur', 'x64', 'Apple', 2020, 'Apple开发的Mac操作系统，采用全新设计语言，优化了与iOS生态的整合', NOW(), NOW());
+  ('macOS', '13 Ventura', 'x64', 'Apple', 2022, 'Apple开发的Mac操作系统，支持Apple Silicon和Intel处理器', NOW(), NOW()),
+  ('macOS', '14 Sonoma', 'x64', 'Apple', 2023, 'Apple开发的Mac操作系统，引入桌面小组件、Safari浏览器配置文件等功能', NOW(), NOW()),
+
+  -- Android 系统
+  ('Android', '8.0', 'arm64', 'Google', 2017, 'Android Oreo，代号奥利奥', NOW(), NOW()),
+  ('Android', '8.1', 'arm64', 'Google', 2017, 'Android Oreo，小版本更新', NOW(), NOW()),
+  ('Android', '9.0', 'arm64', 'Google', 2018, 'Android Pie，代号派', NOW(), NOW()),
+  ('Android', '10.0', 'arm64', 'Google', 2019, 'Android 10，首次不用甜品命名', NOW(), NOW()),
+  ('Android', '11.0', 'arm64', 'Google', 2020, 'Android 11，代号R', NOW(), NOW()),
+  ('Android', '12.0', 'arm64', 'Google', 2021, 'Android 12，代号S', NOW(), NOW()),
+  ('Android', '13.0', 'arm64', 'Google', 2022, 'Android 13，代号T', NOW(), NOW()),
+  ('Android', '14.0', 'arm64', 'Google', 2023, 'Android 14，代号UpsideDownCake', NOW(), NOW()),
+  ('Android', '15.0', 'arm64', 'Google', 2024, 'Android 15，代号Vanilla Ice Cream', NOW(), NOW());

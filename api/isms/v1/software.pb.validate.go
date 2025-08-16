@@ -852,6 +852,8 @@ func (m *ListSoftwareReq) validate(all bool) error {
 
 	// no validation rules for CategoryCode
 
+	// no validation rules for IndustryId
+
 	if len(errors) > 0 {
 		return ListSoftwareReqMultiError(errors)
 	}

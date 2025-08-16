@@ -231,6 +231,9 @@ func (s *SoftwareService) ListSoftware(ctx context.Context, req *pb.ListSoftware
 		CategoryCode: req.CategoryCode,
 		Status:       req.Status,
 		Keyword:      req.Keyword,
+		IndustryID:   req.IndustryId,
+		CountryID:    req.CountryId,
+		DeveloperID:  req.DeveloperId,
 	}
 
 	// 调用biz层核心业务逻辑

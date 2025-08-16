@@ -122,6 +122,7 @@ message ListSoftwareReq {
   string status = 5; // 按状态筛选
   int32 developer_id = 6; // 按开发商筛选
   string category_code = 7; // 按类别筛选
+  int32 industry_id = 8; // 行业
 }
 
 // 查询软件响应

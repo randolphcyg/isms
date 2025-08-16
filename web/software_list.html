@@ -453,12 +453,107 @@
             word-wrap: break-word;
             max-width: 150px;
         }
+        /* 添加筛选表单样式 */
+        .filter-form {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-weight: bold;
+        }
+        
+        .filter-group input, .filter-group select {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-button {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .filter-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .reset-button {
+            background-color: #6c757d;
+        }
+        
+        .reset-button:hover {
+            background-color: #545b62;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>工业软件列表</h1>
+        
+        <!-- 添加筛选表单 -->
+        <div class="filter-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="keyword">名称:</label>
+                    <input type="text" id="keyword" placeholder="模糊查询">
+                </div>
+                <div class="filter-group">
+                    <label for="countryId">国家:</label>
+                    <select id="countryId">
+                        <option value="">全部</option>
+                        <!-- 国家选项将通过API动态加载 -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="developerId">厂商:</label>
+                    <select id="developerId">
+                        <option value="">全部</option>
+                        <!-- 厂商选项将通过API动态加载 -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="industryId">所属行业:</label>
+                    <select id="industryId">
+                        <option value="">全部</option>
+                        <!-- 行业选项将通过API动态加载 -->
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-buttons">
+                    <button class="filter-button" id="searchButton">查询</button>
+                    <button class="filter-button reset-button" id="resetButton">重置</button>
+                </div>
+            </div>
+        </div>
+
         <div class="toolbar">
             <a href="add_software.html" class="add-button">新增工业软件</a>
             <button id="exportButton" class="export-button">导出到Excel</button>
@@ -535,6 +630,14 @@
         let softwareIdToDelete = null;
         let targetDeveloperId = null;
         let newSoftwareId = null;
+        
+        // 添加筛选参数
+        let filterParams = {
+            keyword: '',
+            countryId: '',
+            developerId: '',
+            industryId: ''
+        };
 
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -542,6 +645,13 @@
             newSoftwareId = urlParams.get('newSoftwareId');
 
             setupPagination();
+            
+            // 初始化筛选下拉框
+            loadFilterOptions();
+            
+            // 绑定筛选事件
+            document.getElementById('searchButton').addEventListener('click', searchSoftware);
+            document.getElementById('resetButton').addEventListener('click', resetFilter);
 
             // 如果有目标厂商ID，则需要找到该厂商所在的页面
             if (targetDeveloperId) {
@@ -627,7 +737,26 @@
 
         async function fetchSoftwareList(page = 1, pageSize = 20) {
             try {
-                const response = await fetch(`${API_BASE_URL}/software?page=${page}&page_size=${pageSize}`);
+                // 构建查询参数
+                const params = new URLSearchParams();
+                params.append('page', page);
+                params.append('page_size', pageSize);
+                
+                // 添加筛选参数
+                if (filterParams.keyword) {
+                    params.append('keyword', filterParams.keyword);
+                }
+                if (filterParams.countryId) {
+                    params.append('country_id', filterParams.countryId);
+                }
+                if (filterParams.developerId) {
+                    params.append('developer_id', filterParams.developerId);
+                }
+                if (filterParams.industryId) {
+                    params.append('industry_id', filterParams.industryId);
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/software?${params.toString()}`);
                 if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
 
                 const result = await response.json();
@@ -980,6 +1109,108 @@
             }
 
             return size.toFixed(2) + ' ' + units[unitIndex];
+        }
+
+        // 加载筛选下拉框选项
+        async function loadFilterOptions() {
+            try {
+                // 加载国家选项
+                const countryResponse = await fetch(`${API_BASE_URL}/countries?page=1&page_size=100`);
+                if (countryResponse.ok) {
+                    const countriesResult = await countryResponse.json();
+                    const countries = Array.isArray(countriesResult.items) ? countriesResult.items : [];
+                    const countrySelect = document.getElementById('countryId');
+                    countries.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.id;
+                        option.textContent = country.nameZh;
+                        countrySelect.appendChild(option);
+                    });
+                }
+                
+                // 加载厂商选项
+                const developerResponse = await fetch(`${API_BASE_URL}/developers?page=1&page_size=100`);
+                if (developerResponse.ok) {
+                    const developersResult = await developerResponse.json();
+                    const developers = Array.isArray(developersResult.items) ? developersResult.items : [];
+                    const developerSelect = document.getElementById('developerId');
+                    
+                    // 修改厂商选项的显示格式
+                    developers.forEach(developer => {
+                        const option = document.createElement('option');
+                        option.value = developer.id;
+                        
+                        // 使用与添加软件页面相同的格式
+                        option.textContent = developer.nameZh && developer.nameEn ? 
+                            `${developer.nameZh}(${developer.nameEn})` : 
+                            (developer.nameZh || developer.nameEn || developer.name || '未知厂商');
+                        
+                        developerSelect.appendChild(option);
+                    });
+                }
+                
+                // 加载行业选项
+                const industryResponse = await fetch(`${API_BASE_URL}/categories`);
+                if (industryResponse.ok) {
+                    const industriesResult = await industryResponse.json();
+                    const categories = Array.isArray(industriesResult.categories) ? industriesResult.categories : [];
+                    
+                    const industrySelect = document.getElementById('industryId');
+                    
+                    // 为每个大类预加载小类并添加到下拉框
+                    for (const category of categories) {
+                        // 获取该大类下的所有小类
+                        const subcategoryResponse = await fetch(`${API_BASE_URL}/categories/${category.categoryCode}/subcategories`);
+                        if (subcategoryResponse.ok) {
+                            const subcategoriesResult = await subcategoryResponse.json();
+                            const subcategories = Array.isArray(subcategoriesResult.subcategories) ? subcategoriesResult.subcategories : [];
+                            
+                            // 为每个小类创建选项
+                            subcategories.forEach(subcategory => {
+                                const option = document.createElement('option');
+                                option.value = subcategory.id;
+                                option.textContent = `${category.categoryName} - ${subcategory.subcategoryName}`;
+                                industrySelect.appendChild(option);
+                            });
+                        }
+                    }
+                        const option = document.createElement('option');
+                        option.value = industry.id;
+                        option.textContent = `${industry.categoryName} - ${industry.subcategoryName}`;
+                        industrySelect.appendChild(option);
+                    };
+                }catch (error) {
+                console.error('加载筛选选项失败:', error);
+            }
+        }
+
+        // 查询软件
+        function searchSoftware() {
+            filterParams.keyword = document.getElementById('keyword').value.trim();
+            filterParams.countryId = document.getElementById('countryId').value;
+            filterParams.developerId = document.getElementById('developerId').value;
+            filterParams.industryId = document.getElementById('industryId').value;
+            
+            // 重置到第一页
+            fetchSoftwareList(1, pageSize);
+        }
+
+        // 重置筛选
+        function resetFilter() {
+            document.getElementById('keyword').value = '';
+            document.getElementById('countryId').value = '';
+            document.getElementById('developerId').value = '';
+            document.getElementById('industryId').value = '';
+            
+            filterParams = {
+                keyword: '',
+                countryId: '',
+                developerId: '',
+                industryId: ''
+            };
+            
+            // 重置到第一页
+            fetchSoftwareList(1, pageSize);
         }
 
         function showMessage(text, type) {

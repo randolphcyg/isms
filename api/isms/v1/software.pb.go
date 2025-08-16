@@ -891,6 +891,7 @@ type ListSoftwareReq struct {
 	Status        string `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`                                 // 按状态筛选
 	DeveloperId   int32  `protobuf:"varint,6,opt,name=developer_id,json=developerId,proto3" json:"developer_id,omitempty"`   // 按开发商筛选
 	CategoryCode  string `protobuf:"bytes,7,opt,name=category_code,json=categoryCode,proto3" json:"category_code,omitempty"` // 按类别筛选
+	IndustryId    int32  `protobuf:"varint,8,opt,name=industry_id,json=industryId,proto3" json:"industry_id,omitempty"`      // 行业
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -972,6 +973,13 @@ func (x *ListSoftwareReq) GetCategoryCode() string {
 		return x.CategoryCode
 	}
 	return ""
+}
+
+func (x *ListSoftwareReq) GetIndustryId() int32 {
+	if x != nil {
+		return x.IndustryId
+	}
+	return 0
 }
 
 // 查询软件响应
@@ -1201,7 +1209,7 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"\rdownload_link\x18\x19 \x01(\tR\fdownloadLink\"H\n" +
 	"\x12UpdateSoftwareResp\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xed\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\x8e\x02\n" +
 	"\x0fListSoftwareReq\x12\x1b\n" +
 	"\x04page\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\x04page\x12$\n" +
 	"\tpage_size\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\n" +
@@ -1211,7 +1219,9 @@ const file_isms_v1_software_proto_rawDesc = "" +
 	"country_id\x18\x04 \x01(\x05R\tcountryId\x12\x16\n" +
 	"\x06status\x18\x05 \x01(\tR\x06status\x12!\n" +
 	"\fdeveloper_id\x18\x06 \x01(\x05R\vdeveloperId\x12#\n" +
-	"\rcategory_code\x18\a \x01(\tR\fcategoryCode\"\x86\x01\n" +
+	"\rcategory_code\x18\a \x01(\tR\fcategoryCode\x12\x1f\n" +
+	"\vindustry_id\x18\b \x01(\x05R\n" +
+	"industryId\"\x86\x01\n" +
 	"\x10ListSoftwareResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12+\n" +
 	"\x05items\x18\x02 \x03(\v2\x15.isms.v1.IsmsSoftwareR\x05items\x12\x12\n" +

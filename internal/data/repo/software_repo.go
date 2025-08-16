@@ -292,7 +292,6 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 		bitWidths = strings.Split(*dataModel.BitWidths, ",")
 	}
 
-	// 转换数据模型到领域模型
 	return &domain.IsmsSoftware{
 		ID:           dataModel.ID,
 		NameZh:       dataModel.NameZh,
@@ -321,19 +320,41 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 }
 
 func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions) ([]*domain.IsmsSoftware, int64, error) {
-	// 基础查询（只查询软件表本身，不关联其他表）
 	q := s.query.IsmsSoftware.WithContext(ctx)
 
-	// 构建筛选条件（不关联行业表）
+	// 构建筛选条件
 	if opts.DeveloperID > 0 {
 		q = q.Where(s.query.IsmsSoftware.DeveloperID.Eq(opts.DeveloperID))
 	}
 	if opts.Status != "" {
 		q = q.Where(s.query.IsmsSoftware.Status.Eq(opts.Status))
 	}
+	// 添加国家筛选条件
+	if opts.CountryID > 0 {
+		q = q.Where(s.query.IsmsSoftware.CountryID.Eq(opts.CountryID))
+	}
+
+	if opts.IndustryID > 0 {
+		softwareIDs, err := s.query.IsmsSoftwareIndustry.WithContext(ctx).
+			Select(s.query.IsmsSoftwareIndustry.SoftwareID).
+			Where(s.query.IsmsSoftwareIndustry.IndustryID.Eq(opts.IndustryID)).
+			Find()
+		if err != nil {
+			return nil, 0, fmt.Errorf("查询软件行业关联失败: %w", err)
+		}
+
+		// 提取软件ID到切片中
+		ids := make([]int32, 0, len(softwareIDs))
+		for _, id := range softwareIDs {
+			ids = append(ids, id.SoftwareID)
+		}
+
+		// 将子查询结果应用到主查询上
+		q = q.Where(s.query.IsmsSoftware.ID.In(ids...))
+	}
+
 	if opts.Keyword != "" {
-		q = q.Where(s.query.IsmsSoftware.NameZh.Like("%"+opts.Keyword+"%"),
-			s.query.IsmsSoftware.NameEn.Like("%"+opts.Keyword+"%"))
+		q = q.Where(s.query.IsmsSoftware.NameEn.Like("%" + opts.Keyword + "%"))
 	}
 
 	// 添加按创建时间倒序排序
@@ -442,7 +463,7 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 func (s *softwareRepo) ExistByNameAndVersion(ctx context.Context, name, version string) (bool, error) {
 	var count int64
 	count, err := s.query.IsmsSoftware.WithContext(ctx).
-		Where(s.query.IsmsSoftware.NameZh.Eq(name)).
+		Where(s.query.IsmsSoftware.NameEn.Eq(name)).
 		Where(s.query.IsmsSoftware.Version.Eq(version)).
 		Count()
 	if err != nil {

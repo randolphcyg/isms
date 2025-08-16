@@ -77,14 +77,14 @@ func (s *IsmsSoftware) Validate() error {
 
 // ListSoftwareOptions 分页查询参数
 type ListSoftwareOptions struct {
-	Page         int32   `json:"page"`
-	PageSize     int32   `json:"page_size"`
-	Keyword      string  `json:"keyword"`
-	CountryID    int32   `json:"country_id"`
-	Status       string  `json:"status"`
-	DeveloperID  int32   `json:"developer_id,omitempty"`
-	IndustryIDs  []int32 `json:"industry_ids,omitempty"`
-	CategoryCode string  `json:"category_code,omitempty"`
+	Page         int32  `json:"page"`
+	PageSize     int32  `json:"page_size"`
+	Keyword      string `json:"keyword"`
+	CountryID    int32  `json:"country_id"`
+	Status       string `json:"status"`
+	DeveloperID  int32  `json:"developer_id,omitempty"`
+	IndustryID   int32  `json:"industry_id,omitempty"`
+	CategoryCode string `json:"category_code,omitempty"`
 }
 
 type ListSoftwareOptions2 struct {

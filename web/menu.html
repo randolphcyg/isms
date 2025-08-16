@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系统菜单</title>
+    <title>工业软件管理系统DEMO</title>
+    <script src="js/config.js"></script>
+    <script src="js/chart.umd.min.js"></script>
     <style>
+        /* 页面整体布局 */
         body {
             margin: 0;
             padding: 0;
@@ -13,29 +16,27 @@
             min-height: 100vh;
         }
         
-        /* 左侧菜单样式 */
+        /* 左侧菜单 */
         .sidebar {
-            width: 250px;
-            background-color: #f8f9fa;
+            width: 200px;
+            background-color: #007bff;
+            color: white;
             padding: 20px;
-            border-right: 1px solid #dee2e6;
+            box-sizing: border-box;
         }
         
         .sidebar h2 {
-            color: #343a40;
             margin-top: 0;
         }
         
         .menu-item {
             display: block;
-            padding: 12px 15px;
-            margin: 10px 0;
-            background-color: #007bff;
             color: white;
             text-decoration: none;
+            padding: 10px;
+            margin: 5px 0;
             border-radius: 4px;
-            font-size: 16px;
-            text-align: center;
+            transition: background-color 0.3s;
         }
         
         .menu-item:hover {
@@ -60,10 +61,20 @@
             text-align: center;
         }
         
-        /* 大屏展示区域网格布局 */
-        .dashboard-grid {
+        /* 概览数据网格布局 */
+        .overview-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 30px;
+        }
+        
+        /* 图表区域网格布局 */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             width: 100%;
             max-width: 1200px;
@@ -75,14 +86,31 @@
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             text-align: center;
-            min-height: 200px;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
         
-        .dashboard-card h3 {
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .dashboard-card h3, .chart-card h3 {
             margin-top: 0;
             color: #343a40;
         }
@@ -93,63 +121,333 @@
             color: #007bff;
         }
         
-        /* 图表占位符 */
-        .chart-placeholder {
-            width: 100%;
-            height: 150px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* 图表容器 */
+        .chart-container {
+            flex: 1;
+            min-height: 200px;
+            position: relative;
+        }
+        
+        /* 加载提示 */
+        .loading {
             color: #6c757d;
-            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        /* 错误提示 */
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .overview-grid, .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                width: 100px;
+            }
+            
+            .sidebar h2, .menu-item span {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 左侧菜单 -->
     <div class="sidebar">
-        <h2>系统菜单</h2>
+        <h2>ISMS-DEMO</h2>
         <a href="software_list.html" class="menu-item">软件列表</a>
         <a href="manufacturers_list.html" class="menu-item">开发商列表</a>
         <a href="countries_list.html" class="menu-item">国家列表</a>
         <a href="os_list.html" class="menu-item">操作系统列表</a>
     </div>
     
-    <!-- 中间大屏展示区域 -->
     <div class="main-content">
-        <h1 class="dashboard-title">工业软件管理系统DEMO</h1>
-        
-        <div class="dashboard-grid">
-            <!-- 软件数量卡片 -->
-            <div class="dashboard-card">
+        <!-- 概览数据 -->
+        <div class="overview-grid">
+            <div class="dashboard-card" onclick="window.location.href='software_list.html'">
                 <h3>工业软件总数</h3>
-                <p id="softwareCount">128</p>
-                <div class="chart-placeholder">软件数量趋势图</div>
+                <p id="softwareCount">加载中...</p>
             </div>
             
+            <div class="dashboard-card" onclick="window.location.href='manufacturers_list.html'">
+                <h3>开发商总数</h3>
+                <p id="developerCount">加载中...</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href=''">
+                <h3>产业总数</h3>
+                <p id="industryCount">加载中...</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href='countries_list.html'">
+                <h3>国家总数</h3>
+                <p id="countryCount">加载中...</p>
+            </div>
+        </div>
+        
+        <!-- 图表区域 -->
+        <div class="charts-grid">
             <!-- 产业占比卡片 -->
-            <div class="dashboard-card">
+            <div class="chart-card">
                 <h3>产业占比</h3>
-                <p>制造业 42%</p>
-                <div class="chart-placeholder">产业分布饼图</div>
+                <div class="chart-container">
+                    <canvas id="industryChart"></canvas>
+                </div>
             </div>
             
             <!-- 国家占比卡片 -->
-            <div class="dashboard-card">
+            <div class="chart-card">
                 <h3>国家占比</h3>
-                <p>美国 35%</p>
-                <div class="chart-placeholder">国家分布饼图</div>
+                <div class="chart-container">
+                    <canvas id="countryChart"></canvas>
+                </div>
             </div>
             
             <!-- 厂商排行榜卡片 -->
-            <div class="dashboard-card">
+            <div class="chart-card">
                 <h3>厂商排行榜</h3>
-                <p>Top 1: Siemens</p>
-                <div class="chart-placeholder">厂商排名柱状图</div>
+                <div class="chart-container">
+                    <canvas id="developerChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
+
+    <script>        
+        // 添加图表实例存储对象
+        const charts = {};
+
+        // 渲染产业分布饼图
+        function renderIndustryChart(data) {
+            try {
+                const ctx = document.getElementById('industryChart');
+                if (!ctx) {
+                    console.error('找不到产业分布图表容器');
+                    return;
+                }
+                
+                // 如果已有图表实例，先销毁
+                if (charts.industryChart) {
+                    charts.industryChart.destroy();
+                }
+                
+                // 准备图表数据
+                const labels = data.items.map(item => item.industryName);
+                const values = data.items.map(item => item.softwareCount);
+                
+                // 创建新图表
+                charts.industryChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: [
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56',
+                                '#4BC0C0',
+                                '#9966FF',
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56',
+                                '#4BC0C0',
+                                '#9966FF'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                            title: {
+                                display: true,
+                                text: '产业分布'
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('渲染产业分布图表时出错:', error);
+            }
+        }
+        
+        // 渲染国家分布饼图
+        function renderCountryChart(data) {
+            try {
+                const ctx = document.getElementById('countryChart');
+                if (!ctx) {
+                    console.error('找不到国家分布图表容器');
+                    return;
+                }
+                
+                // 如果已有图表实例，先销毁
+                if (charts.countryChart) {
+                    charts.countryChart.destroy();
+                }
+                
+                // 准备图表数据
+                const labels = data.items.map(item => item.countryNameZh);
+                const values = data.items.map(item => item.softwareCount);
+                
+                // 创建新图表
+                charts.countryChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: [
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56',
+                                '#4BC0C0',
+                                '#9966FF',
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56',
+                                '#4BC0C0',
+                                '#9966FF'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                            title: {
+                                display: true,
+                                text: '国家分布'
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('渲染国家分布图表时出错:', error);
+            }
+        }
+        
+        // 渲染厂商排行榜柱状图
+        function renderDeveloperChart(data) {
+            try {
+                const ctx = document.getElementById('developerChart');
+                if (!ctx) {
+                    console.error('找不到厂商排行榜图表容器');
+                    return;
+                }
+                
+                // 如果已有图表实例，先销毁
+                if (charts.developerChart) {
+                    charts.developerChart.destroy();
+                }
+                
+                // 准备图表数据
+                const labels = data.items.map(item => item.developerNameZh);
+                const values = data.items.map(item => item.softwareCount);
+                
+                // 创建新图表
+                charts.developerChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '软件数量',
+                            data: values,
+                            backgroundColor: [
+                                '#36A2EB',
+                                '#FF6384',
+                                '#FFCE56',
+                                '#4BC0C0',
+                                '#9966FF',
+                                '#36A2EB',
+                                '#FF6384',
+                                '#FFCE56',
+                                '#4BC0C0',
+                                '#9966FF'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: '厂商排行榜'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('渲染厂商排行榜图表时出错:', error);
+            }
+        }
+        
+        // 页面加载完成后获取数据
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchDashboardData();
+        });
+        
+        // 获取所有dashboard数据
+        async function fetchDashboardData() {
+            try {
+                // 获取概览统计数据
+                const overviewResponse = await fetch(`${window.Config.API_BASE_URL}/dashboard/overview`);
+                if (!overviewResponse.ok) throw new Error('获取概览数据失败');
+                const overviewData = await overviewResponse.json();
+                
+                // 更新概览数据
+                document.getElementById('softwareCount').textContent = overviewData.totalSoftware;
+                document.getElementById('developerCount').textContent = overviewData.totalDevelopers;
+                document.getElementById('industryCount').textContent = overviewData.totalIndustries;
+                document.getElementById('countryCount').textContent = overviewData.totalCountries;
+                
+                // 获取产业分布数据 (前10)
+                const industryResponse = await fetch(`${window.Config.API_BASE_URL}/dashboard/software-by-industry?top_n=10`);
+                if (!industryResponse.ok) throw new Error('获取产业分布数据失败');
+                const industryData = await industryResponse.json();
+                
+                // 渲染产业占比饼图
+                renderIndustryChart(industryData);
+                
+                // 获取国家分布数据 (前10)
+                const countryResponse = await fetch(`${window.Config.API_BASE_URL}/dashboard/software-by-country?top_n=10`);
+                if (!countryResponse.ok) throw new Error('获取国家分布数据失败');
+                const countryData = await countryResponse.json();
+                
+                // 渲染国家占比饼图
+                renderCountryChart(countryData);
+                
+                // 获取开发商分布数据 (前10)
+                const developerResponse = await fetch(`${window.Config.API_BASE_URL}/dashboard/software-by-developer?top_n=10`);
+                if (!developerResponse.ok) throw new Error('获取开发商数据失败');
+                const developerData = await developerResponse.json();
+                
+                // 渲染厂商排行榜柱状图
+                renderDeveloperChart(developerData);
+            } catch (error) {
+                console.error('获取dashboard数据时出错:', error);
+                document.getElementById('softwareCount').textContent = '加载失败';
+                document.getElementById('developerCount').textContent = '加载失败';
+                document.getElementById('industryCount').textContent = '加载失败';
+                document.getElementById('countryCount').textContent = '加载失败';
+            }
+        }
+    </script>
 </body>
 </html>

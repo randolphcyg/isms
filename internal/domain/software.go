@@ -111,4 +111,13 @@ type SoftwareRepo interface {
 	ExistByNameAndVersion(ctx context.Context, name, version string) (bool, error)
 	ExistByID(ctx context.Context, id uint32) (bool, error)
 	List(ctx context.Context, opts ListSoftwareOptions) ([]*IsmsSoftware, int64, error)
+
+	// 统计方法
+	Count(ctx context.Context) (int64, error)
+	CountByTimeRange(ctx context.Context, start, end time.Time) (int64, error)
+	CountByIndustry(ctx context.Context, topN int32) ([]*IndustryStatResult, error)
+	CountByCountry(ctx context.Context, topN int32) ([]*CountryStatResult, error)
+	CountByDeveloper(ctx context.Context, topN int32) ([]*DeveloperStatResult, error)
+	CountByYear(ctx context.Context, recentYears int32) ([]*TrendStatResult, error)
+	CountByStatus(ctx context.Context) ([]*StatusStatResult, error)
 }

@@ -47,4 +47,7 @@ type DeveloperRepo interface {
 	ExistByNameExcludeID(ctx context.Context, nameZh string, excludeID int32) (bool, error)
 	// Update 更新开发商
 	Update(ctx context.Context, dev *Developer) (*Developer, error)
+	
+	// 统计方法
+	Count(ctx context.Context) (int64, error)
 }

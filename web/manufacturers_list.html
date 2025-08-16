@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>开发商列表</title>
+    <script src="js/config.js"></script>
     <style>
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto; min-width: 1000px; }
@@ -270,9 +271,6 @@
     </div>
 
     <script>
-        // 后端API基础URL
-        const API_BASE_URL = 'http://localhost:8000/v1';
-        
         // 分页参数
         let currentPage = 1;
         let pageSize = 20;
@@ -321,7 +319,7 @@
         // 获取开发商列表
         async function fetchManufacturersList(page = 1, size = 20) {
             try {
-                const response = await fetch(`${API_BASE_URL}/developers?page=${page}&page_size=${size}`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/developers?page=${page}&page_size=${size}`);
                 if (!response.ok) throw new Error('获取开发商列表失败');
                 const result = await response.json();
                 const data = result.items || []; // 从items字段获取数组
@@ -549,7 +547,7 @@
         // 获取国家列表用于编辑
         async function fetchCountriesForEdit() {
             try {
-                const response = await fetch(`${API_BASE_URL}/countries?page=1&page_size=1000`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/countries?page=1&page_size=1000`);
                 if (!response.ok) throw new Error('获取国家列表失败');
                 
                 const result = await response.json();
@@ -581,9 +579,8 @@
                 return;
             }
             
-            // 发送更新请求
             try {
-                const response = await fetch(`${API_BASE_URL}/developers/${id}`, {
+                const response = await fetch(`${window.Config.API_BASE_URL}/developers/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -749,7 +746,7 @@
             
             // 发送创建请求
             try {
-                const response = await fetch(`${API_BASE_URL}/developers`, {
+                const response = await fetch(`${window.Config.API_BASE_URL}/developers`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

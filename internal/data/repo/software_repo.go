@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	v1 "isms/api/isms/v1"
 	"isms/internal/data/model"
@@ -482,4 +483,217 @@ func (s *softwareRepo) ExistByID(ctx context.Context, id uint32) (bool, error) {
 		return false, fmt.Errorf("检查软件ID是否存在失败: %w", err)
 	}
 	return count > 0, nil
+}
+
+// Count 统计软件总数
+func (s *softwareRepo) Count(ctx context.Context) (int64, error) {
+	count, err := s.query.IsmsSoftware.WithContext(ctx).Count()
+	if err != nil {
+		return 0, fmt.Errorf("统计软件总数失败: %w", err)
+	}
+	return count, nil
+}
+
+// CountByIndustry 统计各行业软件数量
+func (s *softwareRepo) CountByIndustry(ctx context.Context, topN int32) ([]*domain.IndustryStatResult, error) {
+	var results []struct {
+		IndustryID   int32  `gorm:"column:industry_id"`
+		IndustryName string `gorm:"column:subcategory_name"`
+		Count        int64  `gorm:"column:count"`
+	}
+
+	// 执行连接查询统计各行业软件数量
+	err := s.db.WithContext(ctx).
+		Table("isms_software AS s").  // 给表设置别名
+		Select("isi.industry_id, i.subcategory_name, COUNT(s.id) as count").
+		Joins("JOIN isms_software_industry isi ON s.id = isi.software_id").
+		Joins("JOIN isms_industry i ON isi.industry_id = i.id").
+		Group("isi.industry_id, i.subcategory_name").
+		Order("count DESC").
+		Limit(int(topN)).
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("统计各行业软件数量失败: %w", err)
+	}
+
+	// 构建结果
+	var industryStats []*domain.IndustryStatResult
+	for _, result := range results {
+		industryStats = append(industryStats, &domain.IndustryStatResult{
+			IndustryID:    result.IndustryID,
+			IndustryName:  result.IndustryName,
+			SoftwareCount: result.Count,
+		})
+	}
+
+	return industryStats, nil
+}
+
+// CountByStatus 统计各状态软件数量
+func (s *softwareRepo) CountByStatus(ctx context.Context) ([]*domain.StatusStatResult, error) {
+	var results []struct {
+		Status string `gorm:"column:status"`
+		Count  int64  `gorm:"column:count"`
+	}
+
+	// 按状态分组统计软件数量
+	err := s.db.WithContext(ctx).
+		Table("isms_software AS s").  // 给表设置别名
+		Select("status, COUNT(s.id) as count").
+		Group("status").
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("统计各状态软件数量失败: %w", err)
+	}
+
+	// 构建结果
+	var statusStats []*domain.StatusStatResult
+	for _, result := range results {
+		// 根据状态值设置标签
+		var label string
+		switch result.Status {
+		case "active":
+			label = "有效"
+		case "inactive":
+			label = "下架"
+		case "testing":
+			label = "测试中"
+		case "discontinued":
+			label = "停止维护"
+		default:
+			label = result.Status
+		}
+
+		statusStats = append(statusStats, &domain.StatusStatResult{
+			Status:        result.Status,
+			StatusLabel:   label,
+			SoftwareCount: result.Count,
+		})
+	}
+
+	return statusStats, nil
+}
+
+// CountByTimeRange 统计指定时间范围内的软件数量
+func (s *softwareRepo) CountByTimeRange(ctx context.Context, start, end time.Time) (int64, error) {
+	var count int64
+	count, err := s.query.IsmsSoftware.WithContext(ctx).
+		Where(s.query.IsmsSoftware.CreatedAt.Between(start, end)).
+		Count()
+	if err != nil {
+		return 0, fmt.Errorf("统计指定时间范围内的软件数量失败: %w", err)
+	}
+	return count, nil
+}
+
+// CountByCountry 统计各国软件数量
+func (s *softwareRepo) CountByCountry(ctx context.Context, topN int32) ([]*domain.CountryStatResult, error) {
+	var results []struct {
+		CountryID     int32  `gorm:"column:country_id"`
+		CountryNameZh string `gorm:"column:name_zh"`
+		CountryNameEn string `gorm:"column:name_en"`
+		Count         int64  `gorm:"column:count"`
+	}
+
+	// 执行连接查询统计各国软件数量
+	err := s.db.WithContext(ctx).
+		Table("isms_software AS s").  // 给表设置别名
+		Select("c.id as country_id, c.name_zh, c.name_en, COUNT(s.id) as count").
+		Joins("JOIN isms_country c ON s.country_id = c.id").
+		Group("c.id, c.name_zh, c.name_en").
+		Order("count DESC").
+		Limit(int(topN)).
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("统计各国软件数量失败: %w", err)
+	}
+
+	// 构建结果
+	var countryStats []*domain.CountryStatResult
+	for _, result := range results {
+		countryStats = append(countryStats, &domain.CountryStatResult{
+			CountryID:     result.CountryID,
+			CountryNameZh: result.CountryNameZh,
+			CountryNameEn: result.CountryNameEn,
+			SoftwareCount: result.Count,
+		})
+	}
+
+	return countryStats, nil
+}
+
+// CountByDeveloper 统计各开发商软件数量
+func (s *softwareRepo) CountByDeveloper(ctx context.Context, topN int32) ([]*domain.DeveloperStatResult, error) {
+	var results []struct {
+		DeveloperID     int32  `gorm:"column:developer_id"`
+		DeveloperNameZh string `gorm:"column:name_zh"`
+		DeveloperNameEn string `gorm:"column:name_en"`
+		Count           int64  `gorm:"column:count"`
+	}
+
+	// 执行连接查询统计各开发商软件数量
+	err := s.db.WithContext(ctx).
+		Table("isms_software AS s").  // 给表设置别名
+		Select("d.id as developer_id, d.name_zh, d.name_en, COUNT(s.id) as count").
+		Joins("JOIN isms_developer d ON s.developer_id = d.id").
+		Group("d.id, d.name_zh, d.name_en").
+		Order("count DESC").
+		Limit(int(topN)).
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("统计各开发商软件数量失败: %w", err)
+	}
+
+	// 构建结果
+	var developerStats []*domain.DeveloperStatResult
+	for _, result := range results {
+		developerStats = append(developerStats, &domain.DeveloperStatResult{
+			DeveloperID:     result.DeveloperID,
+			DeveloperNameZh: result.DeveloperNameZh,
+			DeveloperNameEn: result.DeveloperNameEn,
+			SoftwareCount:   result.Count,
+		})
+	}
+
+	return developerStats, nil
+}
+
+// CountByYear 统计各年份软件数量
+func (s *softwareRepo) CountByYear(ctx context.Context, recentYears int32) ([]*domain.TrendStatResult, error) {
+	var results []struct {
+		Year  int32 `gorm:"column:release_year"`
+		Count int64 `gorm:"column:count"`
+	}
+
+	// 计算起始年份
+	currentYear := int32(time.Now().Year())
+	startYear := currentYear - recentYears + 1
+
+	// 按发布年份分组统计软件数量
+	err := s.db.WithContext(ctx).
+		Table("isms_software AS s").  // 给表设置别名
+		Select("release_year, COUNT(s.id) as count").
+		Where("release_year IS NOT NULL AND release_year > 0 AND release_year >= ?", startYear).
+		Group("release_year").
+		Order("release_year").
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("统计各年份软件数量失败: %w", err)
+	}
+
+	// 构建结果
+	var trendStats []*domain.TrendStatResult
+	for _, result := range results {
+		trendStats = append(trendStats, &domain.TrendStatResult{
+			Year:          result.Year,
+			SoftwareCount: result.Count,
+		})
+	}
+
+	return trendStats, nil
 }

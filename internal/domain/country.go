@@ -42,4 +42,7 @@ type CountryRepo interface {
 	GetByID(ctx context.Context, id int32) (*Country, error)
 	List(ctx context.Context, page, pageSize uint32, keyword, continent string) ([]*Country, int64, error)
 	ExistByCode(ctx context.Context, code string, excludeID int32) (bool, error)
+	
+	// 统计方法
+	Count(ctx context.Context) (int64, error)
 }

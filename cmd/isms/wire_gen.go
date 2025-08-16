@@ -45,8 +45,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	osRepo := repo.NewOSRepo(db, logger)
 	osUsecase := biz.NewOSUsecase(osRepo, logger)
 	osService := service.NewOSService(osUsecase, logger)
-	grpcServer := server.NewGRPCServer(confServer, industryService, developerService, softwareService, countryService, osService, logger)
-	httpServer := server.NewHTTPServer(confServer, confData, industryService, developerService, softwareService, countryService, osService, logger)
+	dashboardUsecase := biz.NewDashboardUsecase(softwareRepo, developerRepo, industryRepo, countryRepo, logger)
+	dashboardService := service.NewDashboardService(dashboardUsecase, logger)
+	grpcServer := server.NewGRPCServer(confServer, industryService, developerService, softwareService, countryService, osService, dashboardService, logger)
+	httpServer := server.NewHTTPServer(confServer, confData, industryService, developerService, softwareService, countryService, osService, dashboardService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()

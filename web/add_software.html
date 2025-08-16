@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新增工业软件</title>
+    <script src="js/config.js"></script>
     <style>
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         .form-group { margin-bottom: 15px; }
@@ -549,9 +550,6 @@
     </div>
 
     <script>
-        // 后端API基础URL
-        const API_BASE_URL = 'http://localhost:8000/v1';
-
         // 保存已选择的行业分类
         let selectedIndustries = new Map(); // Map<categoryCode, {categoryName, subcategories: Map<subcategoryId, subcategoryName>}>
         
@@ -596,7 +594,7 @@
         // 获取厂商列表
         async function fetchManufacturers() {
             try {
-                const response = await fetch(`${API_BASE_URL}/developers?page=1&page_size=100`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/developers?page=1&page_size=100`);
                 if (!response.ok) throw new Error('获取厂商列表失败');
                 const result = await response.json();
                 
@@ -638,7 +636,7 @@
         // 获取操作系统列表
         async function fetchOSList() {
             try {
-                const response = await fetch(`${API_BASE_URL}/os?page=1&page_size=100`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/os?page=1&page_size=100`);
                 if (!response.ok) throw new Error('获取操作系统列表失败');
                 
                 const result = await response.json();
@@ -683,7 +681,7 @@
         // 获取行业大类列表
         async function fetchIndustryCategories() {
             try {
-                const response = await fetch(`${API_BASE_URL}/categories`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/categories`);
                 if (!response.ok) throw new Error('获取行业大类列表失败');
                 const result = await response.json();
                 
@@ -705,7 +703,7 @@
         // 获取行业小类列表
         async function fetchIndustrySubcategories(categoryCode) {
             try {
-                const response = await fetch(`${API_BASE_URL}/categories/${categoryCode}/subcategories`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/categories/${categoryCode}/subcategories`);
                 if (!response.ok) throw new Error('获取行业小类列表失败');
                 const result = await response.json();
                 
@@ -1107,7 +1105,7 @@
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/software`, {
+            const response = await fetch(`${window.Config.API_BASE_URL}/software`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

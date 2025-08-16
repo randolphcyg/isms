@@ -126,3 +126,12 @@ func (r *industryRepo) GetIndustriesByIDs(ctx context.Context, ids []int32) ([]*
 	}
 	return industryList, nil
 }
+
+// Count 统计行业总数
+func (r *industryRepo) Count(ctx context.Context) (int64, error) {
+	count, err := r.query.IsmsIndustry.WithContext(ctx).Count()
+	if err != nil {
+		return 0, fmt.Errorf("统计行业总数失败: %w", err)
+	}
+	return count, nil
+}

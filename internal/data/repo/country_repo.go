@@ -196,3 +196,12 @@ func (r *countryRepo) ExistByCode(ctx context.Context, code string, excludeID in
 	}
 	return count > 0, nil
 }
+
+// Count 统计国家总数
+func (r *countryRepo) Count(ctx context.Context) (int64, error) {
+	count, err := r.query.IsmsCountry.WithContext(ctx).Count()
+	if err != nil {
+		return 0, fmt.Errorf("统计国家总数失败: %w", err)
+	}
+	return count, nil
+}

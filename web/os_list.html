@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>操作系统列表</title>
+    <script src="js/config.js"></script>
     <style>
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -110,9 +111,6 @@
     </div>
 
     <script>
-        // 后端API基础URL
-        const API_BASE_URL = 'http://localhost:8000/v1';
-        
         // 当前分页状态
         let currentPage = 1;
         let pageSize = 20;
@@ -229,7 +227,7 @@
         async function fetchOSList(page = 1, pageSize = 20) {
             try {
                 // 构建查询参数
-                let url = `${API_BASE_URL}/os?page=${page}&page_size=${pageSize}`;
+                let url = `${window.Config.API_BASE_URL}/os?page=${page}&page_size=${pageSize}`;
                 if (searchKeyword) {
                     url += `&keyword=${encodeURIComponent(searchKeyword)}`;
                 }

@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package isms.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "isms/api/isms/v1;v1";
+
+// 大屏统计数据服务
+service Dashboard {
+  // 获取概览统计数据
+  rpc GetOverviewStats(GetOverviewStatsReq) returns (GetOverviewStatsResp) {
+    option (google.api.http) = {
+      get: "/v1/dashboard/overview"
+    };
+  }
+  
+  // 获取软件按行业分布统计
+  rpc GetSoftwareByIndustryStats(GetSoftwareByIndustryStatsReq) returns (GetSoftwareByIndustryStatsResp) {
+    option (google.api.http) = {
+      get: "/v1/dashboard/software-by-industry"
+    };
+  }
+  
+  // 获取软件按国家分布统计
+  rpc GetSoftwareByCountryStats(GetSoftwareByCountryStatsReq) returns (GetSoftwareByCountryStatsResp) {
+    option (google.api.http) = {
+      get: "/v1/dashboard/software-by-country"
+    };
+  }
+  
+  // 获取软件按开发商分布统计
+  rpc GetSoftwareByDeveloperStats(GetSoftwareByDeveloperStatsReq) returns (GetSoftwareByDeveloperStatsResp) {
+    option (google.api.http) = {
+      get: "/v1/dashboard/software-by-developer"
+    };
+  }
+  
+  // 获取软件按年份发布趋势统计
+  rpc GetSoftwareTrendStats(GetSoftwareTrendStatsReq) returns (GetSoftwareTrendStatsResp) {
+    option (google.api.http) = {
+      get: "/v1/dashboard/software-trend"
+    };
+  }
+  
+  // 获取软件按状态分布统计
+  rpc GetSoftwareByStatusStats(GetSoftwareByStatusStatsReq) returns (GetSoftwareByStatusStatsResp) {
+    option (google.api.http) = {
+      get: "/v1/dashboard/software-by-status"
+    };
+  }
+}
+
+// 概览统计数据请求
+message GetOverviewStatsReq {}
+
+// 概览统计数据响应
+message GetOverviewStatsResp {
+  int64 total_software = 1;      // 软件总数
+  int64 total_developers = 2;    // 开发商总数
+  int64 total_industries = 3;    // 行业总数
+  int64 total_countries = 4;     // 国家总数
+  int64 new_software_count = 5;  // 新增软件数（最近30天）
+  int64 last_updated = 6;        // 最后更新时间（Unix时间戳）
+}
+
+// 软件按行业分布统计请求
+message GetSoftwareByIndustryStatsReq {
+  int32 top_n = 1;  // 返回前N个行业，默认10
+}
+
+// 行业统计项
+message IndustryStatItem {
+  int32 industry_id = 1;       // 行业ID
+  string industry_name = 2;   // 行业名称
+  int64 software_count = 3;   // 软件数量
+  double percentage = 4;      // 占比（百分比）
+}
+
+// 软件按行业分布统计响应
+message GetSoftwareByIndustryStatsResp {
+  repeated IndustryStatItem items = 1;  // 行业统计列表
+}
+
+// 软件按国家分布统计请求
+message GetSoftwareByCountryStatsReq {
+  int32 top_n = 1;  // 返回前N个国家，默认10
+}
+
+// 国家统计项
+message CountryStatItem {
+  int32 country_id = 1;        // 国家ID
+  string country_name_zh = 2;  // 国家中文名称
+  string country_name_en = 3;  // 国家英文名称
+  int64 software_count = 4;    // 软件数量
+  double percentage = 5;       // 占比（百分比）
+}
+
+// 软件按国家分布统计响应
+message GetSoftwareByCountryStatsResp {
+  repeated CountryStatItem items = 1;  // 国家统计列表
+}
+
+// 软件按开发商分布统计请求
+message GetSoftwareByDeveloperStatsReq {
+  int32 top_n = 1;  // 返回前N个开发商，默认10
+}
+
+// 开发商统计项
+message DeveloperStatItem {
+  int32 developer_id = 1;       // 开发商ID
+  string developer_name_zh = 2; // 开发商中文名称
+  string developer_name_en = 3; // 开发商英文名称
+  int64 software_count = 4;     // 软件数量
+  double percentage = 5;        // 占比（百分比）
+}
+
+// 软件按开发商分布统计响应
+message GetSoftwareByDeveloperStatsResp {
+  repeated DeveloperStatItem items = 1;  // 开发商统计列表
+}
+
+// 软件按年份发布趋势统计请求
+message GetSoftwareTrendStatsReq {
+  int32 recent_years = 1;  // 最近N年数据，默认5年
+}
+
+// 年份趋势统计项
+message TrendStatItem {
+  int32 year = 1;           // 年份
+  int64 software_count = 2; // 软件数量
+}
+
+// 软件按年份发布趋势统计响应
+message GetSoftwareTrendStatsResp {
+  repeated TrendStatItem items = 1;  // 趋势统计列表
+}
+
+// 软件按状态分布统计请求
+message GetSoftwareByStatusStatsReq {}
+
+// 状态统计项
+message StatusStatItem {
+  string status = 1;        // 状态值
+  string status_label = 2;  // 状态标签
+  int64 software_count = 3; // 软件数量
+  double percentage = 4;    // 占比（百分比）
+}
+
+// 软件按状态分布统计响应
+message GetSoftwareByStatusStatsResp {
+  repeated StatusStatItem items = 1;  // 状态统计列表
+}

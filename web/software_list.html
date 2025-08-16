@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>软件列表</title>
+    <script src="js/config.js"></script>
     <script src="js/xlsx.full.min.js"></script>
     <style>
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
@@ -623,7 +624,6 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:8000/v1';
         let currentPage = 1;
         let pageSize = 20;
         let total = 0;
@@ -668,7 +668,6 @@
 
             document.getElementById('cancelDelete').addEventListener('click', closeConfirmDialog);
             document.getElementById('confirmDelete').addEventListener('click', performDelete);
-            setupModal();
             setupSysReqModal();
         });
 
@@ -756,7 +755,7 @@
                     params.append('industry_id', filterParams.industryId);
                 }
                 
-                const response = await fetch(`${API_BASE_URL}/software?${params.toString()}`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/software?${params.toString()}`);
                 if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
 
                 const result = await response.json();
@@ -777,7 +776,7 @@
         async function findPageForDeveloper(developerId) {
             try {
                 // 先获取第一页数据以确定总条数
-                const response = await fetch(`${API_BASE_URL}/software?page=1&page_size=${pageSize}`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/software?page=1&page_size=${pageSize}`);
                 if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
                 
                 const result = await response.json();
@@ -788,7 +787,7 @@
                 
                 // 遍历所有页面查找目标厂商
                 for (let page = 1; page <= totalPages; page++) {
-                    const pageResponse = await fetch(`${API_BASE_URL}/software?page=${page}&page_size=${pageSize}`);
+                    const pageResponse = await fetch(`${window.Config.API_BASE_URL}/software?page=${page}&page_size=${pageSize}`);
                     if (!pageResponse.ok) continue;
                     
                     const pageResult = await pageResponse.json();
@@ -815,7 +814,7 @@
         async function findPageForNewSoftware(softwareId) {
             try {
                 // 先获取第一页数据以确定总条数
-                const response = await fetch(`${API_BASE_URL}/software?page=1&page_size=${pageSize}`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/software?page=1&page_size=${pageSize}`);
                 if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
                 
                 const result = await response.json();
@@ -826,7 +825,7 @@
                 
                 // 遍历所有页面查找新添加的软件
                 for (let page = 1; page <= totalPages; page++) {
-                    const pageResponse = await fetch(`${API_BASE_URL}/software?page=${page}&page_size=${pageSize}`);
+                    const pageResponse = await fetch(`${window.Config.API_BASE_URL}/software?page=${page}&page_size=${pageSize}`);
                     if (!pageResponse.ok) continue;
                     
                     const pageResult = await pageResponse.json();
@@ -1115,7 +1114,7 @@
         async function loadFilterOptions() {
             try {
                 // 加载国家选项
-                const countryResponse = await fetch(`${API_BASE_URL}/countries?page=1&page_size=100`);
+                const countryResponse = await fetch(`${window.Config.API_BASE_URL}/countries?page=1&page_size=100`);
                 if (countryResponse.ok) {
                     const countriesResult = await countryResponse.json();
                     const countries = Array.isArray(countriesResult.items) ? countriesResult.items : [];
@@ -1129,7 +1128,7 @@
                 }
                 
                 // 加载厂商选项
-                const developerResponse = await fetch(`${API_BASE_URL}/developers?page=1&page_size=100`);
+                const developerResponse = await fetch(`${window.Config.API_BASE_URL}/developers?page=1&page_size=100`);
                 if (developerResponse.ok) {
                     const developersResult = await developerResponse.json();
                     const developers = Array.isArray(developersResult.items) ? developersResult.items : [];
@@ -1150,7 +1149,7 @@
                 }
                 
                 // 加载行业选项
-                const industryResponse = await fetch(`${API_BASE_URL}/categories`);
+                const industryResponse = await fetch(`${window.Config.API_BASE_URL}/categories`);
                 if (industryResponse.ok) {
                     const industriesResult = await industryResponse.json();
                     const categories = Array.isArray(industriesResult.categories) ? industriesResult.categories : [];
@@ -1160,7 +1159,7 @@
                     // 为每个大类预加载小类并添加到下拉框
                     for (const category of categories) {
                         // 获取该大类下的所有小类
-                        const subcategoryResponse = await fetch(`${API_BASE_URL}/categories/${category.categoryCode}/subcategories`);
+                        const subcategoryResponse = await fetch(`${window.Config.API_BASE_URL}/categories/${category.categoryCode}/subcategories`);
                         if (subcategoryResponse.ok) {
                             const subcategoriesResult = await subcategoryResponse.json();
                             const subcategories = Array.isArray(subcategoriesResult.subcategories) ? subcategoriesResult.subcategories : [];
@@ -1175,8 +1174,6 @@
                         }
                     }
                         const option = document.createElement('option');
-                        option.value = industry.id;
-                        option.textContent = `${industry.categoryName} - ${industry.subcategoryName}`;
                         industrySelect.appendChild(option);
                     };
                 }catch (error) {
@@ -1238,7 +1235,7 @@
             if (!softwareIdToDelete) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/software/${softwareIdToDelete}`, {
+                const response = await fetch(`${window.Config.API_BASE_URL}/software/${softwareIdToDelete}`, {
                     method: 'DELETE'
                 });
 
@@ -1255,7 +1252,7 @@
 
         async function deleteSoftware(id) {
             try {
-                const response = await fetch(`${API_BASE_URL}/software/${id}`, {
+                const response = await fetch(`${window.Config.API_BASE_URL}/software/${id}`, {
                     method: 'DELETE'
                 });
 
@@ -1323,7 +1320,7 @@
 
             try {
                 // 获取总记录数
-                const countResponse = await fetch(`${API_BASE_URL}/software?page=1&page_size=1`);
+                const countResponse = await fetch(`${window.Config.API_BASE_URL}/software?page=1&page_size=1`);
                 if (!countResponse.ok) throw new Error(`获取软件总数失败: ${countResponse.status} ${countResponse.statusText}`);
 
                 const countResult = await countResponse.json();
@@ -1335,7 +1332,7 @@
                 let allData = [];
 
                 for (let page = 1; page <= totalPages; page++) {
-                    const response = await fetch(`${API_BASE_URL}/software?page=${page}&page_size=${batchSize}`);
+                    const response = await fetch(`${window.Config.API_BASE_URL}/software?page=${page}&page_size=${batchSize}`);
                     if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
 
                     const result = await response.json();

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>国家列表</title>
+    <script src="js/config.js"></script>
     <style>
         .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -79,9 +80,6 @@
     </div>
 
     <script>
-        // 后端API基础URL
-        const API_BASE_URL = 'http://localhost:8000/v1';
-        
         // 当前分页状态
         let currentPage = 1;
         let pageSize = 20;
@@ -162,7 +160,7 @@
         // 获取国家列表
         async function fetchCountriesList(page = 1, pageSize = 20) {
             try {
-                const response = await fetch(`${API_BASE_URL}/countries?page=${page}&page_size=${pageSize}`);
+                const response = await fetch(`${window.Config.API_BASE_URL}/countries?page=${page}&page_size=${pageSize}`);
                 if (!response.ok) throw new Error(`获取国家列表失败: ${response.status} ${response.statusText}`);
                 
                 const result = await response.json();

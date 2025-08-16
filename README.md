@@ -13,6 +13,9 @@ kratos proto server api/isms/v1/os.proto
 kratos proto client api/isms/v1/industry.proto
 kratos proto server api/isms/v1/industry.proto
 
+kratos proto client api/isms/v1/dashboard.proto
+kratos proto server api/isms/v1/dashboard.proto
+
 # software
 protoc --proto_path=./api \
        --proto_path=./third_party \

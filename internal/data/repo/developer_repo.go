@@ -226,3 +226,12 @@ func (r *developerRepo) Update(ctx context.Context, dev *domain.Developer) (*dom
 		UpdatedAt:   dataModel.UpdatedAt,
 	}, nil
 }
+
+// Count 统计开发商总数
+func (r *developerRepo) Count(ctx context.Context) (int64, error) {
+	count, err := r.query.IsmsDeveloper.WithContext(ctx).Count()
+	if err != nil {
+		return 0, fmt.Errorf("统计开发商总数失败: %w", err)
+	}
+	return count, nil
+}

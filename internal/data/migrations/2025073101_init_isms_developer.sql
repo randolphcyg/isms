@@ -78,4 +78,12 @@ INSERT INTO `isms_developer` (
   (64, 'LPKF激光电子股份公司', 'LPKF Laser & Electronics AG', 'https://www.lpkf.com/', '德国领先的激光技术解决方案提供商，专注于PCB原型制作、太阳能电池、塑料焊接、医疗技术等领域的精密激光加工', 8, NOW(), NOW());
   (65, '库卡', 'KUKA AG', 'www.kuka.com', '世界领先的工业机器人制造商之一，成立于1898年，总部位于德国奥格斯堡', 8, NOW(), NOW()),
   (66, 'TP-LINK', 'TP-LINK Corporation', 'www.tp-link.com', '全球领先的网络通讯设备供应商，致力于提供全面的ICT设备与解决方案', 2, NOW(), NOW()),
-  (67, '中控技术股份有限公司', 'SUPCON Technology Co., Ltd.', 'www.supcon.com', '国内领先、全球化布局的智能制造整体解决方案供应商，致力于"AI+数据"核心能力的构建及落地应用，已累计服务海内外客户3万多家，覆盖化工、石化、油气、电力、制药等数十个重点行业。', 2, NOW(), NOW());
+  (67, '中控技术股份有限公司', 'SUPCON Technology Co., Ltd.', 'www.supcon.com', '国内领先、全球化布局的智能制造整体解决方案供应商，致力于"AI+数据"核心能力的构建及落地应用，已累计服务海内外客户3万多家，覆盖化工、石化、油气、电力、制药等数十个重点行业。', 2, NOW(), NOW()),
+  (68, 'Vero Software', 'Vero Software', 'www.verosoftware.com', '英国知名的CAD/CAM软件开发商，专注于为制造业提供专业的工程软件解决方案，其产品包括Alphacam等', 10, NOW(), NOW()),
+  (69, '菲尼克斯电气', 'Phoenix Contact', 'www.phoenixcontact.com', '德国工业自动化和电气连接技术领域的领先企业', 8, NOW(), NOW()),
+  (70, 'Spectrum软件公司', 'Spectrum', 'http://www.spectrum-digitizer.com/', '德国高精度及高速度数字化仪制造商，专注于电子信号的获取、产生和分析', 8, NOW(), NOW()),
+  (71, '高云半导体', 'GOWIN Semiconductor', 'https://www.gowinsemi.com.cn/', '中国领先的FPGA供应商，专注于集成电路设计工具，提供FPGA集成开发环境(IDE)用于FPGA设计输入、代码合成、布局路由等', 2, NOW(), NOW()),
+  (72, 'Synopsys', 'Synopsys, Inc.', 'www.synopsys.com', '半导体工艺和器件仿真软件开发商', 26, NOW(), NOW()),
+  (73, 'Robert McNeel & Assoc', 'Robert McNeel & Associates', 'https://www.rhino3d.com/', '美国著名的3D建模软件开发商，其Rhino（犀牛）软件广泛应用于三维动画、工业制造、科研、机械设计等领域', 26, NOW(), NOW()),
+  (74, '博思软件', 'Beiswenger and Associates', '', '建筑和工程领域创新技术解决方案提供商，Fuzor软件开发商', 26, NOW(), NOW());
+

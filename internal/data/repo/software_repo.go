@@ -504,7 +504,7 @@ func (s *softwareRepo) CountByIndustry(ctx context.Context, topN int32) ([]*doma
 
 	// 执行连接查询统计各行业软件数量
 	err := s.db.WithContext(ctx).
-		Table("isms_software AS s").  // 给表设置别名
+		Table("isms_software AS s"). // 给表设置别名
 		Select("isi.industry_id, i.subcategory_name, COUNT(s.id) as count").
 		Joins("JOIN isms_software_industry isi ON s.id = isi.software_id").
 		Joins("JOIN isms_industry i ON isi.industry_id = i.id").
@@ -539,7 +539,7 @@ func (s *softwareRepo) CountByStatus(ctx context.Context) ([]*domain.StatusStatR
 
 	// 按状态分组统计软件数量
 	err := s.db.WithContext(ctx).
-		Table("isms_software AS s").  // 给表设置别名
+		Table("isms_software AS s"). // 给表设置别名
 		Select("status, COUNT(s.id) as count").
 		Group("status").
 		Scan(&results).Error
@@ -599,7 +599,7 @@ func (s *softwareRepo) CountByCountry(ctx context.Context, topN int32) ([]*domai
 
 	// 执行连接查询统计各国软件数量
 	err := s.db.WithContext(ctx).
-		Table("isms_software AS s").  // 给表设置别名
+		Table("isms_software AS s"). // 给表设置别名
 		Select("c.id as country_id, c.name_zh, c.name_en, COUNT(s.id) as count").
 		Joins("JOIN isms_country c ON s.country_id = c.id").
 		Group("c.id, c.name_zh, c.name_en").
@@ -636,7 +636,7 @@ func (s *softwareRepo) CountByDeveloper(ctx context.Context, topN int32) ([]*dom
 
 	// 执行连接查询统计各开发商软件数量
 	err := s.db.WithContext(ctx).
-		Table("isms_software AS s").  // 给表设置别名
+		Table("isms_software AS s"). // 给表设置别名
 		Select("d.id as developer_id, d.name_zh, d.name_en, COUNT(s.id) as count").
 		Joins("JOIN isms_developer d ON s.developer_id = d.id").
 		Group("d.id, d.name_zh, d.name_en").
@@ -675,7 +675,7 @@ func (s *softwareRepo) CountByYear(ctx context.Context, recentYears int32) ([]*d
 
 	// 按发布年份分组统计软件数量
 	err := s.db.WithContext(ctx).
-		Table("isms_software AS s").  // 给表设置别名
+		Table("isms_software AS s"). // 给表设置别名
 		Select("release_year, COUNT(s.id) as count").
 		Where("release_year IS NOT NULL AND release_year > 0 AND release_year >= ?", startYear).
 		Group("release_year").

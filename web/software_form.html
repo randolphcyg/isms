@@ -9,6 +9,27 @@
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         .form-group { margin-bottom: 15px; }
 
+        /* 修改基础label样式，使其更突出 */
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; /* 加粗字体 */
+            font-size: 16px; /* 增大字号 */
+            color: #333; /* 设置深色字体 */
+        }
+
+        /* 增强form-section的legend样式 */
+        .form-section legend {
+            font-weight: bold;
+            padding: 5px 15px; /* 增加内边距 */
+            width: auto;
+            font-size: 18px; /* 增大字号 */
+            color: #007bff; /* 设置蓝色字体 */
+            border: 2px solid #007bff; /* 添加蓝色边框 */
+            border-radius: 4px; /* 圆角边框 */
+            background-color: #f8f9fa; /* 背景色 */
+        }
+
         .form-section {
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -220,6 +241,29 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 5px;
+        }
+
+        .industry-quick-btn {
+            background-color: #f0f8ff;
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            margin: 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            white-space: nowrap;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .industry-quick-btn:hover {
+            background-color: #4CAF50;
+            color: white;
         }
 
         /* 已选择的行业标签样式 */
@@ -477,7 +521,20 @@
                     </div>
                     <div class="industry-buttons">
                         <button type="button" class="industry-select-btn" id="industryTreeSelector">选择行业分类</button>
-                        <button type="button" class="clear-industry-btn" id="clearIndustryBtn">清空</button>
+                        <button type="button" class="clear-industry-btn clear-os-btn" id="clearIndustryBtn" style="margin-top: 8px;">清空</button>
+                    </div>
+                    <div class="industry-buttons" style="margin-top: 8px;">
+                        <button type="button" class="industry-quick-btn" data-category-code="C" data-subcategory-code="33">金属制品业(C33)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="C" data-subcategory-code="34">通用设备制造业(C34)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="C" data-subcategory-code="35">专用设备制造业(C35)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="C" data-subcategory-code="36">电气机械和器材制造业(C36)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="C" data-subcategory-code="37">机械和工具制造业(C37)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="C" data-subcategory-code="38">电气机械和器材制造业(C38)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="C" data-subcategory-code="39">计算机、通信和其他(C39)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="C" data-subcategory-code="40">仪器仪表制造业(C40)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="E" data-subcategory-code="47">房屋建筑业(E47)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="E" data-subcategory-code="48">土木工程建筑业(E48)</button>
+                        <button type="button" class="industry-quick-btn" data-category-code="E" data-subcategory-code="49">建筑安装业(E49)</button>
                     </div>
                 </div>
                 
@@ -492,10 +549,10 @@
             </div>
                 
             <div class="form-group">
-                <label for="osIds">关联操作系统</label>
+                <label for="osIds">操作系统</label>
                 <div class="os-columns">
                     <div class="os-column">
-                        <h4>Windows系统</h4>
+                        <div>Windows</div>
                          <div class="os-controls">
                             <button type="button" id="clearOSBtn" class="os-control-btn  clear-os-btn">清空</button>
                             <button type="button" id="selectAllWindowsBtn" class="os-control-btn scope-os-btn">所有</button>
@@ -525,7 +582,7 @@
                     </div>
 
                     <div class="os-column">
-                        <h4>其他系统</h4>
+                        <div>其他系统</div>
                         <div class="os-controls" style="margin-top: 8px;">
                             <button type="button" id="clearOSBtn" class="os-control-btn  clear-os-btn">清空</button>
                             <button type="button" id="selectAllLinuxBtn" class="os-control-btn scope-os-btn">所有Linux</button>
@@ -1097,6 +1154,58 @@
             const dropdown = document.getElementById('industryTreeDropdown');
             dropdown.classList.toggle('show');
         }
+
+        // 选择常用行业分类
+        function selectQuickIndustry(categoryCode, subcategoryCode) {
+            // 查找行业分类数据
+            const category = industryCategories.find(c => c.categoryCode === categoryCode);
+            if (!category) {
+                showMessage('未找到对应的行业大类', 'error');
+                return;
+            }
+            
+            const subcategories = industrySubcategories.get(categoryCode) || [];
+            const subcategory = subcategories.find(s => s.subcategoryCode === subcategoryCode);
+            if (!subcategory) {
+                showMessage('未找到对应的行业小类', 'error');
+                return;
+            }
+            
+            // 检查是否已经选中
+            const isCurrentlySelected = selectedIndustries.has(categoryCode) && 
+                selectedIndustries.get(categoryCode).subcategories.has(subcategory.id);
+            
+            if (isCurrentlySelected) {
+                // 如果已选中，则取消选择
+                toggleSubcategorySelection(
+                    categoryCode,
+                    category.categoryName,
+                    subcategory.id,
+                    `${subcategory.subcategoryName} (${subcategory.subcategoryCode})`,
+                    false // 取消选择状态
+                );
+                showMessage(`已取消选择 ${category.categoryName} - ${subcategory.subcategoryName}`, 'success');
+            } else {
+                // 如果未选中，则选择
+                toggleSubcategorySelection(
+                    categoryCode,
+                    category.categoryName,
+                    subcategory.id,
+                    `${subcategory.subcategoryName} (${subcategory.subcategoryCode})`,
+                    true // 选择状态
+                );
+                showMessage(`已选择 ${category.categoryName} - ${subcategory.subcategoryName}`, 'success');
+            }
+        }
+        
+        // 绑定常用行业分类快捷按键事件
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('industry-quick-btn')) {
+                const categoryCode = e.target.dataset.categoryCode;
+                const subcategoryCode = e.target.dataset.subcategoryCode;
+                selectQuickIndustry(categoryCode, subcategoryCode);
+            }
+        });
 
         // 加载软件数据（仅在编辑模式下使用）
         async function loadSoftwareData(id) {

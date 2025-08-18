@@ -6,7 +6,7 @@
     <title>国家列表</title>
     <script src="js/config.js"></script>
     <style>
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
@@ -45,22 +45,134 @@
         .pagination span { 
             margin: 0 5px; 
         }
+
+        .col-index {
+            position: sticky;
+            left: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+
+        /* 调整其他列的left值 */
+        .col-name-zh {
+            position: sticky;
+            left: 50px;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+
+        .col-name-en {
+            position: sticky;
+            left: 250px;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+
+        .col-code {
+            position: sticky;
+            left: 450px;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+
+        .col-continent {
+            position: sticky;
+            left: 550px;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+        
+        /* 新增按钮样式 */
+        .add-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        .add-button:hover {
+            background-color: #218838;
+        }
+        
+        /* 操作按钮样式 */
+        .btn-edit, .btn-save, .btn-cancel {
+            padding: 6px 12px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+        
+        .btn-save {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background-color: #218838;
+        }
+        
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+        
+        /* 编辑模式下的输入框样式 */
+        .edit-input {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        /* 操作列样式 */
+        .col-actions {
+            width: 150px;
+            text-align: center;
+        }
+        
+        /* 编辑模式下的操作列 */
+        .col-actions.edit-mode {
+            background-color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>国家列表</h1>
+        <button class="add-button" onclick="addCountry()">新增国家</button>
         <div id="message" class="message"></div>
         <table id="countriesTable">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>中文名称</th>
-                    <th>英文名称</th>
-                    <th>ISO代码</th>
-                    <th>大洲</th>
-                    <th>创建时间</th>
+                    <th class="col-index">序号</th>
+                    <th class="col-name-zh">中文名称</th>
+                    <th class="col-name-en">英文名称</th>
+                    <th class="col-code">ISO代码</th>
+                    <th class="col-continent">大洲</th>
+                    <th class="col-created">创建时间</th>
+                    <th class="col-actions">操作</th>
                 </tr>
             </thead>
             <tbody id="countriesTableBody"></tbody>
@@ -84,6 +196,10 @@
         let currentPage = 1;
         let pageSize = 20;
         let total = 0;
+        
+        // 当前正在编辑的行
+        let currentEditingRow = null;
+        let currentEditingData = null;
 
         // 页面加载时获取国家列表
         document.addEventListener('DOMContentLoaded', function() {
@@ -197,30 +313,42 @@
             const tableBody = document.getElementById('countriesTableBody');
             tableBody.innerHTML = '';
 
-            if (!data || data.length === 0) {
+            if (data.length === 0) {
                 const row = document.createElement('tr');
-                row.innerHTML = '<td colspan="6" style="text-align: center;">暂无数据</td>';
+                row.innerHTML = `
+                    <td colspan="7" class="no-data">
+                        <div class="no-data-content">
+                            <i class="fas fa-inbox"></i>
+                            <span>暂无数据</span>
+                        </div>
+                    </td>
+                `;  
                 tableBody.appendChild(row);
                 return;
             }
 
-            data.forEach(country => {
+            data.forEach((item, index) => {
+                const serialNumber = (currentPage - 1) * pageSize + index + 1;
                 // 数据存在性检查和默认值设置
-                const id = country.id || '-';
-                const nameZh = country.nameZh || '未设置';
-                const nameEn = country.nameEn || '未设置';
-                const isoCode = country.code || '-';
-                const continent = country.continent || '未知';
-                const createdAt = formatDate(country.createdAt) || '-';
+                const id = item.id || '-';
+                const nameZh = item.nameZh || '未设置';
+                const nameEn = item.nameEn || '未设置';
+                const isoCode = item.code || '-';
+                const continent = item.continent || '未知';
+                const createdAt = formatDate(item.createdAt) || '-';
                 
                 const row = document.createElement('tr');
+                row.dataset.id = item.id;
                 row.innerHTML = `
-                    <td>${id}</td>
-                    <td>${nameZh}</td>
-                    <td>${nameEn}</td>
-                    <td>${isoCode}</td>
-                    <td>${continent}</td>
-                    <td>${createdAt}</td>
+                    <td class="col-index">${serialNumber}</td>
+                    <td class="col-name-zh">${nameZh}</td>
+                    <td class="col-name-en">${nameEn}</td>
+                    <td class="col-code">${isoCode}</td>
+                    <td class="col-continent">${continent}</td>
+                    <td class="col-created">${formatDate(createdAt)}</td>
+                    <td class="col-actions">
+                        <button class="btn-edit" onclick="editCountry(${id})">编辑</button>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -283,6 +411,261 @@
                 messageEl.textContent = '';
                 messageEl.className = 'message';
             }, 3000);
+        }
+        
+        // 编辑国家
+        function editCountry(id) {
+            // 如果正在编辑其他行，先取消编辑
+            if (currentEditingRow) {
+                cancelEdit();
+            }
+            
+            // 找到要编辑的行
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (!row) return;
+            
+            // 保存当前行和数据
+            currentEditingRow = row;
+            currentEditingData = {
+                id: id,
+                nameZh: row.cells[1].textContent,
+                nameEn: row.cells[2].textContent,
+                code: row.cells[3].textContent,
+                continent: row.cells[4].textContent
+            };
+            
+            // 转换行内容为编辑模式
+            const country = {
+                id: id,
+                nameZh: row.cells[1].textContent,
+                nameEn: row.cells[2].textContent,
+                code: row.cells[3].textContent,
+                continent: row.cells[4].textContent
+            };
+            
+            // 更新行内容为编辑模式
+            row.cells[1].innerHTML = `<input type="text" class="edit-input" value="${country.nameZh}" data-field="nameZh">`;
+            row.cells[2].innerHTML = `<input type="text" class="edit-input" value="${country.nameEn}" data-field="nameEn">`;
+            row.cells[3].innerHTML = `<input type="text" class="edit-input" value="${country.code}" data-field="code">`;
+            row.cells[4].innerHTML = `
+                <select class="edit-input" data-field="continent">
+                    <option value="亚洲" ${country.continent === '亚洲' ? 'selected' : ''}>亚洲</option>
+                    <option value="欧洲" ${country.continent === '欧洲' ? 'selected' : ''}>欧洲</option>
+                    <option value="北美洲" ${country.continent === '北美洲' ? 'selected' : ''}>北美洲</option>
+                    <option value="南美洲" ${country.continent === '南美洲' ? 'selected' : ''}>南美洲</option>
+                    <option value="非洲" ${country.continent === '非洲' ? 'selected' : ''}>非洲</option>
+                    <option value="大洋洲" ${country.continent === '大洋洲' ? 'selected' : ''}>大洋洲</option>
+                    <option value="南极洲" ${country.continent === '南极洲' ? 'selected' : ''}>南极洲</option>
+                </select>`;
+            
+            // 更新操作列
+            row.cells[6].innerHTML = `
+                <button class="btn-save" onclick="saveEdit(${id})">保存</button>
+                <button class="btn-cancel" onclick="cancelEdit()">取消</button>
+            `;
+            row.cells[6].classList.add('edit-mode');
+        }
+        
+        // 保存编辑
+        async function saveEdit(id) {
+            if (!currentEditingRow) return;
+            
+            // 获取编辑后的数据
+            const editedData = {
+                nameZh: currentEditingRow.querySelector('input[data-field="nameZh"]').value,
+                nameEn: currentEditingRow.querySelector('input[data-field="nameEn"]').value,
+                code: currentEditingRow.querySelector('input[data-field="code"]').value,
+                continent: currentEditingRow.querySelector('select[data-field="continent"]').value
+            };
+            
+            // 验证必填字段
+            if (!editedData.nameZh || !editedData.code) {
+                showMessage('请填写所有必填字段', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.Config.API_BASE_URL}/countries/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(editedData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '更新国家失败');
+                }
+                
+                const result = await response.json();
+                
+                // 更新成功后，更新表格显示
+                currentEditingRow.cells[1].textContent = result.nameZh;
+                currentEditingRow.cells[2].textContent = result.nameEn;
+                currentEditingRow.cells[3].textContent = result.code;
+                currentEditingRow.cells[4].textContent = result.continent;
+                
+                // 恢复操作列
+                currentEditingRow.cells[6].innerHTML = `
+                    <button class="btn-edit" onclick="editCountry(${id})">编辑</button>
+                `;
+                currentEditingRow.cells[6].classList.remove('edit-mode');
+                
+                // 清除编辑状态
+                currentEditingRow = null;
+                currentEditingData = null;
+                
+                showMessage('国家更新成功', 'success');
+            } catch (error) {
+                console.error('更新国家失败:', error);
+                showMessage('更新国家失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 取消编辑
+        function cancelEdit() {
+            if (!currentEditingRow || !currentEditingData) return;
+            
+            // 恢复原始数据
+            currentEditingRow.cells[1].textContent = currentEditingData.nameZh;
+            currentEditingRow.cells[2].textContent = currentEditingData.nameEn;
+            currentEditingRow.cells[3].textContent = currentEditingData.code;
+            currentEditingRow.cells[4].textContent = currentEditingData.continent;
+            
+            // 恢复操作列
+            const id = currentEditingRow.dataset.id;
+            currentEditingRow.cells[6].innerHTML = `
+                <button class="btn-edit" onclick="editCountry(${id})">编辑</button>
+            `;
+            currentEditingRow.cells[6].classList.remove('edit-mode');
+            
+            // 清除编辑状态
+            currentEditingRow = null;
+            currentEditingData = null;
+        }
+        
+        // 新增国家
+        function addCountry() {
+            // 如果正在编辑其他行，先取消编辑
+            if (currentEditingRow) {
+                cancelEdit();
+            }
+            
+            const tableBody = document.getElementById('countriesTableBody');
+            
+            // 创建新行
+            const newRow = document.createElement('tr');
+            newRow.dataset.id = 'new'; // 标记为新增行
+            
+            // 填充新行内容
+            newRow.innerHTML = `
+                <td>-</td>
+                <td><input type="text" class="edit-input" data-field="nameZh" placeholder="请输入中文名称"></td>
+                <td><input type="text" class="edit-input" data-field="nameEn" placeholder="请输入英文名称"></td>
+                <td><input type="text" class="edit-input" data-field="code" placeholder="请输入ISO代码"></td>
+                <td>
+                    <select class="edit-input" data-field="continent">
+                        <option value="">请选择大洲</option>
+                        <option value="亚洲">亚洲</option>
+                        <option value="欧洲">欧洲</option>
+                        <option value="北美洲">北美洲</option>
+                        <option value="南美洲">南美洲</option>
+                        <option value="非洲">非洲</option>
+                        <option value="大洋洲">大洋洲</option>
+                        <option value="南极洲">南极洲</option>
+                    </select>
+                </td>
+                <td>-</td>
+                <td class="col-actions edit-mode">
+                    <button class="btn-save" onclick="saveNew()">保存</button>
+                    <button class="btn-cancel" onclick="cancelAdd()">取消</button>
+                </td>
+            `;
+            
+            // 将新行插入到表格的第一行
+            if (tableBody.firstChild) {
+                tableBody.insertBefore(newRow, tableBody.firstChild);
+            } else {
+                tableBody.appendChild(newRow);
+            }
+            
+            // 聚焦到第一个输入框
+            newRow.querySelector('input[data-field="nameZh"]').focus();
+        }
+        
+        // 保存新增
+        async function saveNew() {
+            // 找到新增行
+            const newRow = document.querySelector('tr[data-id="new"]');
+            if (!newRow) return;
+            
+            // 获取新增的数据
+            const newData = {
+                nameZh: newRow.querySelector('input[data-field="nameZh"]').value,
+                nameEn: newRow.querySelector('input[data-field="nameEn"]').value,
+                code: newRow.querySelector('input[data-field="code"]').value,
+                continent: newRow.querySelector('select[data-field="continent"]').value
+            };
+            
+            // 验证必填字段
+            if (!newData.nameZh || !newData.code) {
+                showMessage('请填写所有必填字段', 'error');
+                return;
+            }
+            
+            // 发送创建请求
+            try {
+                const response = await fetch(`${window.Config.API_BASE_URL}/countries`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '创建国家失败');
+                }
+                
+                const result = await response.json();
+                
+                // 创建成功后，更新表格显示
+                newRow.dataset.id = result.id;
+                newRow.cells[0].textContent = result.id;
+                newRow.cells[1].textContent = result.nameZh;
+                newRow.cells[2].textContent = result.nameEn;
+                newRow.cells[3].textContent = result.code;
+                newRow.cells[4].textContent = result.continent;
+                newRow.cells[5].textContent = formatDate(result.createdAt);
+                
+                // 更新操作列
+                newRow.cells[6].innerHTML = `
+                    <button class="btn-edit" onclick="editCountry(${result.id})">编辑</button>
+                `;
+                newRow.cells[6].classList.remove('edit-mode');
+                
+                showMessage('国家创建成功', 'success');
+                
+                // 更新分页信息
+                total++;
+                const totalPages = Math.ceil(total / pageSize);
+                updatePaginationControls();
+            } catch (error) {
+                console.error('创建国家失败:', error);
+                showMessage('创建国家失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 取消新增
+        function cancelAdd() {
+            // 找到新增行
+            const newRow = document.querySelector('tr[data-id="new"]');
+            if (!newRow) return;
+            
+            // 移除新增行
+            newRow.remove();
         }
     </script>
 </body>

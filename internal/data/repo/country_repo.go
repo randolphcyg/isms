@@ -184,10 +184,10 @@ func (r *countryRepo) List(ctx context.Context, page, pageSize uint32, keyword, 
 // ExistByCode 检查国家代码是否存在
 func (r *countryRepo) ExistByCode(ctx context.Context, code string, excludeID int32) (bool, error) {
 	q := r.query.IsmsCountry.WithContext(ctx).
-		Where(query.IsmsCountry.IsoCode.Eq(code))
+		Where(r.query.IsmsCountry.IsoCode.Eq(code))
 
 	if excludeID > 0 {
-		q = q.Where(query.IsmsCountry.ID.Neq(excludeID))
+		q = q.Where(r.query.IsmsCountry.ID.Neq(excludeID))
 	}
 
 	count, err := q.Count()

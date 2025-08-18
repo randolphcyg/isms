@@ -833,41 +833,6 @@
             dropdown.style.maxHeight = adjustedHeight + 'px';
         }
         
-        // 切换小类选择
-        function toggleSubcategorySelection(categoryCode, categoryName, subcategoryId, subcategoryName, selected) {
-            // 确保大类条目存在
-            if (!selectedIndustries.has(categoryCode)) {
-                selectedIndustries.set(categoryCode, {
-                    categoryName: categoryName,
-                    subcategories: new Map()
-                });
-            }
-            
-            const categoryData = selectedIndustries.get(categoryCode);
-            
-            if (selected) {
-                // 添加小类
-                categoryData.subcategories.set(subcategoryId, subcategoryName);
-                
-                // 更新UI状态
-                updateSubcategoryNodeUI(categoryCode, subcategoryId, true);
-            } else {
-                // 移除小类
-                categoryData.subcategories.delete(subcategoryId);
-                
-                // 更新UI状态
-                updateSubcategoryNodeUI(categoryCode, subcategoryId, false);
-                
-                // 如果该大类下没有小类了，则移除大类
-                if (categoryData.subcategories.size === 0) {
-                    selectedIndustries.delete(categoryCode);
-                }
-            }
-            
-            // 更新UI
-            updateIndustrySelectionUI();
-        }
-        
         // 更新小类节点UI状态
         function updateSubcategoryNodeUI(categoryCode, subcategoryId, selected) {
             const treeContent = document.getElementById('industryTreeContent');

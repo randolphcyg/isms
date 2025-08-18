@@ -88,27 +88,26 @@
             overflow-x: auto;
             margin-top: 20px;
         }
-        
-        /* 冻结第一列 (ID) */
-        .col-id {
+
+        .col-index {
             position: sticky;
             left: 0;
             background-color: #f2f2f2;
-            z-index: 3;
+            z-index: 4;
         }
         
-        /* 冻结第二列 (开发商名称) */
+        /* 冻结第1列 (开发商名称) */
         .col-name {
             position: sticky;
-            left: 50px; /* 第一列的宽度 */
+            left: 50px;
             background-color: #f2f2f2;
-            z-index: 2;
+            z-index: 3;
         }
 
         /* 冻结国家列 */
         .col-country {
             position: sticky;
-            left: 550px; /* 前两列的总宽度 */
+            left: 600px; /* 前两列的总宽度 */
             background-color: #f2f2f2;
             z-index: 1;
         }
@@ -241,7 +240,7 @@
         <table id="manufacturersTable">
             <thead>
                 <tr>
-                    <th class="col-id" style="width: 50px;">ID</th>
+                    <th class="col-index" style="width: 50px;">序号</th>
                     <th class="col-name" style="width: 150px;">开发商名称</th>
                     <th class="col-en-name" style="width: 150px;">英文名称</th>
                     <th class="col-website" style="width: 150px;">官网</th>
@@ -345,14 +344,11 @@
                 }
 
                 // 渲染表格行
-                data.forEach(manufacturer => {
+                data.forEach((manufacturer, index) => {
                     const row = document.createElement('tr');
                     row.dataset.id = manufacturer.id;
                     
-                    // 处理国家名称
                     const countryName = manufacturer.countryName || '-';
-                    
-                    // 处理网站字段
                     const website = manufacturer.website || '-';
                     const websiteCell = website === '-' ? 
                         '-' : 
@@ -365,7 +361,7 @@
                         `<span class="description-cell" data-description="${description.replace(/"/g, '&quot;')}">${description.substring(0, 50)}${description.length > 50 ? '...' : ''}</span>`;
                     
                     row.innerHTML = `
-                        <td class="col-id">${manufacturer.id || '-'}</td>
+                        <td class="col-index">${(currentPage - 1) * pageSize + index + 1}</td>
                         <td class="col-name">${manufacturer.nameZh || '-'}</td>
                         <td class="col-en-name">${manufacturer.nameEn || '-'}</td>
                         <td class="col-website">${websiteCell}</td>

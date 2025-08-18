@@ -116,13 +116,16 @@ func (r *developerRepo) List(
 			Or("name_en LIKE ?", "%"+keyword+"%")
 	}
 
-	// 3. 查询总条数（用于分页）
+	// 3. 添加按英文名字母顺序排序
+	db = db.Order("name_en ASC")
+
+	// 4. 查询总条数（用于分页）
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("查询总数失败: %w", err)
 	}
 
-	// 4. 分页查询
+	// 5. 分页查询
 	offset := (page - 1) * pageSize
 	var modelDevs []*model.IsmsDeveloper
 	if err := db.Offset(int(offset)).Limit(int(pageSize)).Find(&modelDevs).Error; err != nil {

@@ -176,12 +176,12 @@ func (r *osRepo) List(ctx context.Context, page, pageSize uint32, keyword, manuf
 // ExistByNameVersionArch 检查同名同版本同架构的操作系统是否存在
 func (r *osRepo) ExistByNameVersionArch(ctx context.Context, name, version, architecture string, excludeID int32) (bool, error) {
 	q := r.query.IsmsOS.WithContext(ctx).
-		Where(query.IsmsOS.Name.Eq(name)).
-		Where(query.IsmsOS.Version.Eq(version)).
-		Where(query.IsmsOS.Architecture.Eq(architecture))
+		Where(r.query.IsmsOS.Name.Eq(name)).
+		Where(r.query.IsmsOS.Version.Eq(version)).
+		Where(r.query.IsmsOS.Architecture.Eq(architecture))
 
 	if excludeID > 0 {
-		q = q.Where(query.IsmsOS.ID.Neq(excludeID))
+		q = q.Where(r.query.IsmsOS.ID.Neq(excludeID))
 	}
 
 	count, err := q.Count()

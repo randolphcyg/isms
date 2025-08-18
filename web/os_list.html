@@ -45,6 +45,48 @@
         .pagination span { 
             margin: 0 5px; 
         }
+
+        .col-index {
+            position: sticky;
+            left: 0;
+            background-color: #f2f2f2;
+            z-index: 10;
+        }
+
+        .col-name {
+            position: sticky;
+            left: 50px;
+            background-color: #f2f2f2;
+            z-index: 10;
+        }
+
+        .col-version {
+            position: sticky;
+            left: 250px;
+            background-color: #f2f2f2;
+            z-index: 10;
+        }
+
+        .col-architecture {
+            position: sticky;
+            left: 350px;
+            background-color: #f2f2f2;
+            z-index: 10;
+        }
+
+        .col-manufacturer {
+            position: sticky;
+            left: 450px;
+            background-color: #f2f2f2;
+            z-index: 10;
+        }
+
+        .col-actions {
+            position: sticky;
+            right: 0;
+            background-color: #f2f2f2;
+            z-index: 10;
+        }
         
         /* 搜索框样式 */
         .search-box { 
@@ -66,12 +108,77 @@
             border-radius: 4px; 
             cursor: pointer; 
         }
+        
+        /* 新增按钮样式 */
+        .add-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .add-button:hover {
+            background-color: #218838;
+        }
+        
+        /* 操作列样式 */
+        .col-actions {
+            white-space: nowrap;
+            width: 1%;
+        }
+        
+        .col-actions.edit-mode {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-edit, .btn-save, .btn-cancel {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .btn-edit {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-save {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        /* 编辑输入框样式 */
+        .edit-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        
+        textarea.edit-input {
+            resize: vertical;
+            min-height: 60px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>操作系统列表</h1>
+        <button class="add-button" onclick="addOS()">新增操作系统</button>
         <div id="message" class="message"></div>
         
         <!-- 搜索框 -->
@@ -85,13 +192,13 @@
         <table id="osTable">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>名称</th>
-                    <th>版本</th>
-                    <th>架构</th>
-                    <th>开发商</th>
-                    <th>发布年份</th>
-                    <th>创建时间</th>
+                    <th class="col-index">序号</th>
+                    <th class="col-name">名称</th>
+                    <th class="col-version">版本</th>
+                    <th class="col-architecture">架构</th>
+                    <th class="col-manufacturer">开发商</th>
+                    <th class="col-release-year">发布年份</th>
+                    <th class="col-actions">操作</th>
                 </tr>
             </thead>
             <tbody id="osTableBody"></tbody>
@@ -119,6 +226,10 @@
         // 搜索条件
         let searchKeyword = '';
         let searchManufacturer = '';
+        
+        // 当前编辑行和数据
+        let currentEditingRow = null;
+        let currentEditingData = null;
 
         // 页面加载时获取操作系统列表
         document.addEventListener('DOMContentLoaded', function() {
@@ -279,7 +390,8 @@
                 return;
             }
 
-            data.forEach(os => {
+            data.forEach((os, index) => {
+                const serialNumber = (currentPage - 1) * pageSize + index + 1;
                 // 数据存在性检查和默认值设置
                 const id = os.id || '-';
                 const name = os.name || '未设置';
@@ -287,17 +399,19 @@
                 const architecture = os.architecture || '未知';
                 const manufacturer = os.manufacturer || '未知';
                 const releaseYear = os.releaseYear || '-';
-                const createdAt = formatDate(os.createdAt) || '-';
                 
                 const row = document.createElement('tr');
+                row.dataset.id = id;
                 row.innerHTML = `
-                    <td>${id}</td>
-                    <td>${name}</td>
-                    <td>${version}</td>
-                    <td>${architecture}</td>
-                    <td>${manufacturer}</td>
-                    <td>${releaseYear}</td>
-                    <td>${createdAt}</td>
+                    <td class="col-index">${serialNumber}</td>
+                    <td class="col-name">${name}</td>
+                    <td class="col-version">${version}</td>
+                    <td class="col-architecture">${architecture}</td>
+                    <td class="col-manufacturer">${manufacturer}</td>
+                    <td class="col-release-year">${releaseYear}</td>
+                    <td class="col-actions">
+                        <button class="btn-edit" onclick="editOS(${id})">编辑</button>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -360,6 +474,287 @@
                 messageEl.textContent = '';
                 messageEl.className = 'message';
             }, 3000);
+        }
+        
+        // 编辑操作系统
+        function editOS(id) {
+            // 如果正在编辑其他行，先取消编辑
+            if (currentEditingRow) {
+                cancelEdit();
+            }
+            
+            // 找到要编辑的行
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (!row) return;
+            
+            // 保存当前数据
+            currentEditingRow = row;
+            currentEditingData = {
+                name: row.querySelector('.col-name').textContent,
+                version: row.querySelector('.col-version').textContent,
+                architecture: row.querySelector('.col-architecture').textContent,
+                manufacturer: row.querySelector('.col-manufacturer').textContent,
+                releaseYear: row.querySelector('.col-release-year').textContent
+            };
+            
+            // 获取行数据
+            const name = currentEditingData.name;
+            const version = currentEditingData.version;
+            const architecture = currentEditingData.architecture;
+            const manufacturer = currentEditingData.manufacturer;
+            const releaseYear = currentEditingData.releaseYear === '-' ? '' : currentEditingData.releaseYear;
+            
+            // 创建架构选择下拉框
+            const architectureOptions = ['x86', 'x64', 'arm32', 'arm64', 'ppc64le', 's390x', 'riscv64']
+                .map(arch => `<option value="${arch}" ${arch === architecture ? 'selected' : ''}>${arch}</option>`) 
+                .join('');
+            
+            // 转换行到编辑模式
+            row.querySelector('.col-name').innerHTML = `<input type="text" class="edit-input" data-field="name" value="${name}">`;
+            row.querySelector('.col-version').innerHTML = `<input type="text" class="edit-input" data-field="version" value="${version}">`;
+            row.querySelector('.col-architecture').innerHTML = `<select class="edit-input" data-field="architecture">${architectureOptions}</select>`;
+            row.querySelector('.col-manufacturer').innerHTML = `<input type="text" class="edit-input" data-field="manufacturer" value="${manufacturer}">`;
+            row.querySelector('.col-release-year').innerHTML = `<input type="number" class="edit-input" data-field="releaseYear" value="${releaseYear}" min="1900" max="2030">`;
+            
+            // 更新操作列
+            row.querySelector('.col-actions').innerHTML = `
+                <button class="btn-save" onclick="saveEdit(${id})">保存</button>
+                <button class="btn-cancel" onclick="cancelEdit()">取消</button>
+            `;
+            row.querySelector('.col-actions').classList.add('edit-mode');
+        }
+        
+        // 保存编辑
+        async function saveEdit(id) {
+            if (!currentEditingRow) return;
+            
+            // 获取编辑后的数据
+            const editedData = {
+                name: currentEditingRow.querySelector('input[data-field="name"]').value,
+                version: currentEditingRow.querySelector('input[data-field="version"]').value,
+                architecture: currentEditingRow.querySelector('select[data-field="architecture"]').value,
+                manufacturer: currentEditingRow.querySelector('input[data-field="manufacturer"]').value,
+                releaseYear: parseInt(currentEditingRow.querySelector('input[data-field="releaseYear"]').value) || 0,
+                description: '' // 操作系统API需要这个字段，但当前UI没有提供编辑
+            };
+            
+            // 验证必填字段
+            if (!editedData.name || !editedData.version || !editedData.architecture) {
+                showMessage('请填写所有必填字段', 'error');
+                return;
+            }
+            
+            // 发送更新请求
+            try {
+                const response = await fetch(`${window.Config.API_BASE_URL}/os/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(editedData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '更新操作系统失败');
+                }
+                
+                const result = await response.json();
+                
+                // 更新成功后，更新表格显示
+                currentEditingRow.querySelector('.col-name').textContent = result.name;
+                currentEditingRow.querySelector('.col-version').textContent = result.version;
+                currentEditingRow.querySelector('.col-architecture').textContent = result.architecture;
+                currentEditingRow.querySelector('.col-manufacturer').textContent = result.manufacturer || '未知';
+                currentEditingRow.querySelector('.col-release-year').textContent = result.releaseYear || '-';
+                
+                // 恢复操作列
+                currentEditingRow.querySelector('.col-actions').innerHTML = `
+                    <button class="btn-edit" onclick="editOS(${id})">编辑</button>
+                `;
+                currentEditingRow.querySelector('.col-actions').classList.remove('edit-mode');
+                
+                // 清除编辑状态
+                currentEditingRow = null;
+                currentEditingData = null;
+                
+                showMessage('操作系统更新成功', 'success');
+            } catch (error) {
+                console.error('更新操作系统失败:', error);
+                showMessage('更新操作系统失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 取消编辑
+        function cancelEdit() {
+            if (!currentEditingRow || !currentEditingData) return;
+            
+            // 恢复原始数据
+            currentEditingRow.querySelector('.col-name').textContent = currentEditingData.name;
+            currentEditingRow.querySelector('.col-version').textContent = currentEditingData.version;
+            currentEditingRow.querySelector('.col-architecture').textContent = currentEditingData.architecture;
+            currentEditingRow.querySelector('.col-manufacturer').textContent = currentEditingData.manufacturer;
+            currentEditingRow.querySelector('.col-release-year').textContent = currentEditingData.releaseYear;
+            
+            // 恢复操作列
+            const id = currentEditingRow.dataset.id;
+            currentEditingRow.querySelector('.col-actions').innerHTML = `
+                <button class="btn-edit" onclick="editOS(${id})">编辑</button>
+            `;
+            currentEditingRow.querySelector('.col-actions').classList.remove('edit-mode');
+            
+            // 清除编辑状态
+            currentEditingRow = null;
+            currentEditingData = null;
+        }
+        
+        // 新增操作系统
+        function addOS() {
+            // 如果正在编辑其他行，先取消编辑
+            if (currentEditingRow) {
+                cancelEdit();
+            }
+            
+            const tableBody = document.getElementById('osTableBody');
+            
+            // 创建新行
+            const newRow = document.createElement('tr');
+            newRow.dataset.id = 'new'; // 标记为新增行
+            
+            // 创建架构选择下拉框
+            const architectureOptions = ['x86', 'x64', 'arm32', 'arm64', 'ppc64le', 's390x', 'riscv64']
+                .map(arch => `<option value="${arch}">${arch}</option>`) 
+                .join('');
+            
+            // 填充新行内容
+            newRow.innerHTML = `
+                <td class="col-index">-</td>
+                <td class="col-name"><input type="text" class="edit-input" data-field="name" placeholder="请输入系统名称"></td>
+                <td class="col-version"><input type="text" class="edit-input" data-field="version" placeholder="请输入系统版本"></td>
+                <td class="col-architecture">
+                    <select class="edit-input" data-field="architecture" onchange="handleArchitectureChange(this)">${architectureOptions}<option value="other">其他</option></select>
+                    <input type="text" class="edit-input" data-field="newArchitecture" placeholder="请输入新架构" style="display: none; margin-top: 5px;">
+                </td>
+                <td class="col-manufacturer"><input type="text" class="edit-input" data-field="manufacturer" placeholder="请输入开发商"></td>
+                <td class="col-release-year"><input type="number" class="edit-input" data-field="releaseYear" placeholder="发布年份" min="1900" max="2030"></td>
+                <td class="col-actions edit-mode">
+                    <button class="btn-save" onclick="saveNew()">保存</button>
+                    <button class="btn-cancel" onclick="cancelAdd()">取消</button>
+                </td>
+            `;
+            
+            // 将新行插入到表格的第一行
+            if (tableBody.firstChild) {
+                tableBody.insertBefore(newRow, tableBody.firstChild);
+            } else {
+                tableBody.appendChild(newRow);
+            }
+            
+            // 聚焦到第一个输入框
+            newRow.querySelector('input[data-field="name"]').focus();
+        }
+        
+        // 处理架构选择变化
+        function handleArchitectureChange(selectElement) {
+            const newRow = selectElement.closest('tr');
+            const newArchitectureInput = newRow.querySelector('input[data-field="newArchitecture"]');
+            
+            if (selectElement.value === 'other') {
+                newArchitectureInput.style.display = 'block';
+                newArchitectureInput.required = true;
+            } else {
+                newArchitectureInput.style.display = 'none';
+                newArchitectureInput.required = false;
+            }
+        }
+        
+        // 保存新增
+        async function saveNew() {
+            // 找到新增行
+            const newRow = document.querySelector('tr[data-id="new"]');
+            if (!newRow) return;
+            
+            // 获取新增的数据
+            const architectureSelect = newRow.querySelector('select[data-field="architecture"]');
+            const newArchitectureInput = newRow.querySelector('input[data-field="newArchitecture"]');
+            
+            // 确定架构值
+            let architectureValue = '';
+            if (architectureSelect.value === 'other') {
+                architectureValue = newArchitectureInput.value;
+            } else {
+                architectureValue = architectureSelect.value;
+            }
+            
+            const newData = {
+                name: newRow.querySelector('input[data-field="name"]').value,
+                version: newRow.querySelector('input[data-field="version"]').value,
+                architecture: architectureValue,
+                manufacturer: newRow.querySelector('input[data-field="manufacturer"]').value,
+                releaseYear: parseInt(newRow.querySelector('input[data-field="releaseYear"]').value) || 0,
+                description: '' // 操作系统API需要这个字段
+            };
+            
+            // 验证必填字段
+            if (!newData.name || !newData.version || !newData.architecture) {
+                showMessage('请填写所有必填字段', 'error');
+                return;
+            }
+            
+            // 发送创建请求
+            try {
+                const response = await fetch(`${window.Config.API_BASE_URL}/os`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '创建操作系统失败');
+                }
+                
+                const result = await response.json();
+                
+                // 创建成功后，更新表格显示
+                newRow.dataset.id = result.id;
+                newRow.querySelector('.col-name').textContent = result.name;
+                newRow.querySelector('.col-version').textContent = result.version;
+                newRow.querySelector('.col-architecture').textContent = result.architecture;
+                newRow.querySelector('.col-manufacturer').textContent = result.manufacturer || '未知';
+                newRow.querySelector('.col-release-year').textContent = result.releaseYear || '-';
+                
+                // 更新操作列
+                newRow.querySelector('.col-actions').innerHTML = `
+                    <button class="btn-edit" onclick="editOS(${result.id})">编辑</button>
+                `;
+                newRow.querySelector('.col-actions').classList.remove('edit-mode');
+                
+                showMessage('操作系统创建成功', 'success');
+                
+                // 更新分页信息
+                total++;
+                const totalPages = Math.ceil(total / pageSize);
+                updatePaginationControls();
+
+                // 重新加载数据以显示正确的序号
+                fetchOSList(currentPage, pageSize);
+            } catch (error) {
+                console.error('创建操作系统失败:', error);
+                showMessage('创建操作系统失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 取消新增
+        function cancelAdd() {
+            // 找到新增行
+            const newRow = document.querySelector('tr[data-id="new"]');
+            if (!newRow) return;
+            
+            // 移除新增行
+            newRow.remove();
         }
     </script>
 </body>

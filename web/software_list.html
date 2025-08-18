@@ -399,8 +399,8 @@
             white-space: nowrap;
         }
         
-        /* 冻结第一列 (ID) */
-        .col-id {
+        /* 冻结第一列 (序号) */
+        .col-index {
             position: sticky;
             left: 0;
             background-color: #f2f2f2;
@@ -410,7 +410,7 @@
         /* 冻结第二列 (名称) */
         .col-name {
             position: sticky;
-            left: 40px; /* 第一列的宽度 */
+            left: 50px; /* 序号列的宽度 */
             background-color: #f2f2f2;
             z-index: 2;
         }
@@ -564,7 +564,7 @@
         <table id="softwareTable">
             <thead>
                 <tr>
-                    <th class="col-id" style="width: 50px;">ID</th>
+                    <th class="col-index" style="width: 50px;">序号</th>
                     <th class="col-name" style="width: 80px;">名称</th>
                     <th class="col-version" style="width: 80px;">版本</th>
                     <th class="col-country" style="width: 80px;">国家</th>
@@ -668,6 +668,7 @@
 
             document.getElementById('cancelDelete').addEventListener('click', closeConfirmDialog);
             document.getElementById('confirmDelete').addEventListener('click', performDelete);
+            document.getElementById('exportButton').addEventListener('click', exportTableToExcelFromRawData);
             setupSysReqModal();
         });
 
@@ -872,12 +873,15 @@
 
             if (!data || data.length === 0) {
                 const row = document.createElement('tr');
-                row.innerHTML = '<td colspan="17" style="text-align: center;">暂无数据</td>';
+                row.innerHTML = '<td colspan="19" style="text-align: center;">暂无数据</td>';
                 tableBody.appendChild(row);
                 return;
             }
 
-            data.forEach(software => {
+            data.forEach((software, index) => {
+                // 计算序号
+                const serialNumber = (currentPage - 1) * pageSize + index + 1;
+
                 const id = software.id || '-';
                 const nameEn = software.nameEn || 'default';
                 const nameZh = software.nameZh || '-';
@@ -955,7 +959,7 @@
                 // 为每一行添加data-id属性，方便查找
                 row.setAttribute('data-id', id);
                 row.innerHTML = `
-                    <td class="col-id">${id}</td>
+                    <td class="col-index">${serialNumber}</td>
                     <td class="col-name">${nameEn}</td>
                     <td class="col-version">${version}</td>
                     <td class="col-country">${countryName}</td>
@@ -1434,11 +1438,6 @@
                 showMessage('导出失败: ' + error.message, 'error');
             }
         }
-                
-        // 导出按钮的事件监听器
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('exportButton').addEventListener('click', exportTableToExcelFromRawData);
-        });
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>编辑工业软件</title>
+    <title id="pageTitle">工业软件管理</title>
     <script src="js/config.js"></script>
     <style>
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
@@ -335,7 +335,7 @@
 <body>
     <div class="container">
         <a href="#" id="backLink" class="back-link">← 返回软件列表</a>
-        <h1>编辑工业软件</h1>
+        <h1 id="formTitle">工业软件管理</h1>
         <form id="softwareForm">
         <!-- 基础信息 -->
             <fieldset class="form-section">
@@ -542,8 +542,8 @@
             </div>
             
             <div class="button-group">
-                <button type="submit">更新</button>
-                <button type="button" class="cancel-btn" id="cancelBtn">取消</button>
+                <button type="submit" id="submitBtn">提交</button>
+                <button type="button" id="cancelBtn" class="cancel-btn">取消</button>
             </div>
             <div id="message" class="message"></div>
         </form>
@@ -559,9 +559,12 @@
         
         // 保存软件ID
         let softwareId = null;
-
+        
         // 添加操作系统相关变量
         let osList = []; // 存储操作系统列表
+        
+        // 页面操作模式 ('add' 或 'edit')
+        let formMode = 'add';
 
         // 获取操作系统列表
         async function fetchOSList() {
@@ -621,11 +624,14 @@
             const urlParams = new URLSearchParams(window.location.search);
             softwareId = urlParams.get('id');
 
-            if (!softwareId) {
-                showMessage('软件ID未找到，请从软件列表页面进入编辑页面', 'error');
-                return;
-            }
+            // 确定操作模式
+            formMode = softwareId ? 'edit' : 'add';
             
+            // 设置页面标题和按钮文本
+            document.getElementById('pageTitle').textContent = formMode === 'add' ? '新增工业软件' : '编辑工业软件';
+            document.getElementById('formTitle').textContent = formMode === 'add' ? '新增工业软件' : '编辑工业软件';
+            document.getElementById('submitBtn').textContent = formMode === 'add' ? '添加' : '更新';
+
             // 获取厂商列表
             await fetchManufacturers();
             // 获取行业分类数据
@@ -634,8 +640,14 @@
             // 获取操作系统列表
             await fetchOSList();
 
-            // 加载软件数据
-            loadSoftwareData(softwareId);
+            // 如果是编辑模式，加载软件数据
+            if (formMode === 'edit') {
+                if (!softwareId) {
+                    showMessage('软件ID未找到，请从软件列表页面进入编辑页面', 'error');
+                    return;
+                }
+                await loadSoftwareData(softwareId);
+            }
 
             // 绑定事件
             document.getElementById('softwareForm').addEventListener('submit', handleSubmit);
@@ -670,9 +682,17 @@
                 manufacturerData = Array.isArray(result.items) ? result.items : [];
                 const select = document.getElementById('manufacturer');
                 
-                select.innerHTML = '<option value="">请选择厂商</option>';
+                // 根据操作模式设置默认选项
+                if (formMode === 'add') {
+                    select.innerHTML = '<option value="1" selected>未知开发商</option>';
+                } else {
+                    select.innerHTML = '<option value="">请选择厂商</option>';
+                }
                 
                 manufacturerData.forEach(manufacturer => {
+                    // 在新增模式下，跳过ID为1的厂商（因为已作为默认选项添加）
+                    if (formMode === 'add' && manufacturer.id === 1) return;
+                    
                     const option = document.createElement('option');
                     option.value = manufacturer.id;
                     option.textContent = manufacturer.nameZh && manufacturer.nameEn ? 
@@ -899,9 +919,15 @@
             if (selected) {
                 // 添加小类
                 categoryData.subcategories.set(subcategoryId, subcategoryName);
+                
+                // 更新UI状态
+                updateSubcategoryNodeUI(categoryCode, subcategoryId, true);
             } else {
                 // 移除小类
                 categoryData.subcategories.delete(subcategoryId);
+                
+                // 更新UI状态
+                updateSubcategoryNodeUI(categoryCode, subcategoryId, false);
                 
                 // 如果该大类下没有小类了，则移除大类
                 if (categoryData.subcategories.size === 0) {
@@ -911,7 +937,6 @@
             
             // 更新UI
             updateIndustrySelectionUI();
-            updateIndustryTreeCheckboxes();
         }
 
         // 更新行业分类选择UI
@@ -1013,7 +1038,7 @@
             dropdown.classList.toggle('show');
         }
 
-        // 加载软件数据
+        // 加载软件数据（仅在编辑模式下使用）
         async function loadSoftwareData(id) {
             try {
                 const response = await fetch(`${window.Config.API_BASE_URL}/software/${id}`);
@@ -1044,7 +1069,7 @@
                 
                 // 转换并填充软件大小
                 if (software.sizeBytes) {
-    const sizeData = convertBytesToUnits(software.sizeBytes);
+                    const sizeData = convertBytesToUnits(software.sizeBytes);
                     document.getElementById('sizeValue').value = sizeData.value;
                     document.getElementById('sizeUnit').value = sizeData.unit;
                 }
@@ -1154,12 +1179,6 @@
         async function handleSubmit(event) {
             event.preventDefault();
 
-            // 检查是否有软件ID
-            if (!softwareId) {
-                showMessage('软件ID未找到，请从软件列表页面进入编辑页面', 'error');
-                return;
-            }
-
             // 获取所有选中的行业小类ID
             let allSelectedSubcategories = [];
             for (const [categoryCode, categoryData] of selectedIndustries.entries()) {
@@ -1254,8 +1273,8 @@
             const selectedOtherOSIds = Array.from(otherSelect.selectedOptions).map(option => parseInt(option.value));
             const selectedOSIds = [...selectedWindowsOSIds, ...selectedOtherOSIds];
 
-            // 构建更新数据对象
-            const updateData = {
+            // 构建数据对象
+            const formData = {
                 nameEn: document.getElementById('nameEn').value,
                 nameZh: document.getElementById('nameZh').value,
                 version: document.getElementById('version').value,
@@ -1274,44 +1293,70 @@
                 size_bytes: sizeBytes, 
                 industry_ids: allSelectedSubcategories,
                 os_ids: selectedOSIds,
-                deployment_method: document.getElementById('deploymentMethod').value || null,
-                compliance_info: document.getElementById('complianceInfo').value || null,
-                security_info: document.getElementById('securityInfo').value || null,
-                intellectual_property: document.getElementById('intellectualProperty').value || null,
-                status: document.getElementById('status').value,
-                bit_widths: Array.from(document.querySelectorAll('.bit-width-tag.selected')).map(tag => tag.dataset.value),
                 source_url: document.getElementById('sourceUrl').value || null,
                 download_link: document.getElementById('downloadLink').value || null,
                 deployment_method: document.getElementById('deploymentMethod').value || null,
                 compliance_info: document.getElementById('complianceInfo').value || null,
                 security_info: document.getElementById('securityInfo').value || null,
                 intellectual_property: document.getElementById('intellectualProperty').value || null,
+                status: document.getElementById('status').value,
+                bit_widths: Array.from(document.querySelectorAll('.bit-width-tag.selected')).map(tag => tag.dataset.value)
             };
 
             // 验证必填字段
-            if (!updateData.nameEn || !updateData.version || !updateData.countryId || !updateData.developerId || !updateData.status || allSelectedSubcategories.length === 0) {
+            if (!formData.nameEn || !formData.version || !formData.countryId || !formData.developerId || !formData.status || allSelectedSubcategories.length === 0) {
                 showMessage('请填写所有必填字段', 'error');
                 return;
             }
 
             try {
-                const response = await fetch(`${window.Config.API_BASE_URL}/software/${softwareId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updateData)
-                });
+                let response;
+                
+                // 根据操作模式选择不同的API端点和方法
+                if (formMode === 'add') {
+                    response = await fetch(`${window.Config.API_BASE_URL}/software`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                } else {
+                    response = await fetch(`${window.Config.API_BASE_URL}/software/${softwareId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                }
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || '更新失败，请重试');
+                    throw new Error(errorData.message || (formMode === 'add' ? '添加失败，请重试' : '更新失败，请重试'));
                 }
 
-                showMessage('工业软件更新成功！', 'success');
+                showMessage(formMode === 'add' ? '工业软件添加成功！' : '工业软件更新成功！', 'success');
+                
+                // 在新增模式下重置表单
+                if (formMode === 'add') {
+                    document.getElementById('softwareForm').reset();
+                    
+                    // 重置行业分类选择
+                    selectedIndustries.clear();
+                    updateIndustrySelectionUI();
+                    updateIndustryTreeCheckboxes();
+                    
+                    // 重置选择框为默认选项
+                    document.getElementById('manufacturer').innerHTML = '<option value="1" selected>未知开发商</option>';
+                    
+                    // 重新加载厂商列表
+                    fetchManufacturers();
+                    fetchIndustryCategories();
+                }
             } catch (error) {
                 showMessage(error.message, 'error');
-                console.error('更新表单错误:', error);
+                console.error('提交表单错误:', error);
             }
         }
 
@@ -1548,16 +1593,39 @@
 
         // 处理取消操作
         function handleCancel() {
-            // 从URL获取软件ID
-            const urlParams = new URLSearchParams(window.location.search);
-            const softwareId = urlParams.get('id');
-            
-            if (softwareId) {
-                // 使用软件ID作为newSoftwareId参数跳转到软件列表页面
-                window.location.href = `software_list.html?newSoftwareId=${softwareId}`;
+            if (formMode === 'add') {
+                if (confirm('确定要取消添加工业软件吗？未保存的数据将会丢失。')) {
+                    document.getElementById('softwareForm').reset();
+                    
+                    // 重置行业分类选择
+                    selectedIndustries.clear();
+                    updateIndustrySelectionUI();
+                    updateIndustryTreeCheckboxes();
+                    
+                    // 重置选择框为默认选项
+                    document.getElementById('manufacturer').innerHTML = '<option value="1" selected>未知开发商</option>';
+                    
+                    // 清除消息
+                    document.getElementById('message').className = 'message';
+                    document.getElementById('message').textContent = '';
+                    
+                    // 重新加载厂商列表
+                    fetchManufacturers();
+                    fetchIndustryCategories();
+                }
             } else {
-                // 如果没有软件ID，则直接跳转到软件列表页面
-                window.location.href = 'software_list.html';
+                // 编辑模式下直接跳转回列表页面
+                // 从URL获取软件ID
+                const urlParams = new URLSearchParams(window.location.search);
+                const softwareId = urlParams.get('id');
+                
+                if (softwareId) {
+                    // 使用软件ID作为newSoftwareId参数跳转到软件列表页面
+                    window.location.href = `software_list.html?newSoftwareId=${softwareId}`;
+                } else {
+                    // 如果没有软件ID，则直接跳转到软件列表页面
+                    window.location.href = 'software_list.html';
+                }
             }
         }
 

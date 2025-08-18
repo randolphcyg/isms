@@ -556,7 +556,7 @@
         </div>
 
         <div class="toolbar">
-            <a href="add_software.html" class="add-button">新增工业软件</a>
+            <a href="software_form.html?action=add" class="add-button">新增工业软件</a>
             <button id="exportButton" class="export-button">导出到Excel</button>
         </div>
         <div id="message" class="message"></div>
@@ -996,7 +996,7 @@
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const softwareId = this.getAttribute('data-id');
-                    window.location.href = `edit_software.html?id=${softwareId}`;
+                    window.location.href = `software_form.html?action=edit&id=${softwareId}`;
                 });
             });
 

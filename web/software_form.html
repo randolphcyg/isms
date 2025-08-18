@@ -293,12 +293,33 @@
             margin-right: 10px;
             cursor: pointer;
             border-radius: 4px;
+            margin-top: 8px;
         }
 
         /* 添加清空按钮的特殊样式 */
         .clear-os-btn {
             background-color: #dc3545; /* 红色背景 */
             border: 1px solid #dc3545;
+        }
+
+        .win-os-btn {
+            background-color: #7892e8;
+            border: 1px solid #7892e8;
+        }
+
+        .linux-os-btn {
+            background-color: #7892e8;
+            border: 1px solid #7892e8;
+        }
+        
+        .only-u-os-btn {
+            background-color: #5acb94;
+            border: 1px solid #5acb94;
+        }
+
+        .scope-os-btn {
+            background-color: #35b7de; 
+            border: 1px solid #35b7de;
         }
 
         .os-control-btn:hover {
@@ -318,6 +339,14 @@
 
         .os-column {
             flex: 1;
+            border-right: 1px solid #ddd; /* 添加右边框 */
+            padding-right: 20px; /* 添加右边距 */
+        }
+
+        /* 移除最后一个列的右边框和右边距 */
+        .os-column:last-child {
+            border-right: none;
+            padding-right: 0;
         }
 
         .os-column h4 {
@@ -394,7 +423,6 @@
                 </div>
             </fieldset>
             
-            <!-- 系统要求 -->
             <fieldset class="form-section">
                 <legend>系统要求</legend>
                 <div class="form-row">
@@ -437,6 +465,8 @@
                 </div>
             </fieldset>
             
+            <fieldset class="form-section">
+            <legend>行业与操作系统</legend>
             <div class="form-group">
                 <label for="industryCategory">行业分类*</label>
                 
@@ -463,37 +493,67 @@
                 
             <div class="form-group">
                 <label for="osIds">关联操作系统</label>
-                <div class="os-controls">
-                    <button type="button" id="clearOSBtn" class="os-control-btn  clear-os-btn">清空</button>
-                    <button type="button" id="selectWinXPAndAboveBtn" class="btn btn-secondary btn-sm">Win XP及以上</button>
-                    <button type="button" id="selectWin64Btn" class="os-control-btn">Win x64</button>
-                    <button type="button" id="selectAllWindowsBtn" class="os-control-btn">选择所有Windows</button>
-                    <button type="button" id="selectAllLinuxBtn" class="os-control-btn">选择所有Linux</button>
-                </div>
-                <div class="os-controls" style="margin-top: 8px;">
-                    <button type="button" id="selectWinXPBtn" class="os-control-btn">Windows XP</button>
-                    <button type="button" id="selectWinVistaBtn" class="os-control-btn">Windows Vista</button>
-                    <button type="button" id="selectWin7Btn" class="os-control-btn">Windows 7</button>
-                    <button type="button" id="selectWin8Btn" class="os-control-btn">Windows 8</button>
-                    <button type="button" id="selectWin10Btn" class="os-control-btn">Windows 10</button>
-                    <button type="button" id="selectWin11Btn" class="os-control-btn">Windows 11</button>
-                </div>
                 <div class="os-columns">
                     <div class="os-column">
                         <h4>Windows系统</h4>
-                        <select id="windowsOSIds" multiple style="height: 200px; width: 100%;">
-                            <!-- Windows操作系统选项将通过JavaScript动态生成 -->
-                        </select>
+                         <div class="os-controls">
+                            <button type="button" id="clearOSBtn" class="os-control-btn  clear-os-btn">清空</button>
+                            <button type="button" id="selectAllWindowsBtn" class="os-control-btn scope-os-btn">所有</button>
+                            <button type="button" id="selectWin32Btn" class="os-control-btn scope-os-btn">x86</button>
+                            <button type="button" id="selectWin64Btn" class="os-control-btn scope-os-btn">x64</button>
+                            <button type="button" id="selectWinXPAndAboveBtn" class="btn btn-secondary btn-sm scope-os-btn">XP及以上</button>
+                        </div>
+                        <div class="os-controls">
+                            <button type="button" id="selectWinNTBtn" class="os-control-btn">NT</button>
+                            <button type="button" id="selectWin95Btn" class="os-control-btn">95</button>
+                            <button type="button" id="selectWin98Btn" class="os-control-btn">98</button>
+                            <button type="button" id="selectWin2000Btn" class="os-control-btn">2000</button>
+                            <button type="button" id="selectWinXPBtn" class="os-control-btn">XP</button>
+                            <button type="button" id="selectWinVistaBtn" class="os-control-btn">Vista</button>
+                        </div>
+                        <div class="os-controls">
+                            <button type="button" id="selectWin7Btn" class="os-control-btn win-os-btn">7</button>
+                            <button type="button" id="selectWin8Btn" class="os-control-btn win-os-btn">8</button>
+                            <button type="button" id="selectWin10Btn" class="os-control-btn win-os-btn">10</button>
+                            <button type="button" id="selectWin11Btn" class="os-control-btn win-os-btn">11</button>
+                        </div>
+                        <div class="os-controls">
+                            <button type="button" id="clearX64Btn" class="os-control-btn  only-u-os-btn">只要x86</button>
+                            <button type="button" id="clearX86Btn" class="os-control-btn  only-u-os-btn">只要x64</button>
+                        </div>
+                        <select id="windowsOSIds" multiple style="height: 300px; width: 100%;"></select>
                     </div>
+
                     <div class="os-column">
                         <h4>其他系统</h4>
-                        <select id="otherOSIds" multiple style="height: 200px; width: 100%;">
-                            <!-- 其他操作系统选项将通过JavaScript动态生成 -->
-                        </select>
+                        <div class="os-controls" style="margin-top: 8px;">
+                            <button type="button" id="clearOSBtn" class="os-control-btn  clear-os-btn">清空</button>
+                            <button type="button" id="selectAllLinuxBtn" class="os-control-btn scope-os-btn">所有Linux</button>
+                        </div>
+                        <div class="os-controls" style="margin-top: 8px;">
+                            <button type="button" id="selectUbuntuBtn" class="os-control-btn linux-os-btn">Ubuntu</button>
+                            <button type="button" id="selectCentOSBtn" class="os-control-btn linux-os-btn">CentOS</button>
+                            <button type="button" id="selectFedoraBtn" class="os-control-btn linux-os-btn">Fedora</button>
+                            <button type="button" id="selectRedHatBtn" class="os-control-btn linux-os-btn">Red Hat</button>
+                            <button type="button" id="selectDebianBtn" class="os-control-btn linux-os-btn">Debian</button>
+                            <button type="button" id="selectSUSEBtn" class="os-control-btn linux-os-btn">SUSE</button>
+                        </div>
+
+                        <div class="os-controls" style="margin-top: 8px;">
+                            <button type="button" id="selectMacOSBtn" class="os-control-btn">Mac OS</button>
+                            <button type="button" id="selectAndroidBtn" class="os-control-btn">Android</button>
+                            <button type="button" id="selectAccessBtn" class="os-control-btn">Access</button>
+                        </div>
+                
+                        <select id="otherOSIds" multiple style="height: 355px; width: 100%;"></select>
                     </div>
                 </div>
-                <small>按住Ctrl键(Windows)或Command键(Mac)可多选</small>
+                <small>按住Ctrl键(Windows)或Command键(Mac)可多选</small><br>
+                <small>点击“清空”可清空所有已选择的操作系统</small><br>
+                <small>点击“只要x86”可取消已选择x86操作系统</small>
             </div>
+
+            </fieldset>
             
             <!-- 更多信息 -->
             <fieldset class="form-section">
@@ -1360,7 +1420,7 @@
             }
         }
 
-        // 添加清空操作系统选择功能
+        // 清空操作系统选择
         function clearOS() {
             const windowsSelect = document.getElementById('windowsOSIds');
             const otherSelect = document.getElementById('otherOSIds');
@@ -1372,162 +1432,100 @@
         }
 
         document.getElementById('clearOSBtn').addEventListener('click', clearOS);
-        
-        // 选择Windows XP系统功能
-        function selectWinXP() {
+
+        function clearByBitWidth(bitWidth) {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            let clearedX86Count = 0;
+            let clearedX64Count = 0;
+
+            Array.from(windowsSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                if (bitWidth === '32') { 
+                    if (text.includes('x86')) {
+                        if (option.selected) {
+                            option.selected = false;
+                            clearedX86Count++;
+                        }
+                    }
+                } else if (bitWidth === '64') {
+                    if (text.includes('x64')) {
+                        if (option.selected) {
+                            option.selected = false;
+                            clearedX64Count++;
+                        }
+                    }
+                }
+            });
+            
+            if (bitWidth === '32') { 
+                 if (clearedX86Count > 0) {
+                    showMessage(`已清理${clearedX86Count}个32位操作系统选项`, 'success');
+                } else {
+                    showMessage('没有选中的32位操作系统选项', 'info');
+                }
+            }
+            
+            if (bitWidth === '64') {
+                if (clearedX64Count > 0) {
+                    showMessage(`已清理${clearedX64Count}个64位操作系统选项`, 'success');
+                } else {
+                    showMessage('没有选中的64位操作系统选项', 'info');
+                }
+            }
+        }
+        // 清理32位操作系统选项
+        function clearX86() {
+            clearByBitWidth('32');
+        }
+        // 清理64位操作系统选项
+        function clearX64() {
+            clearByBitWidth('64');
+        }
+        document.getElementById('clearX86Btn').addEventListener('click', clearX86);
+        document.getElementById('clearX64Btn').addEventListener('click', clearX64);
+
+        // 选择所有Windows
+        function selectAllWindows() {
+            const windowsSelect = document.getElementById('windowsOSIds');
+            Array.from(windowsSelect.options).forEach(option => {
+                option.selected = true;
+            });
+        }
+
+        document.getElementById('selectAllWindowsBtn').addEventListener('click', selectAllWindows);
+
+        // 通过位宽选择 32或64位
+        function selectWinByBitWidth(bitWidth) {
             const windowsSelect = document.getElementById('windowsOSIds');
             let hasNewSelection = false;
             
             Array.from(windowsSelect.options).forEach(option => {
                 const text = option.text.toLowerCase();
-                // 检查是否已选中
-                if (!option.selected) {
-                    // 选择Windows XP系统
-                    if (text.includes('windows xp')) {
+                const alreadySelected = option.selected;
+                
+                if (bitWidth === '32') {
+                    if (text.includes('x86') || text.includes('32-bit') || text.includes('32位')) {
                         option.selected = true;
-                        hasNewSelection = true;
+                        if (!alreadySelected) hasNewSelection = true;
+                    }
+                } else if (bitWidth === '64') {
+                    if (text.includes('x64') || text.includes('64-bit') || text.includes('64位')) {
+                        option.selected = true;
+                        if (!alreadySelected) hasNewSelection = true;
                     }
                 }
             });
-            
-            if (hasNewSelection) {
-                showMessage('已选择Windows XP系统', 'success');
-            } else {
-                showMessage('没有新的Windows XP系统可选择', 'info');
-            }
         }
-
-        document.getElementById('selectWinXPBtn').addEventListener('click', selectWinXP);
-
-        // 选择Windows Vista系统功能
-        function selectWinVista() {
-            const windowsSelect = document.getElementById('windowsOSIds');
-            let hasNewSelection = false;
-            
-            Array.from(windowsSelect.options).forEach(option => {
-                const text = option.text.toLowerCase();
-                // 检查是否已选中
-                if (!option.selected) {
-                    // 选择Windows Vista系统
-                    if (text.includes('windows vista')) {
-                        option.selected = true;
-                        hasNewSelection = true;
-                    }
-                }
-            });
-            
-            if (hasNewSelection) {
-                showMessage('已选择Windows Vista系统', 'success');
-            } else {
-                showMessage('没有新的Windows Vista系统可选择', 'info');
-            }
+        // 32位系统选择函数
+        function selectWin32() {
+            selectWinByBitWidth('32');
         }
-
-        document.getElementById('selectWinVistaBtn').addEventListener('click', selectWinVista);
-
-        // 选择Windows 7系统功能
-        function selectWin7() {
-            const windowsSelect = document.getElementById('windowsOSIds');
-            let hasNewSelection = false;
-            
-            Array.from(windowsSelect.options).forEach(option => {
-                const text = option.text.toLowerCase();
-                // 检查是否已选中
-                if (!option.selected) {
-                    // 选择Windows 7系统
-                    if (text.includes('windows 7')) {
-                        option.selected = true;
-                        hasNewSelection = true;
-                    }
-                }
-            });
-            
-            if (hasNewSelection) {
-                showMessage('已选择Windows 7系统', 'success');
-            } else {
-                showMessage('没有新的Windows 7系统可选择', 'info');
-            }
+        // 64位系统选择函数
+        function selectWin64() {
+            selectWinByBitWidth('64');
         }
-
-        document.getElementById('selectWin7Btn').addEventListener('click', selectWin7);
-
-        // 选择Windows 8系统功能
-        function selectWin8() {
-            const windowsSelect = document.getElementById('windowsOSIds');
-            let hasNewSelection = false;
-            
-            Array.from(windowsSelect.options).forEach(option => {
-                const text = option.text.toLowerCase();
-                // 检查是否已选中
-                if (!option.selected) {
-                    // 选择Windows 8系统
-                    if (text.includes('windows 8') && !text.includes('windows 8.1')) {
-                        option.selected = true;
-                        hasNewSelection = true;
-                    }
-                }
-            });
-            
-            if (hasNewSelection) {
-                showMessage('已选择Windows 8系统', 'success');
-            } else {
-                showMessage('没有新的Windows 8系统可选择', 'info');
-            }
-        }
-
-        document.getElementById('selectWin8Btn').addEventListener('click', selectWin8);
-
-        // 选择Windows 10系统功能
-        function selectWin10() {
-            const windowsSelect = document.getElementById('windowsOSIds');
-            let hasNewSelection = false;
-            
-            Array.from(windowsSelect.options).forEach(option => {
-                const text = option.text.toLowerCase();
-                // 检查是否已选中
-                if (!option.selected) {
-                    // 选择Windows 10系统
-                    if (text.includes('windows 10')) {
-                        option.selected = true;
-                        hasNewSelection = true;
-                    }
-                }
-            });
-            
-            if (hasNewSelection) {
-                showMessage('已选择Windows 10系统', 'success');
-            } else {
-                showMessage('没有新的Windows 10系统可选择', 'info');
-            }
-        }
-
-        document.getElementById('selectWin10Btn').addEventListener('click', selectWin10);
-
-        // 选择Windows 11系统功能
-        function selectWin11() {
-            const windowsSelect = document.getElementById('windowsOSIds');
-            let hasNewSelection = false;
-            
-            Array.from(windowsSelect.options).forEach(option => {
-                const text = option.text.toLowerCase();
-                // 检查是否已选中
-                if (!option.selected) {
-                    // 选择Windows 11系统
-                    if (text.includes('windows 11')) {
-                        option.selected = true;
-                        hasNewSelection = true;
-                    }
-                }
-            });
-            
-            if (hasNewSelection) {
-                showMessage('已选择Windows 11系统', 'success');
-            } else {
-                showMessage('没有新的Windows 11系统可选择', 'info');
-            }
-        }
-
-        document.getElementById('selectWin11Btn').addEventListener('click', selectWin11);
+        document.getElementById('selectWin32Btn').addEventListener('click', selectWin32);
+        document.getElementById('selectWin64Btn').addEventListener('click', selectWin64);
 
         // 选择Windows XP及以上系统功能
         function selectWinXPAndAbove() {
@@ -1543,38 +1541,123 @@
                     option.selected = true;
                 }
             });
-            showMessage('已选择Windows XP及以上系统', 'success');
         }
-
         document.getElementById('selectWinXPAndAboveBtn').addEventListener('click', selectWinXPAndAbove);
 
-        // 添加选择Windows x64系统功能
-        function selectWin64() {
+        // 根据版本选择win 
+        function selectWinByVersion(version) {
             const windowsSelect = document.getElementById('windowsOSIds');
+            let hasNewSelection = false;
+            
             Array.from(windowsSelect.options).forEach(option => {
                 const text = option.text.toLowerCase();
-                // 选择包含Windows和x64或64-bit的选项
-                if (text.includes('windows') && (text.includes('x64') || text.includes('64-bit'))) {
-                    option.selected = true;
+                
+                if (version === 'NT') {
+                    if (text.includes('windows nt')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === '95') {
+                    if (text.includes('windows 95')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === '98') {
+                    if (text.includes('windows 98')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === '2000') {
+                    if (text.includes('windows 2000')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'XP') {
+                    if (text.includes('windows xp')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'Vista') {
+                    if (text.includes('windows vista')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                }else if (version === '7') {
+                    if (text.includes('windows 7')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === '8') {
+                    if (text.includes('windows 8')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === '10') {
+                    if (text.includes('windows 10')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === '11') {
+                    if (text.includes('windows 11')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
                 }
             });
-            showMessage('已选择Windows x64系统', 'success');
         }
 
-        document.getElementById('selectWin64Btn').addEventListener('click', selectWin64);
-
-        // 添加选择所有Windows系统功能
-        function selectAllWindows() {
-            const windowsSelect = document.getElementById('windowsOSIds');
-            Array.from(windowsSelect.options).forEach(option => {
-                option.selected = true;
-            });
-            showMessage('已选择所有Windows系统', 'success');
+        // 选择Windows NT
+        function selectWinNT() {
+            selectWinByVersion('NT');
         }
+        document.getElementById('selectWinNTBtn').addEventListener('click', selectWinNT);
+        // 选择Windows 95
+        function selectWin95() {
+            selectWinByVersion('95');
+        }
+        document.getElementById('selectWin95Btn').addEventListener('click', selectWin95);
+        // 选择Windows 98
+        function selectWin98() {
+            selectWinByVersion('98');
+        }
+        document.getElementById('selectWin98Btn').addEventListener('click', selectWin98);
+        // 选择Windows 2000
+        function selectWin2000() {
+            selectWinByVersion('2000');
+        }
+        document.getElementById('selectWin2000Btn').addEventListener('click', selectWin2000);
+        // 选择Windows XP系统
+        function selectWinXP() {
+            selectWinByVersion('XP');
+        }
+        document.getElementById('selectWinXPBtn').addEventListener('click', selectWinXP);
+        // 选择Windows Vista系统功能
+        function selectWinVista() {
+            selectWinByVersion('Vista');
+        }
+        document.getElementById('selectWinVistaBtn').addEventListener('click', selectWinVista);
+        // 选择Windows 7系统功能
+        function selectWin7() {
+            selectWinByVersion('7');
+        }
+        document.getElementById('selectWin7Btn').addEventListener('click', selectWin7);
+        // 选择Windows 8系统
+        function selectWin8() {
+            selectWinByVersion('8');
+        }
+        document.getElementById('selectWin8Btn').addEventListener('click', selectWin8);
+        // 选择Windows 10系统
+        function selectWin10() {
+            selectWinByVersion('10');
+        }
+        document.getElementById('selectWin10Btn').addEventListener('click', selectWin10);
+        // 选择Windows 11系统
+        function selectWin11() {
+            selectWinByVersion('11');
+        }
+        document.getElementById('selectWin11Btn').addEventListener('click', selectWin11);
 
-        document.getElementById('selectAllWindowsBtn').addEventListener('click', selectAllWindows);
-
-        // 添加选择所有Linux系统功能
+        // 选择所有Linux系统
         function selectAllLinux() {
             const otherSelect = document.getElementById('otherOSIds');
             Array.from(otherSelect.options).forEach(option => {
@@ -1590,6 +1673,109 @@
         }
 
         document.getElementById('selectAllLinuxBtn').addEventListener('click', selectAllLinux);
+
+        // 根据版本选择 其他系统
+        function selectOtherOSByVersion(version) {
+            const otherSelect = document.getElementById('otherOSIds');
+            let hasNewSelection = false;
+            
+            Array.from(otherSelect.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                
+                if (version === 'Ubuntu') {
+                    if (text.includes('ubuntu')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'CentOS') {
+                    if (text.includes('centos')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'RedHat') {
+                    if (text.includes('red hat')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'Fedora') {
+                    if (text.includes('fedora')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'SUSE') {
+                    if (text.includes('suse')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'Debian') {
+                    if (text.includes('debian')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'MacOS') {
+                    if (text.includes('macos')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'Android') {
+                    if (text.includes('android')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                } else if (version === 'Access') {
+                    if (text.includes('access')) {
+                        option.selected = !option.selected;
+                        hasNewSelection = true;
+                    }
+                }
+            });
+        }
+        // 选择Ubuntu
+        function selectUbuntu() {
+            selectOtherOSByVersion('Ubuntu');
+        }
+        document.getElementById('selectUbuntuBtn').addEventListener('click', selectUbuntu);
+        // 选择Centos
+        function selectCentOS() {
+            selectOtherOSByVersion('CentOS');
+        }
+        document.getElementById('selectCentOSBtn').addEventListener('click', selectCentOS);
+        // 选择RedHat
+        function selectRedHat() {
+            selectOtherOSByVersion('RedHat');
+        }
+        document.getElementById('selectRedHatBtn').addEventListener('click', selectRedHat);
+        // 选择Fedora
+        function selectFedora() {
+            selectOtherOSByVersion('Fedora');
+        }
+        document.getElementById('selectFedoraBtn').addEventListener('click', selectFedora);
+        // 选择SUSE
+        function selectSUSE() {
+            selectOtherOSByVersion('SUSE');
+        }
+        document.getElementById('selectSUSEBtn').addEventListener('click', selectSUSE);
+        // 选择Debian
+        function selectDebian() {
+            selectOtherOSByVersion('Debian');
+        }
+        document.getElementById('selectDebianBtn').addEventListener('click', selectDebian);
+        // 选择MacOS
+        function selectMacOS() {
+            selectOtherOSByVersion('MacOS');
+        }
+        document.getElementById('selectMacOSBtn').addEventListener('click', selectMacOS);
+        // 选择Android
+        function selectAndroid() {
+            selectOtherOSByVersion('Android');
+        }
+        document.getElementById('selectAndroidBtn').addEventListener('click', selectAndroid);
+        // 选择Access
+        function selectAccess() {
+            selectOtherOSByVersion('Access');
+        }
+        document.getElementById('selectAccessBtn').addEventListener('click', selectAccess);
+
 
         // 处理取消操作
         function handleCancel() {
@@ -1642,7 +1828,7 @@
             }, 3000);
         }
 
-        // 添加返回链接点击事件处理
+        // 返回链接点击事件处理
         document.getElementById('backLink').addEventListener('click', function(e) {
             e.preventDefault(); // 阻止默认的链接跳转行为
             

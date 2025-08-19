@@ -29,7 +29,6 @@
         .error { background-color: #f8d7da; color: #721c24; }
         .success { background-color: #d4edda; color: #155724; }
 
-        /* 描述字段样式 */
         .description-cell {
             display: inline-block;
             width: 100%;
@@ -39,16 +38,12 @@
             text-overflow: ellipsis;
             position: relative;
             cursor: pointer;
-            color: #007bff;
-            /* 移除下划线 */
-            text-decoration: none;
         }
 
         .description-cell:hover {
             color: #0056b3;
         }
 
-        /* 空内容样式 */
         .description-cell.empty {
             color: inherit;
             text-decoration: none;
@@ -59,7 +54,6 @@
             color: inherit;
         }
 
-        /* 自定义tooltip样式 */
         .tooltip {
             position: absolute;
             background-color: #333;
@@ -75,7 +69,6 @@
             display: none;
         }
 
-        /* 来源页面和下载链接列样式 */
         .source-url-cell, .download-link-cell {
             display: inline-block;
             max-width: 120px;
@@ -92,10 +85,9 @@
         
         .download-link-cell {
             position: relative;
-            padding-right: 20px; /* 为复制图标留出空间 */
+            padding-right: 20px;
         }
         
-        /* 复制图标样式 */
         .copy-icon {
             position: absolute;
             right: 0;
@@ -103,7 +95,7 @@
             transform: translateY(-50%);
             width: 16px;
             height: 16px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'%3E%3C/path%3E%3C/svg%3E");
+            background-image: url("images/copy-icon.svg");
             background-size: contain;
             background-repeat: no-repeat;
             cursor: pointer;
@@ -157,6 +149,39 @@
 
         .sys-req-cell.empty:hover {
             color: inherit;
+        }
+
+        .delete-confirm {
+            white-space: nowrap;
+        }
+
+        .confirm-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            margin-right: 4px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .confirm-btn:hover {
+            background-color: #c82333;
+        }
+
+        .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .cancel-btn:hover {
+            background-color: #5a6268;
         }
 
         /* 分页控件样式 */
@@ -518,7 +543,6 @@
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>工业软件列表</h1>
         
-        <!-- 添加筛选表单 -->
         <div class="filter-form">
             <div class="filter-row">
                 <div class="filter-group">
@@ -529,21 +553,18 @@
                     <label for="countryId">国家:</label>
                     <select id="countryId">
                         <option value="">全部</option>
-                        <!-- 国家选项将通过API动态加载 -->
                     </select>
                 </div>
                 <div class="filter-group">
                     <label for="developerId">厂商:</label>
                     <select id="developerId">
                         <option value="">全部</option>
-                        <!-- 厂商选项将通过API动态加载 -->
                     </select>
                 </div>
                 <div class="filter-group">
                     <label for="industryId">所属行业:</label>
                     <select id="industryId">
                         <option value="">全部</option>
-                        <!-- 行业选项将通过API动态加载 -->
                     </select>
                 </div>
             </div>
@@ -600,18 +621,6 @@
             <span>每页 <input type="number" id="pageSizeInput" min="1" max="100" value="20"> 条</span>
             <button id="goPage">跳转</button>
         </div>
-
-        <!-- 删除确认对话框 -->
-        <div id="confirmDialog" class="confirm-dialog">
-            <div class="confirm-content">
-                <h3>确认删除</h3>
-                <p>您确定要删除这个软件吗？此操作不可撤销。</p>
-                <div class="confirm-buttons">
-                    <button id="cancelDelete" class="confirm-btn confirm-btn-cancel">取消</button>
-                    <button id="confirmDelete" class="confirm-btn confirm-btn-confirm">确认删除</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- 系统要求详情模态框 -->
@@ -627,7 +636,6 @@
         let currentPage = 1;
         let pageSize = 20;
         let total = 0;
-        let softwareIdToDelete = null;
         let targetDeveloperId = null;
         let newSoftwareId = null;
         
@@ -666,8 +674,6 @@
                 fetchSoftwareList(currentPage, pageSize);
             }
 
-            document.getElementById('cancelDelete').addEventListener('click', closeConfirmDialog);
-            document.getElementById('confirmDelete').addEventListener('click', performDelete);
             document.getElementById('exportButton').addEventListener('click', exportTableToExcelFromRawData);
             setupSysReqModal();
         });
@@ -944,6 +950,10 @@
                 const actions = `
                     <button class="edit-btn" data-id="${id}">修改</button>
                     <button class="delete-btn" data-id="${id}">删除</button>
+                    <span class="delete-confirm" style="display: none;">
+                        <button class="confirm-btn" data-id="${id}">确定</button>
+                        <button class="cancel-btn">取消</button>
+                    </span>
                 `;
 
                 // 处理来源页面和下载链接字段
@@ -1004,10 +1014,21 @@
                 button.addEventListener('click', function() {
                     const softwareId = this.getAttribute('data-id');
                     const softwareName = this.closest('tr').querySelector('td:nth-child(3)').textContent;
-
-                    if (confirm(`确定要删除软件 "${softwareName}" 吗？此操作不可恢复。`)) {
+                    
+                    this.style.display = 'none';
+                    const confirmSpan = this.nextElementSibling;
+                    confirmSpan.style.display = 'inline';
+                    
+                    confirmSpan.querySelector('.confirm-btn').addEventListener('click', function() {
                         deleteSoftware(softwareId);
-                    }
+                        confirmSpan.style.display = 'none';
+                        button.style.display = 'inline';
+                    });
+                    
+                    confirmSpan.querySelector('.cancel-btn').addEventListener('click', function() {
+                        confirmSpan.style.display = 'none';
+                        button.style.display = 'inline';
+                    });
                 });
             });
 
@@ -1060,7 +1081,6 @@
             document.execCommand('copy');
             document.body.removeChild(textarea);
             
-            // 显示复制成功的提示
             showMessage('链接已复制到剪贴板', 'success');
         }
 
@@ -1117,7 +1137,6 @@
         // 加载筛选下拉框选项
         async function loadFilterOptions() {
             try {
-                // 加载国家选项
                 const countryResponse = await fetch(`${window.Config.API_BASE_URL}/countries?page=1&page_size=100`);
                 if (countryResponse.ok) {
                     const countriesResult = await countryResponse.json();
@@ -1177,10 +1196,8 @@
                             });
                         }
                     }
-                        const option = document.createElement('option');
-                        industrySelect.appendChild(option);
-                    };
-                }catch (error) {
+                };
+            }catch (error) {
                 console.error('加载筛选选项失败:', error);
             }
         }
@@ -1228,30 +1245,6 @@
                 messageEl.textContent = '';
                 messageEl.className = 'message';
             }, 3000);
-        }
-
-        function closeConfirmDialog() {
-            document.getElementById('confirmDialog').style.display = 'none';
-            softwareIdToDelete = null;
-        }
-
-        async function performDelete() {
-            if (!softwareIdToDelete) return;
-
-            try {
-                const response = await fetch(`${window.Config.API_BASE_URL}/software/${softwareIdToDelete}`, {
-                    method: 'DELETE'
-                });
-
-                if (!response.ok) throw new Error(`删除软件失败: ${response.status} ${response.statusText}`);
-
-                closeConfirmDialog();
-                fetchSoftwareList(currentPage, pageSize);
-                showMessage('软件删除成功', 'success');
-            } catch (error) {
-                showMessage(error.message, 'error');
-                console.error('删除软件错误:', error);
-            }
         }
 
         async function deleteSoftware(id) {

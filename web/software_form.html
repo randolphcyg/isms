@@ -18,6 +18,58 @@
             color: #333; /* 设置深色字体 */
         }
 
+        /* 可搜索下拉框样式 */
+        .searchable-select {
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        
+        .select-wrapper {
+            display: none;
+        }
+        
+        .options-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .options-dropdown.show {
+            display: block;
+        }
+        
+        .option-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .option-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .option-item.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
         /* 增强form-section的legend样式 */
         .form-section legend {
             font-weight: bold;
@@ -443,9 +495,17 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="manufacturer">厂商*</label>
-                        <select id="manufacturer" required>
-                            <option value="">请选择厂商</option>
-                        </select>
+                        <div class="searchable-select">
+                            <input type="text" id="manufacturerSearch" placeholder="输入厂商名称搜索..." class="search-input">
+                            <div class="select-wrapper">
+                                <select id="manufacturer" required>
+                                    <option value="">请选择厂商</option>
+                                </select>
+                            </div>
+                            <div id="manufacturerOptions" class="options-dropdown">
+                                <!-- 动态生成的选项将在这里显示 -->
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -788,6 +848,7 @@
 
         // 添加全局变量来存储厂商数据
         let manufacturerData = [];
+        let filteredManufacturers = [];
         
         // 获取厂商列表
         async function fetchManufacturers() {
@@ -797,14 +858,21 @@
                 const result = await response.json();
                 
                 manufacturerData = Array.isArray(result.items) ? result.items : [];
+                filteredManufacturers = [...manufacturerData]; // 初始化筛选列表
+                
                 const select = document.getElementById('manufacturer');
+                const optionsContainer = document.getElementById('manufacturerOptions');
                 
                 // 根据操作模式设置默认选项
                 if (formMode === 'add') {
                     select.innerHTML = '<option value="1" selected>未知开发商</option>';
+                    document.getElementById('manufacturerSearch').value = '未知开发商';
                 } else {
                     select.innerHTML = '<option value="">请选择厂商</option>';
                 }
+                
+                // 清空选项容器
+                optionsContainer.innerHTML = '';
                 
                 manufacturerData.forEach(manufacturer => {
                     // 在新增模式下，跳过ID为1的厂商（因为已作为默认选项添加）
@@ -816,12 +884,158 @@
                         `${manufacturer.nameZh}(${manufacturer.nameEn})` : 
                         (manufacturer.nameZh || manufacturer.nameEn || manufacturer.name || '未知厂商');
                     select.appendChild(option);
+                    
+                    // 为自定义下拉框创建选项
+                    const optionItem = document.createElement('div');
+                    optionItem.className = 'option-item';
+                    optionItem.dataset.value = manufacturer.id;
+                    optionItem.textContent = manufacturer.nameZh && manufacturer.nameEn ? 
+                        `${manufacturer.nameZh}(${manufacturer.nameEn})` : 
+                        (manufacturer.nameZh || manufacturer.nameEn || manufacturer.name || '未知厂商');
+                    optionsContainer.appendChild(optionItem);
                 });
+                
+                // 绑定自定义下拉框事件
+                bindCustomSelectEvents();
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('获取厂商列表错误:', error);
             }
         }
+        
+        // 绑定自定义下拉框事件
+        function bindCustomSelectEvents() {
+            const searchInput = document.getElementById('manufacturerSearch');
+            const optionsContainer = document.getElementById('manufacturerOptions');
+            const select = document.getElementById('manufacturer');
+            
+            // 点击搜索框显示选项
+            searchInput.addEventListener('focus', function() {
+                filterManufacturers('');
+                optionsContainer.classList.add('show');
+            });
+            
+            // 输入时筛选选项
+            searchInput.addEventListener('input', function() {
+                filterManufacturers(this.value);
+                optionsContainer.classList.add('show');
+            });
+            
+            // 点击选项选择厂商
+            optionsContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option-item')) {
+                    const value = e.target.dataset.value;
+                    const text = e.target.textContent;
+                    
+                    // 更新隐藏的select元素
+                    select.value = value;
+                    
+                    // 更新搜索框显示
+                    searchInput.value = text;
+                    
+                    // 隐藏选项列表
+                    optionsContainer.classList.remove('show');
+                    
+                    // 触发change事件
+                    select.dispatchEvent(new Event('change'));
+                }
+            });
+            
+            // 点击其他地方隐藏选项
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !optionsContainer.contains(e.target)) {
+                    optionsContainer.classList.remove('show');
+                }
+            });
+            
+            // 为选项添加键盘导航
+            searchInput.addEventListener('keydown', function(e) {
+                const options = optionsContainer.querySelectorAll('.option-item');
+                if (options.length === 0) return;
+                
+                const currentIndex = Array.from(options).findIndex(option => option.classList.contains('selected'));
+                let newIndex = currentIndex;
+                
+                switch (e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        newIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0;
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        newIndex = currentIndex > 0 ? currentIndex - 1 : options.length - 1;
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (currentIndex >= 0) {
+                            options[currentIndex].click();
+                        }
+                        return;
+                    case 'Escape':
+                        optionsContainer.classList.remove('show');
+                        return;
+                }
+                
+                // 更新选中状态
+                options.forEach((option, index) => {
+                    option.classList.toggle('selected', index === newIndex);
+                });
+                
+                // 滚动到选中的选项
+                if (newIndex >= 0 && options[newIndex]) {
+                    options[newIndex].scrollIntoView({ block: 'nearest' });
+                }
+            });
+        }
+        
+        // 筛选厂商
+function filterManufacturers(searchTerm) {
+    const optionsContainer = document.getElementById('manufacturerOptions');
+    const term = searchTerm.toLowerCase();
+    
+    // 筛选匹配的厂商
+    filteredManufacturers = manufacturerData.filter(manufacturer => {
+        const nameZh = (manufacturer.nameZh || '').toLowerCase();
+        const nameEn = (manufacturer.nameEn || '').toLowerCase();
+        const name = (manufacturer.name || '').toLowerCase();
+        
+        return nameZh.includes(term) || nameEn.includes(term) || name.includes(term);
+    });
+    
+    // 更新选项显示
+    optionsContainer.innerHTML = '';
+    
+    // 在新增模式下，如果搜索词为空或匹配"未知开发商"，添加未知开发商选项
+    if (formMode === 'add' && (!term || '未知开发商'.toLowerCase().includes(term))) {
+        const unknownOption = document.createElement('div');
+        unknownOption.className = 'option-item';
+        unknownOption.dataset.value = '1';
+        unknownOption.textContent = '未知开发商';
+        optionsContainer.appendChild(unknownOption);
+    }
+    
+    if (filteredManufacturers.length === 0) {
+        const noResult = document.createElement('div');
+        noResult.className = 'option-item';
+        noResult.textContent = '未找到匹配的厂商';
+        noResult.style.fontStyle = 'italic';
+        noResult.style.color = '#999';
+        optionsContainer.appendChild(noResult);
+    } else {
+        filteredManufacturers.forEach(manufacturer => {
+            // 在新增模式下跳过未知开发商（避免重复显示）
+            if (formMode === 'add' && manufacturer.id === 1) return;
+            
+            const optionItem = document.createElement('div');
+            optionItem.className = 'option-item';
+            optionItem.dataset.value = manufacturer.id;
+            optionItem.textContent = manufacturer.nameZh && manufacturer.nameEn ? 
+                `${manufacturer.nameZh}(${manufacturer.nameEn})` : 
+                (manufacturer.nameZh || manufacturer.nameEn || manufacturer.name || '未知厂商');
+            optionsContainer.appendChild(optionItem);
+        });
+    }
+}
         
         // 处理厂商选择变化
         function handleManufacturerChange() {
@@ -1234,6 +1448,15 @@
                 // 填充厂商
                 if (software.developerId) {
                     document.getElementById('manufacturer').value = software.developerId;
+                    
+                    // 更新搜索框显示
+                    const selectedManufacturer = manufacturerData.find(m => m.id === software.developerId);
+                    if (selectedManufacturer) {
+                        const displayName = selectedManufacturer.nameZh && selectedManufacturer.nameEn ? 
+                            `${selectedManufacturer.nameZh}(${selectedManufacturer.nameEn})` : 
+                            (selectedManufacturer.nameZh || selectedManufacturer.nameEn || selectedManufacturer.name || '未知厂商');
+                        document.getElementById('manufacturerSearch').value = displayName;
+                    }
                 }
                 
                 // 转换并填充软件大小

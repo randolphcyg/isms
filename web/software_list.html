@@ -110,6 +110,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
+            min-height: 20px;
         }
 
         .bitwidth-tag {
@@ -939,12 +940,20 @@
                 }
 
                 // 位宽标签
-                let bitWidthTags = '<div class="bitwidth-tags">-</div>';
+                let bitWidthTags = '<div class="bitwidth-tags"></div>';
                 if (software.bitWidths && software.bitWidths.length > 0) {
-                    const tagsHtml = software.bitWidths.map(bitWidth => {
-                        return `<span class="bitwidth-tag">${bitWidth}</span>`;
-                    }).join('');
-                    bitWidthTags = `<div class="bitwidth-tags">${tagsHtml}</div>`;
+                    // 过滤掉空字符串
+                    const validBitWidths = software.bitWidths.filter(bitWidth => bitWidth && bitWidth.trim() !== '');
+                    if (validBitWidths.length > 0) {
+                        const tagsHtml = validBitWidths.map(bitWidth => {
+                            return `<span class="bitwidth-tag">${bitWidth}</span>`;
+                        }).join('');
+                        bitWidthTags = `<div class="bitwidth-tags">${tagsHtml}</div>`;
+                    } else {
+                        bitWidthTags = '<div class="bitwidth-tags">-</div>';
+                    }
+                } else {
+                    bitWidthTags = '<div class="bitwidth-tags">-</div>';
                 }
 
                 const actions = `
@@ -966,7 +975,6 @@
                     `<td><span class="download-link-cell" title="${downloadLink}">${truncateText(downloadLink, 20)}<span class="copy-icon" onclick="event.stopPropagation(); copyToClipboard('${downloadLink}')"></span></span></td>`;
 
                 const row = document.createElement('tr');
-                // 为每一行添加data-id属性，方便查找
                 row.setAttribute('data-id', id);
                 row.innerHTML = `
                     <td class="col-index">${serialNumber}</td>

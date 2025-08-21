@@ -85,5 +85,6 @@ INSERT INTO `isms_developer` (
   (71, '高云半导体', 'GOWIN Semiconductor', 'https://www.gowinsemi.com.cn/', '中国领先的FPGA供应商，专注于集成电路设计工具，提供FPGA集成开发环境(IDE)用于FPGA设计输入、代码合成、布局路由等', 2, NOW(), NOW()),
   (72, 'Synopsys', 'Synopsys, Inc.', 'www.synopsys.com', '半导体工艺和器件仿真软件开发商', 26, NOW(), NOW()),
   (73, 'Robert McNeel & Assoc', 'Robert McNeel & Associates', 'https://www.rhino3d.com/', '美国著名的3D建模软件开发商，其Rhino（犀牛）软件广泛应用于三维动画、工业制造、科研、机械设计等领域', 26, NOW(), NOW()),
-  (74, '博思软件', 'Beiswenger and Associates', '', '建筑和工程领域创新技术解决方案提供商，Fuzor软件开发商', 26, NOW(), NOW());
+  (74, '博思软件', 'Beiswenger and Associates', '', '建筑和工程领域创新技术解决方案提供商，Fuzor软件开发商', 26, NOW(), NOW()),
+  (75, 'Graphisoft', 'Graphisoft', 'www.graphisoft.com', 'BIM软件开发商，Archicad软件开发商', 34, NOW(), NOW());
 

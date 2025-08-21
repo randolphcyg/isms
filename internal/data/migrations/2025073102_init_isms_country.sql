@@ -43,4 +43,5 @@ INSERT INTO `isms_country` (
 
   -- 其他地区
   (32, '土耳其', 'Turkey', 'TR', '欧亚', NOW(), NOW()),
-  (33, '南非', 'South Africa', 'ZA', '非洲', NOW(), NOW());
+  (33, '南非', 'South Africa', 'ZA', '非洲', NOW(), NOW()),
+  (34, '匈牙利', 'Hungary', 'HU', '欧洲', NOW(), NOW());

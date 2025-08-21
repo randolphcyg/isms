@@ -131,12 +131,12 @@ func (r *countryRepo) List(ctx context.Context, page, pageSize uint32, keyword, 
 
 	// 条件筛选
 	if keyword != "" {
-		q = q.Where(query.IsmsCountry.NameZh.Like("%" + keyword + "%")).
-			Or(query.IsmsCountry.NameEn.Like("%" + keyword + "%")).
-			Or(query.IsmsCountry.IsoCode.Like("%" + keyword + "%"))
+		q = q.Where(r.query.IsmsCountry.NameZh.Like("%" + keyword + "%")).
+			Or(r.query.IsmsCountry.NameEn.Like("%" + keyword + "%")).
+			Or(r.query.IsmsCountry.IsoCode.Like("%" + keyword + "%"))
 	}
 	if continent != "" {
-		q = q.Where(query.IsmsCountry.Continent.Eq(continent))
+		q = q.Where(r.query.IsmsCountry.Continent.Eq(continent))
 	}
 
 	// 总数查询

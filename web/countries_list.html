@@ -15,6 +15,27 @@
         .error { background-color: #f8d7da; color: #721c24; }
         .success { background-color: #d4edda; color: #155724; }
         
+        /* 搜索框样式 */
+        .search-box { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+            align-items: center; 
+        }
+        .search-box input { 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        .search-box button { 
+            padding: 8px 12px; 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        
         /* 分页控件样式 */
         .pagination { 
             display: flex; 
@@ -162,6 +183,11 @@
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>国家列表</h1>
         <button class="add-button" onclick="addCountry()">新增国家</button>
+        <div class="search-box">
+            <input type="text" id="keywordInput" placeholder="搜索国家名称或代码">
+            <button id="searchBtn">搜索</button>
+            <button id="resetBtn">重置</button>
+        </div>
         <div id="message" class="message"></div>
         <table id="countriesTable">
             <thead>
@@ -196,6 +222,7 @@
         let currentPage = 1;
         let pageSize = 20;
         let total = 0;
+        let searchKeyword = '';
         
         // 当前正在编辑的行
         let currentEditingRow = null;
@@ -214,69 +241,91 @@
                     fetchCountriesList(1, pageSize);
                 }
             });
-            
+
             document.getElementById('prevPage').addEventListener('click', () => {
                 if (currentPage > 1) {
                     fetchCountriesList(currentPage - 1, pageSize);
                 }
             });
-            
+
             document.getElementById('nextPage').addEventListener('click', () => {
                 const totalPages = Math.ceil(total / pageSize);
                 if (currentPage < totalPages) {
                     fetchCountriesList(currentPage + 1, pageSize);
                 }
             });
-            
+
             document.getElementById('lastPage').addEventListener('click', () => {
                 const totalPages = Math.ceil(total / pageSize);
                 if (currentPage < totalPages) {
                     fetchCountriesList(totalPages, pageSize);
                 }
             });
-            
+
             document.getElementById('goPage').addEventListener('click', () => {
                 const pageInput = document.getElementById('pageInput');
                 const page = parseInt(pageInput.value);
                 const totalPages = Math.ceil(total / pageSize);
-                
+
                 if (page >= 1 && page <= totalPages) {
                     fetchCountriesList(page, pageSize);
                 } else {
                     showMessage(`请输入有效的页码 (1-${totalPages})`, 'error');
                 }
             });
-            
+
             document.getElementById('pageSizeInput').addEventListener('change', (e) => {
                 const newSize = parseInt(e.target.value);
                 if (newSize >= 1 && newSize <= 100) {
                     pageSize = newSize;
-                    fetchCountriesList(1, pageSize); // 重置到第一页
+                    fetchCountriesList(1, pageSize);
                 } else {
                     showMessage('每页条数应在1-100之间', 'error');
                     e.target.value = pageSize;
                 }
             });
-            
-            // 回车跳转页面
+
             document.getElementById('pageInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') {
                     document.getElementById('goPage').click();
                 }
             });
-            
-            // 回车设置每页条数
+
             document.getElementById('pageSizeInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') {
                     document.getElementById('pageSizeInput').dispatchEvent(new Event('change'));
                 }
             });
         }
+        // 绑定搜索功能事件
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            searchKeyword = document.getElementById('keywordInput').value.trim();
+            fetchCountriesList(1, pageSize); // 重置到第一页
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('keywordInput').value = '';
+            searchKeyword = '';
+            fetchCountriesList(1, pageSize); // 重置到第一页
+        });
+        
+        // 回车搜索
+        document.getElementById('keywordInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('searchBtn').click();
+            }
+        });
 
         // 获取国家列表
         async function fetchCountriesList(page = 1, pageSize = 20) {
             try {
-                const response = await fetch(`${window.Config.API_BASE_URL}/countries?page=${page}&page_size=${pageSize}`);
+                // 构建查询参数
+                let url = `${window.Config.API_BASE_URL}/countries?page=${page}&page_size=${pageSize}`;
+                if (searchKeyword) {
+                    url += `&keyword=${encodeURIComponent(searchKeyword)}`;
+                }
+                
+                const response = await fetch(url);
                 if (!response.ok) throw new Error(`获取国家列表失败: ${response.status} ${response.statusText}`);
                 
                 const result = await response.json();

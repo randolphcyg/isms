@@ -381,6 +381,31 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 		softwareIDs = append(softwareIDs, m.ID)
 	}
 
+	// 收集开发商ID用于批量查询国家信息
+	developerIDs := make([]int32, 0, len(modelSoftwares))
+	developerIDMap := make(map[int32]bool) // 用于去重
+	for _, m := range modelSoftwares {
+		if !developerIDMap[m.DeveloperID] {
+			developerIDs = append(developerIDs, m.DeveloperID)
+			developerIDMap[m.DeveloperID] = true
+		}
+	}
+
+	// 批量查询开发商信息
+	developerMap := make(map[int32]*model.IsmsDeveloper)
+	if len(developerIDs) > 0 {
+		developers, err := s.query.IsmsDeveloper.WithContext(ctx).
+			Where(s.query.IsmsDeveloper.ID.In(developerIDs...)).
+			Find()
+		if err != nil {
+			return nil, 0, fmt.Errorf("查询开发商信息失败: %w", err)
+		}
+
+		for _, dev := range developers {
+			developerMap[dev.ID] = dev
+		}
+	}
+
 	// 批量查询行业关联
 	industryRelations := make(map[int32][]int32)          // softwareID -> industryIDs
 	industryDetails := make(map[int32][]*v1.IsmsIndustry) // softwareID -> industryDetails
@@ -420,6 +445,11 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 			bitWidths = strings.Split(*m.BitWidths, ",")
 		}
 
+		countryID := int32(0)
+		if dev, ok := developerMap[m.DeveloperID]; ok {
+			countryID = dev.CountryID
+		}
+
 		sw := &domain.IsmsSoftware{
 			ID:           m.ID,
 			NameZh:       m.NameZh,
@@ -435,7 +465,7 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 			DiskMinGb:    m.DiskMinGb,
 			SysReqOther:  m.SysReqOther,
 			SizeBytes:    m.SizeBytes,
-			CountryID:    m.CountryID,
+			CountryID:    countryID,
 			Status:       m.Status,
 			CreatedAt:    m.CreatedAt,
 			UpdatedAt:    m.UpdatedAt,
@@ -601,7 +631,8 @@ func (s *softwareRepo) CountByCountry(ctx context.Context, topN int32) ([]*domai
 	err := s.db.WithContext(ctx).
 		Table("isms_software AS s"). // 给表设置别名
 		Select("c.id as country_id, c.name_zh, c.name_en, COUNT(s.id) as count").
-		Joins("JOIN isms_country c ON s.country_id = c.id").
+		Joins("JOIN isms_developer d ON s.developer_id = d.id"). // 先关联开发商表
+		Joins("JOIN isms_country c ON d.country_id = c.id").     // 再通过开发商关联国家表
 		Group("c.id, c.name_zh, c.name_en").
 		Order("count DESC").
 		Limit(int(topN)).

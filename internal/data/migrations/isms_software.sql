@@ -7,7 +7,6 @@ CREATE TABLE `isms_software` (
   `release_month` TINYINT UNSIGNED DEFAULT NULL COMMENT '发布月份（1-12，NULL表示仅精确到年）',
   `release_day` TINYINT UNSIGNED DEFAULT NULL COMMENT '发布日（1-31，NULL表示仅精确到年或月）',
   `developer_id` INT UNSIGNED NOT NULL COMMENT '开发商ID（关联isms_developer.id）',
-  `country_id` SMALLINT UNSIGNED NOT NULL COMMENT '产地国家ID（关联isms_country.id，由developer_id同步）',
   `cpu_req` varchar(200) DEFAULT NULL COMMENT '处理器要求（如：Intel i5及以上）',
   `memory_min_gb` DECIMAL(6,2) DEFAULT NULL COMMENT '最小内存要求（GB）',
   `disk_min_gb` DECIMAL(6,2) DEFAULT NULL COMMENT '最小磁盘空间（GB）',

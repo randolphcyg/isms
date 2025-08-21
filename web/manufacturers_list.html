@@ -20,6 +20,27 @@
         .pagination input { width: 50px; text-align: center; margin: 0 5px; }
         .pagination-info { text-align: center; margin-top: 10px; }
         
+        /* 搜索框样式 */
+        .search-box { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+            align-items: center; 
+        }
+        .search-box input { 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        .search-box button { 
+            padding: 8px 12px; 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        
         /* 描述字段样式 */
         .description-cell {
             display: inline-block;
@@ -235,6 +256,11 @@
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>开发商列表</h1>
         <button class="add-button" onclick="addManufacturer()">新增开发商</button>
+        <div class="search-box">
+            <input type="text" id="keywordInput" placeholder="搜索开发商名称">
+            <button id="searchBtn">搜索</button>
+            <button id="resetBtn">重置</button>
+        </div>
         <div id="message" class="message" style="display: none;"></div>
         <div class="table-container">
         <table id="manufacturersTable">
@@ -280,6 +306,9 @@
         let currentEditingRow = null;
         let currentEditingData = null;
 
+        // 搜索参数
+        let searchKeyword = '';
+        
         // 页面加载时获取开发商列表
         document.addEventListener('DOMContentLoaded', () => {
             fetchManufacturersList(currentPage, pageSize);
@@ -313,12 +342,37 @@
                 e.target.value = pageSize;
                 goToPage(1); // 重置到第一页
             });
+            
+            // 绑定搜索功能事件
+            document.getElementById('searchBtn').addEventListener('click', () => {
+                searchKeyword = document.getElementById('keywordInput').value.trim();
+                fetchManufacturersList(1, pageSize); // 重置到第一页
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                document.getElementById('keywordInput').value = '';
+                searchKeyword = '';
+                fetchManufacturersList(1, pageSize); // 重置到第一页
+            });
+            
+            // 回车搜索
+            document.getElementById('keywordInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('searchBtn').click();
+                }
+            });
         });
 
         // 获取开发商列表
         async function fetchManufacturersList(page = 1, size = 20) {
             try {
-                const response = await fetch(`${window.Config.API_BASE_URL}/developers?page=${page}&page_size=${size}`);
+                // 构建查询参数
+                let url = `${window.Config.API_BASE_URL}/developers?page=${page}&page_size=${size}`;
+                if (searchKeyword) {
+                    url += `&keyword=${encodeURIComponent(searchKeyword)}`;
+                }
+                
+                const response = await fetch(url);
                 if (!response.ok) throw new Error('获取开发商列表失败');
                 const result = await response.json();
                 const data = result.items || []; // 从items字段获取数组

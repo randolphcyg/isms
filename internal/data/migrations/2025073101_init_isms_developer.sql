@@ -86,5 +86,12 @@ INSERT INTO `isms_developer` (
   (72, 'Synopsys', 'Synopsys, Inc.', 'www.synopsys.com', '半导体工艺和器件仿真软件开发商', 26, NOW(), NOW()),
   (73, 'Robert McNeel & Assoc', 'Robert McNeel & Associates', 'https://www.rhino3d.com/', '美国著名的3D建模软件开发商，其Rhino（犀牛）软件广泛应用于三维动画、工业制造、科研、机械设计等领域', 26, NOW(), NOW()),
   (74, '博思软件', 'Beiswenger and Associates', '', '建筑和工程领域创新技术解决方案提供商，Fuzor软件开发商', 26, NOW(), NOW()),
-  (75, 'Graphisoft', 'Graphisoft', 'www.graphisoft.com', 'BIM软件开发商，Archicad软件开发商', 34, NOW(), NOW());
+  (75, 'Graphisoft', 'Graphisoft', 'www.graphisoft.com', 'BIM软件开发商，Archicad软件开发商', 34, NOW(), NOW()),
+  (76, 'Jan Adamec', 'Jan Adamec', 'www.roomarranger.com', '室内设计软件开发商，开发了Room Arranger软件', 26, NOW(), NOW()),
+  (77, 'Vectorworks公司', 'Vectorworks, Inc.', 'https://www.vectorworks.net/', '全球设计和BIM软件开发商，服务于85个国家的AEC、景观和娱乐行业', 26, NOW(), NOW()),
+  (78, 'ecru sc', 'ecru sc', 'www.ecru.pl', '室内设计软件开发商，开发了Pro100 7.08软件', 24, NOW(), NOW()),
+  (79, '建设专家集团公司', 'Group of Companies "Stroy Expertiza"', 'basegroup.su', 'Base 10 + Фундамент 14 + Плита 6 软件开发商', 21, NOW(), NOW()),
+  (80, 'Interior3D', 'Interior3D', 'interior3d.su', '室内设计软件开发商', 21, NOW(), NOW()),
+  (81, 'Стройэкспертиза', 'Stroy Ekspertiza', 'https://basegroup.su', 'Фундамент 13.3 软件开发商', 21, NOW(), NOW()),
+  (82, 'MicroCrowd', 'MicroCrowd', 'http://www.sweethome3d.com/', 'Sweet Home 3D 2.6便携式软件开发商，支持32/64位系统，多语言界面（含俄语）', 14, NOW(), NOW());
 

@@ -5,47 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>操作系统列表</title>
     <script src="js/config.js"></script>
+    <script src="js/pagination.js"></script>
+    <script src="js/shared_pagination.js"></script>
+    <script src="js/utils.js"></script>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/pagination.css">
     <style>
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #f2f2f2; }
-        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
-        .error { background-color: #f8d7da; color: #721c24; }
-        .success { background-color: #d4edda; color: #155724; }
-        
-        /* 分页控件样式 */
-        .pagination { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            margin-top: 20px; 
-            gap: 10px;
-        }
-        .pagination button { 
-            padding: 8px 12px; 
-            background-color: #007bff; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-        }
-        .pagination button:disabled { 
-            background-color: #ccc; 
-            cursor: not-allowed; 
-        }
-        .pagination input { 
-            width: 60px; 
-            padding: 6px; 
-            text-align: center; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-        }
-        .pagination span { 
-            margin: 0 5px; 
-        }
-
         .col-index {
             position: sticky;
             left: 0;
@@ -80,93 +45,6 @@
             background-color: #f2f2f2;
             z-index: 10;
         }
-
-        .col-actions {
-            position: sticky;
-            right: 0;
-            background-color: #f2f2f2;
-            z-index: 10;
-        }
-        
-        /* 搜索框样式 */
-        .search-box { 
-            margin-bottom: 20px; 
-            display: flex; 
-            gap: 10px; 
-            align-items: center; 
-        }
-        .search-box input, .search-box select { 
-            padding: 8px; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-        }
-        .search-box button { 
-            padding: 8px 12px; 
-            background-color: #28a745; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-        }
-        
-        /* 新增按钮样式 */
-        .add-button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-        
-        .add-button:hover {
-            background-color: #218838;
-        }
-        
-        /* 操作列样式 */
-        .col-actions {
-            white-space: nowrap;
-            width: 1%;
-        }
-        
-        .col-actions.edit-mode {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .btn-edit, .btn-save, .btn-cancel {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .btn-edit {
-            background-color: #007bff;
-            color: white;
-        }
-        
-        .btn-save {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .btn-cancel {
-            background-color: #6c757d;
-            color: white;
-        }
-        
-        /* 编辑输入框样式 */
-        .edit-input {
-            width: 100%;
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            box-sizing: border-box;
-        }
         
         textarea.edit-input {
             resize: vertical;
@@ -179,9 +57,8 @@
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>操作系统列表</h1>
         <button class="add-button" onclick="addOS()">新增操作系统</button>
-        <div id="message" class="message"></div>
+        <div id="message" class="message" style="display: none;"></div>
         
-        <!-- 搜索框 -->
         <div class="search-box">
             <input type="text" id="keywordInput" placeholder="搜索名称或版本">
             <input type="text" id="manufacturerInput" placeholder="按开发商筛选">
@@ -204,24 +81,15 @@
             <tbody id="osTableBody"></tbody>
         </table>
         
-        <!-- 分页控件 -->
-        <div class="pagination" id="pagination">
-            <button id="firstPage">首页</button>
-            <button id="prevPage">上一页</button>
-            <span>第 <input type="number" id="pageInput" min="1" value="1"> 页</span>
-            <span>/ 共 <span id="totalPages">1</span> 页</span>
-            <button id="nextPage">下一页</button>
-            <button id="lastPage">末页</button>
-            <span>每页 <input type="number" id="pageSizeInput" min="1" max="100" value="20"> 条</span>
-            <button id="goPage">跳转</button>
-        </div>
+        <div id="paginationContainer"></div>
     </div>
 
     <script>
         // 当前分页状态
         let currentPage = 1;
-        let pageSize = 20;
+        let pageSize = 10;
         let total = 0;
+        let pagination;
         
         // 搜索条件
         let searchKeyword = '';
@@ -233,76 +101,9 @@
 
         // 页面加载时获取操作系统列表
         document.addEventListener('DOMContentLoaded', function() {
-            setupPagination();
             setupSearch();
             fetchOSList(currentPage, pageSize);
         });
-
-        // 设置分页控件事件监听
-        function setupPagination() {
-            document.getElementById('firstPage').addEventListener('click', () => {
-                if (currentPage > 1) {
-                    fetchOSList(1, pageSize);
-                }
-            });
-            
-            document.getElementById('prevPage').addEventListener('click', () => {
-                if (currentPage > 1) {
-                    fetchOSList(currentPage - 1, pageSize);
-                }
-            });
-            
-            document.getElementById('nextPage').addEventListener('click', () => {
-                const totalPages = Math.ceil(total / pageSize);
-                if (currentPage < totalPages) {
-                    fetchOSList(currentPage + 1, pageSize);
-                }
-            });
-            
-            document.getElementById('lastPage').addEventListener('click', () => {
-                const totalPages = Math.ceil(total / pageSize);
-                if (currentPage < totalPages) {
-                    fetchOSList(totalPages, pageSize);
-                }
-            });
-            
-            document.getElementById('goPage').addEventListener('click', () => {
-                const pageInput = document.getElementById('pageInput');
-                const page = parseInt(pageInput.value);
-                const totalPages = Math.ceil(total / pageSize);
-                
-                if (page >= 1 && page <= totalPages) {
-                    fetchOSList(page, pageSize);
-                } else {
-                    showMessage(`请输入有效的页码 (1-${totalPages})`, 'error');
-                }
-            });
-            
-            document.getElementById('pageSizeInput').addEventListener('change', (e) => {
-                const newSize = parseInt(e.target.value);
-                if (newSize >= 1 && newSize <= 100) {
-                    pageSize = newSize;
-                    fetchOSList(1, pageSize); // 重置到第一页
-                } else {
-                    showMessage('每页条数应在1-100之间', 'error');
-                    e.target.value = pageSize;
-                }
-            });
-            
-            // 回车跳转页面
-            document.getElementById('pageInput').addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') {
-                    document.getElementById('goPage').click();
-                }
-            });
-            
-            // 回车设置每页条数
-            document.getElementById('pageSizeInput').addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') {
-                    document.getElementById('pageSizeInput').dispatchEvent(new Event('change'));
-                }
-            });
-        }
 
         // 设置搜索控件事件监听
         function setupSearch() {
@@ -335,7 +136,7 @@
         }
 
         // 获取操作系统列表
-        async function fetchOSList(page = 1, pageSize = 20) {
+        async function fetchOSList(page = 1, pageSize = 10) {
             try {
                 // 构建查询参数
                 let url = `${window.Config.API_BASE_URL}/os?page=${page}&page_size=${pageSize}`;
@@ -347,43 +148,39 @@
                 }
                 
                 const response = await fetch(url);
-                if (!response.ok) throw new Error(`获取操作系统列表失败: ${response.status} ${response.statusText}`);
-                
-                const result = await response.json();
-                
-                // 检查响应数据结构
-                if (!result || typeof result !== 'object') {
-                    throw new Error('服务器响应格式错误');
-                }
-                
-                // 提取数据数组
+                if (!response.ok) throw new Error(`获取操作系统列表失败: ${response.status} ${response.statusText}`); 
+                const result = await response.json();  
                 const data = Array.isArray(result.items) ? result.items : [];
-                total = result.total || 0;
-                currentPage = result.page || page;
                 
-                // 更新分页控件
-                updatePaginationControls();
+                // 更新分页信息
+                currentPage = result.page;
+                pageSize = result.pageSize;
+                total = result.total; 
                 
+                // 更新分页组件
+                if (pagination) {
+                    pagination.updateTotal(total);
+                } else {
+                    pagination = initSharedPagination('paginationContainer', currentPage, pageSize, total, fetchOSList);
+                }
+
                 // 渲染表格
-                renderOSTable(data);
-                
-                // 显示成功消息
-                showMessage(`成功加载 ${data.length} 条操作系统数据`, 'success');
+                renderTable(data);
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('获取操作系统列表错误:', error);
-                
-                // 渲染空表格
-                renderOSTable([]);
+                renderTable([]);
             }
         }
 
-        // 渲染操作系统表格
-        function renderOSTable(data) {
+        function renderTable(data) {
             const tableBody = document.getElementById('osTableBody');
-            tableBody.innerHTML = '';
+            // 确保清空表格内容
+            if (tableBody) {
+                tableBody.innerHTML = '';
+            }
 
-            if (!data || data.length === 0) {
+            if (data.length === 0) {
                 const row = document.createElement('tr');
                 row.innerHTML = '<td colspan="7" style="text-align: center;">暂无数据</td>';
                 tableBody.appendChild(row);
@@ -415,65 +212,6 @@
                 `;
                 tableBody.appendChild(row);
             });
-        }
-
-        // 更新分页控件状态
-        function updatePaginationControls() {
-            const totalPages = Math.ceil(total / pageSize);
-            
-            // 更新页码输入框
-            document.getElementById('pageInput').value = currentPage;
-            document.getElementById('pageInput').min = 1;
-            document.getElementById('pageInput').max = totalPages;
-            
-            // 更新总页数显示
-            document.getElementById('totalPages').textContent = totalPages || 1;
-            
-            // 更新按钮状态
-            document.getElementById('firstPage').disabled = currentPage <= 1;
-            document.getElementById('prevPage').disabled = currentPage <= 1;
-            document.getElementById('nextPage').disabled = currentPage >= totalPages;
-            document.getElementById('lastPage').disabled = currentPage >= totalPages;
-            
-            // 更新每页条数输入框
-            document.getElementById('pageSizeInput').value = pageSize;
-        }
-
-        // 格式化日期时间
-        function formatDate(dateString) {
-            if (!dateString) return '-';
-            
-            try {
-                const date = new Date(dateString);
-                if (isNaN(date.getTime())) return '-'; // 无效日期
-                
-                // 使用中文格式化日期
-                return new Intl.DateTimeFormat('zh-CN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                }).format(date);
-            } catch (error) {
-                console.error('日期格式化错误:', error);
-                return '-'; // 格式化失败时返回默认值
-            }
-        }
-
-        // 显示消息
-        function showMessage(text, type) {
-            const messageEl = document.getElementById('message');
-            messageEl.textContent = text;
-            messageEl.className = `message ${type}`;
-
-            // 3秒后自动清除消息
-            setTimeout(() => {
-                messageEl.textContent = '';
-                messageEl.className = 'message';
-            }, 3000);
         }
         
         // 编辑操作系统

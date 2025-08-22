@@ -332,7 +332,23 @@ func (s *softwareRepo) List(ctx context.Context, opts domain.ListSoftwareOptions
 	}
 	// 添加国家筛选条件
 	if opts.CountryID > 0 {
-		q = q.Where(s.query.IsmsSoftware.CountryID.Eq(opts.CountryID))
+		// 先查询该国家下所有开发商的ID
+		developerIDs, err := s.query.IsmsDeveloper.WithContext(ctx).
+			Select(s.query.IsmsDeveloper.ID).
+			Where(s.query.IsmsDeveloper.CountryID.Eq(opts.CountryID)).
+			Find()
+		if err != nil {
+			return nil, 0, fmt.Errorf("查询国家下开发商失败: %w", err)
+		}
+
+		// 提取开发商ID到切片中
+		ids := make([]int32, 0, len(developerIDs))
+		for _, dev := range developerIDs {
+			ids = append(ids, dev.ID)
+		}
+
+		// 筛选这些开发商开发的软件
+		q = q.Where(s.query.IsmsSoftware.DeveloperID.In(ids...))
 	}
 
 	if opts.IndustryID > 0 {

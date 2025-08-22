@@ -1,0 +1,24 @@
+.pagination { 
+    margin-top: 5px; 
+    display: flex; 
+    justify-content: center; 
+}
+.pagination button { 
+    margin: 0 5px; 
+    padding: 4px 6px; 
+    cursor: pointer; 
+}
+.pagination .current { 
+    background-color: #007bff; 
+    color: white; 
+    border: none; 
+}
+.pagination input { 
+    width: 50px; 
+    text-align: center; 
+    margin: 0 5px; 
+}
+.pagination-info { 
+    text-align: center; 
+    margin-top: 10px; 
+}

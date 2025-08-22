@@ -5,105 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>开发商列表</title>
     <script src="js/config.js"></script>
+    <script src="js/pagination.js"></script>
+    <script src="js/shared_pagination.js"></script>
+    <script src="js/utils.js"></script>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/pagination.css">
     <style>
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto; min-width: 1000px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; white-space: nowrap; }
-        th { background-color: #f2f2f2; }
-        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
-        .error { background-color: #f8d7da; color: #721c24; }
-        .success { background-color: #d4edda; color: #155724; }
-        .pagination { margin-top: 20px; display: flex; justify-content: center; }
-        .pagination button { margin: 0 5px; padding: 8px 12px; cursor: pointer; }
-        .pagination .current { background-color: #007bff; color: white; border: none; }
-        .pagination input { width: 50px; text-align: center; margin: 0 5px; }
-        .pagination-info { text-align: center; margin-top: 10px; }
-        
-        /* 搜索框样式 */
-        .search-box { 
-            display: flex; 
-            gap: 10px; 
-            margin-bottom: 15px; 
-            align-items: center; 
-        }
-        .search-box input { 
-            padding: 8px; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-        }
-        .search-box button { 
-            padding: 8px 12px; 
-            background-color: #28a745; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-        }
-        
-        /* 描述字段样式 */
-        .description-cell {
-            display: inline-block;
-            width: 100%;
-            max-width: 150px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            position: relative;
-            cursor: pointer;
-            color: #007bff;
-            /* 移除下划线 */
-            text-decoration: none;
-        }
-        
-        .description-cell:hover {
-            color: #0056b3;
-        }
-        
-        /* 空内容样式 */
-        .description-cell.empty {
-            color: inherit;
-            text-decoration: none;
-            cursor: default;
-        }
-        
-        .description-cell.empty:hover {
-            color: inherit;
-        }
-        
-        /* 自定义tooltip样式 */
-        .tooltip {
-            position: absolute;
-            background-color: #333;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            z-index: 1000;
-            white-space: normal;
-            word-wrap: break-word;
-            max-width: 300px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            display: none;
-        }
-
-        /* 新增按钮样式 */
-        .add-button {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-        }
-        .add-button:hover {
-            background-color: #218838;
-        }
-        
         /* 冻结列样式 */
         .table-container {
             overflow-x: auto;
@@ -141,67 +48,6 @@
         
         .website-link:hover {
             text-decoration: underline;
-        }
-        
-        /* 操作按钮样式 */
-        .btn-edit, .btn-save, .btn-cancel {
-            padding: 6px 12px;
-            margin: 0 2px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .btn-edit {
-            background-color: #ffc107;
-            color: #212529;
-        }
-        
-        .btn-edit:hover {
-            background-color: #e0a800;
-        }
-        
-        .btn-save {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .btn-save:hover {
-            background-color: #218838;
-        }
-        
-        .btn-cancel {
-            background-color: #6c757d;
-            color: white;
-        }
-        
-        .btn-cancel:hover {
-            background-color: #5a6268;
-        }
-        
-        /* 编辑模式下的输入框样式 */
-        .edit-input {
-            width: 100%;
-            padding: 4px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        
-        /* 操作列样式 */
-        .col-actions {
-            position: sticky;
-            right: 0;
-            background-color: #f2f2f2;
-            z-index: 2;
-            width: 150px;
-            text-align: center;
-        }
-        
-        /* 编辑模式下的操作列 */
-        .col-actions.edit-mode {
-            background-color: white;
         }
         
         /* 确认对话框样式 */
@@ -279,28 +125,16 @@
         </table>
         </div>
         
-        <!-- 分页控件 -->
-        <div class="pagination" id="pagination">
-            <button id="firstPage">首页</button>
-            <button id="prevPage">上一页</button>
-            <span>第 <input type="number" id="pageInput" min="1" value="1"> 页</span>
-            <span>/ 共 <span id="totalPages">1</span> 页</span>
-            <button id="nextPage">下一页</button>
-            <button id="lastPage">末页</button>
-            <button id="goPage">跳转</button>
-        </div>
-        <div class="pagination-info">
-            每页显示 <input type="number" id="pageSizeInput" min="1" max="100" value="20"> 条
-            <span id="totalInfo">共 0 条记录</span>
-        </div>
+        <div id="paginationContainer"></div>
     </div>
 
     <script>
         // 分页参数
         let currentPage = 1;
-        let pageSize = 20;
+        let pageSize = 10;
         let totalPages = 1;
-        let totalItems = 0;
+        let total = 0;
+        let pagination;
         
         // 当前正在编辑的行
         let currentEditingRow = null;
@@ -312,36 +146,6 @@
         // 页面加载时获取开发商列表
         document.addEventListener('DOMContentLoaded', () => {
             fetchManufacturersList(currentPage, pageSize);
-            
-            // 绑定分页控件事件
-            document.getElementById('firstPage').addEventListener('click', () => goToPage(1));
-            document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
-            document.getElementById('nextPage').addEventListener('click', () => goToPage(currentPage + 1));
-            document.getElementById('lastPage').addEventListener('click', () => goToPage(totalPages));
-            document.getElementById('goPage').addEventListener('click', () => {
-                const page = parseInt(document.getElementById('pageInput').value);
-                if (page >= 1 && page <= totalPages) {
-                    goToPage(page);
-                } else {
-                    showMessage('请输入有效的页码', 'error');
-                }
-            });
-            
-            // 回车跳转页面
-            document.getElementById('pageInput').addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') {
-                    document.getElementById('goPage').click();
-                }
-            });
-            
-            // 改变每页显示条数
-            document.getElementById('pageSizeInput').addEventListener('change', (e) => {
-                pageSize = parseInt(e.target.value);
-                if (pageSize < 1) pageSize = 1;
-                if (pageSize > 100) pageSize = 100;
-                e.target.value = pageSize;
-                goToPage(1); // 重置到第一页
-            });
             
             // 绑定搜索功能事件
             document.getElementById('searchBtn').addEventListener('click', () => {
@@ -364,9 +168,8 @@
         });
 
         // 获取开发商列表
-        async function fetchManufacturersList(page = 1, size = 20) {
+        async function fetchManufacturersList(page = 1, size = 10) {
             try {
-                // 构建查询参数
                 let url = `${window.Config.API_BASE_URL}/developers?page=${page}&page_size=${size}`;
                 if (searchKeyword) {
                     url += `&keyword=${encodeURIComponent(searchKeyword)}`;
@@ -375,117 +178,75 @@
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('获取开发商列表失败');
                 const result = await response.json();
-                const data = result.items || []; // 从items字段获取数组
+                const data = result.items || [];
                 
                 // 更新分页信息
-                totalItems = result.total || 0;
-                currentPage = result.page || page;
-                pageSize = result.page_size || size;
-                totalPages = Math.ceil(totalItems / pageSize);
+                currentPage = result.page;
+                pageSize = result.pageSize;
+                total = result.total;
+                totalPages = Math.ceil(total / (pageSize || 20));
                 
-                // 更新UI
-                updatePaginationUI();
-                
-                const tableBody = document.getElementById('manufacturersTableBody');
-                tableBody.innerHTML = '';
-
-                // 检查数据是否存在
-                if (!data || data.length === 0) {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="7" style="text-align: center;">暂无数据</td>`;
-                    tableBody.appendChild(row);
-                    return;
+                // 更新分页组件
+                if (pagination) {
+                    pagination.updateTotal(total);
+                } else {
+                    pagination = initSharedPagination('paginationContainer', currentPage, pageSize, total, fetchManufacturersList);
                 }
-
-                // 渲染表格行
-                data.forEach((manufacturer, index) => {
-                    const row = document.createElement('tr');
-                    row.dataset.id = manufacturer.id;
-                    
-                    const countryName = manufacturer.countryName || '-';
-                    const website = manufacturer.website || '-';
-                    const websiteCell = website === '-' ? 
-                        '-' : 
-                        `<a href="${website}" target="_blank" class="website-link" title="${website}">${website.length > 30 ? website.substring(0, 30) + '...' : website}</a>`;
-                    
-                    // 处理描述字段 - 使用自定义tooltip显示完整内容
-                    const description = manufacturer.description || '-';
-                    const descriptionCell = description === '-' ? 
-                        `<span class="description-cell empty">-</span>` : 
-                        `<span class="description-cell" data-description="${description.replace(/"/g, '&quot;')}">${description.substring(0, 50)}${description.length > 50 ? '...' : ''}</span>`;
-                    
-                    row.innerHTML = `
-                        <td class="col-index">${(currentPage - 1) * pageSize + index + 1}</td>
-                        <td class="col-name">${manufacturer.nameZh || '-'}</td>
-                        <td class="col-en-name">${manufacturer.nameEn || '-'}</td>
-                        <td class="col-website">${websiteCell}</td>
-                        <td class="col-description">${descriptionCell}</td>
-                        <td class="col-country">${countryName}</td>
-                        <td class="col-actions">
-                            <button class="btn-edit" onclick="editManufacturer(${manufacturer.id})">编辑</button>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
+                
+                // 渲染表格
+                renderTable(data);
                 
                 // 绑定自定义tooltip事件
                 bindTooltipEvents();
             } catch (error) {
                 console.error('获取开发商列表失败:', error);
                 showMessage('获取开发商列表失败: ' + error.message, 'error');
+                renderTable([]);
             }
         }
 
-        // 更新分页UI
-        function updatePaginationUI() {
-            document.getElementById('pageInput').value = currentPage;
-            document.getElementById('totalPages').textContent = totalPages;
-            document.getElementById('totalInfo').textContent = `共 ${totalItems} 条记录`;
-            
-            // 更新分页按钮状态
-            document.getElementById('prevPage').disabled = currentPage <= 1;
-            document.getElementById('nextPage').disabled = currentPage >= totalPages;
-            document.getElementById('firstPage').disabled = currentPage <= 1;
-            document.getElementById('lastPage').disabled = currentPage >= totalPages;
-        }
+        function renderTable(data) {
+            const tableBody = document.getElementById('manufacturersTableBody');
+            tableBody.innerHTML = '';
 
-        // 跳转到指定页面
-        function goToPage(page) {
-            if (page >= 1 && page <= totalPages) {
-                fetchManufacturersList(page, pageSize);
+            // 检查数据是否存在
+            if (!data || data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="7" style="text-align: center;">暂无数据</td>`;
+                tableBody.appendChild(row);
+                return;
             }
-        }
 
-        // 显示消息
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-            
-            // 3秒后自动隐藏
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 3000);
-        }
-
-        // 格式化日期
-        function formatDate(dateString) {
-            if (!dateString) return '-';
-            
-            try {
-                const date = new Date(dateString);
-                if (isNaN(date.getTime())) return '-';
+            data.forEach((manufacturer, index) => {
+                const serialNumber = (currentPage - 1) * pageSize + index + 1;
                 
-                return new Intl.DateTimeFormat('zh-CN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                }).format(date);
-            } catch (error) {
-                console.error('日期格式化错误:', error);
-                return '-';
-            }
+                const countryName = manufacturer.countryName || '-';
+                const website = manufacturer.website || '-';
+                const websiteCell = website === '-' ? 
+                    '-' : 
+                    `<a href="${website}" target="_blank" class="website-link" title="${website}">${website.length > 30 ? website.substring(0, 30) + '...' : website}</a>`;
+                
+                // 处理描述字段 - 使用自定义tooltip显示完整内容
+                const description = manufacturer.description || '-';
+                const descriptionCell = description === '-' ? 
+                    `<span class="description-cell empty">-</span>` : 
+                    `<span class="description-cell" data-description="${description.replace(/"/g, '&quot;')}">${description.substring(0, 50)}${description.length > 50 ? '...' : ''}</span>`;
+                
+                const row = document.createElement('tr');
+                row.dataset.id = manufacturer.id;
+                row.innerHTML = `
+                    <td class="col-index">${serialNumber}</td>
+                    <td class="col-name">${manufacturer.nameZh || '-'}</td>
+                    <td class="col-en-name">${manufacturer.nameEn || '-'}</td>
+                    <td class="col-website">${websiteCell}</td>
+                    <td class="col-description">${descriptionCell}</td>
+                    <td class="col-country">${countryName}</td>
+                    <td class="col-actions">
+                        <button class="btn-edit" onclick="editManufacturer(${manufacturer.id})">编辑</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
         }
         
         // 自定义tooltip功能
@@ -848,7 +609,10 @@
                 // 更新分页信息
                 totalItems++;
                 totalPages = Math.ceil(totalItems / pageSize);
-                updatePaginationUI();
+                // 更新分页组件
+                if (pagination) {
+                    pagination.updateTotal(totalItems);
+                }
             } catch (error) {
                 console.error('创建开发商失败:', error);
                 showMessage('创建开发商失败: ' + error.message, 'error');

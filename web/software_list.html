@@ -4,71 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>软件列表</title>
-    <script src="js/config.js"></script>
     <script src="js/xlsx.full.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/pagination.js"></script>
+    <script src="js/shared_pagination.js"></script>
+    <script src="js/utils.js"></script>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/pagination.css">
     <style>
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #f2f2f2; }
-        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-        /* 修改消息提示样式，使其居中悬浮显示 */
-        .message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 15px 20px;
-            border-radius: 4px;
-            z-index: 1000;
-            min-width: 200px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            display: none;
-        }
-        .error { background-color: #f8d7da; color: #721c24; }
-        .success { background-color: #d4edda; color: #155724; }
-
-        .description-cell {
-            display: inline-block;
-            width: 100%;
-            max-width: 150px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .description-cell:hover {
-            color: #0056b3;
-        }
-
-        .description-cell.empty {
-            color: inherit;
-            text-decoration: none;
-            cursor: default;
-        }
-
-        .description-cell.empty:hover {
-            color: inherit;
-        }
-
-        .tooltip {
-            position: absolute;
-            background-color: #333;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            z-index: 1000;
-            white-space: normal;
-            word-wrap: break-word;
-            max-width: 300px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            display: none;
-        }
-
         .source-url-cell, .download-link-cell {
             display: inline-block;
             max-width: 120px;
@@ -184,72 +127,6 @@
         .cancel-btn:hover {
             background-color: #5a6268;
         }
-
-        /* 分页控件样式 */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-            gap: 10px;
-        }
-        .pagination button {
-            padding: 8px 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .pagination button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        .pagination input {
-            width: 60px;
-            padding: 6px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .pagination span {
-            margin: 0 5px;
-        }
-
-        /* 新增按钮样式 */
-        .add-button {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-        }
-        .add-button:hover {
-            background-color: #218838;
-        }
-        
-        /* 导出按钮样式 */
-        .export-button {
-            display: inline-block;
-            margin-bottom: 20px;
-            margin-left: 10px;
-            padding: 10px 20px;
-            background-color: #17a2b8;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-        }
-        .export-button:hover {
-            background-color: #138496;
-        }
         
         /* 工具栏样式 */
         .toolbar {
@@ -289,67 +166,6 @@
 
         /* 默认颜色 */
         .category-default { background-color: #6c757d; }
-
-        /* 操作按钮样式 */
-        .edit-btn, .delete-btn {
-            padding: 5px 10px;
-            margin: 0 5px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .edit-btn {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .edit-btn:hover {
-            background-color: #0056b3;
-        }
-
-        .delete-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .delete-btn:hover {
-            background-color: #c82333;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-
-        .btn-edit {
-            padding: 5px 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-edit:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-delete {
-            padding: 5px 10px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .btn-delete:hover {
-            background-color: #c82333;
-        }
 
         /* 确认对话框样式 */
         .confirm-dialog {
@@ -411,20 +227,6 @@
             text-overflow: ellipsis;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: auto; /* 改为auto以更好地支持冻结列 */
-            min-width: 1200px; /* 确保表格有足够的宽度 */
-        }
-        
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-            white-space: nowrap;
-        }
-        
         /* 冻结第一列 (序号) */
         .col-index {
             position: sticky;
@@ -444,7 +246,7 @@
         /* 冻结倒数第三列 (软件大小) */
         .col-size {
             position: sticky;
-            right: 270px; /* 倒数第二列宽度(150px) + 最后一列宽度(120px) */
+            right: 120px; /* 倒数第二列宽度(150px) + 最后一列宽度(120px) */
             background-color: #f2f2f2;
             z-index: 2;
         }
@@ -480,69 +282,17 @@
             word-wrap: break-word;
             max-width: 150px;
         }
-        /* 添加筛选表单样式 */
-        .filter-form {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-        
-        .filter-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .filter-group label {
-            font-weight: bold;
-        }
-        
-        .filter-group input, .filter-group select {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-        
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .filter-button {
-            padding: 8px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        
-        .filter-button:hover {
-            background-color: #0056b3;
-        }
-        
-        .reset-button {
-            background-color: #6c757d;
-        }
-        
-        .reset-button:hover {
-            background-color: #545b62;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="menu.html" class="back-link">← 返回菜单</a>
         <h1>工业软件列表</h1>
+
+        <div class="toolbar">
+            <a href="software_form.html?action=add" class="add-button">新增工业软件</a>
+            <button id="exportButton" class="export-button">导出到Excel</button>
+        </div>
         
         <div class="filter-form">
             <div class="filter-row">
@@ -569,19 +319,13 @@
                     </select>
                 </div>
             </div>
-            <div class="filter-row">
-                <div class="filter-buttons">
-                    <button class="filter-button" id="searchButton">查询</button>
-                    <button class="filter-button reset-button" id="resetButton">重置</button>
-                </div>
+            <div class="search-box">
+                <button class="filter-button" id="searchBtn">搜索</button>
+                <button class="filter-button reset-button" id="resetBtn">重置</button>
             </div>
         </div>
 
-        <div class="toolbar">
-            <a href="software_form.html?action=add" class="add-button">新增工业软件</a>
-            <button id="exportButton" class="export-button">导出到Excel</button>
-        </div>
-        <div id="message" class="message"></div>
+        <div id="message" class="message" style="display: none;"></div>
         <div class="table-container">
         <table id="softwareTable">
             <thead>
@@ -611,17 +355,7 @@
         </table>
         </div>
 
-        <!-- 分页控件 -->
-        <div class="pagination" id="pagination">
-            <button id="firstPage">首页</button>
-            <button id="prevPage">上一页</button>
-            <span>第 <input type="number" id="pageInput" min="1" value="1"> 页</span>
-            <span>/ 共 <span id="totalPages">1</span> 页</span>
-            <button id="nextPage">下一页</button>
-            <button id="lastPage">末页</button>
-            <span>每页 <input type="number" id="pageSizeInput" min="1" max="100" value="20"> 条</span>
-            <button id="goPage">跳转</button>
-        </div>
+        <div id="paginationContainer"></div>
     </div>
 
     <!-- 系统要求详情模态框 -->
@@ -635,8 +369,10 @@
 
     <script>
         let currentPage = 1;
-        let pageSize = 20;
+        let pageSize = 5;
         let total = 0;
+        let pagination;
+
         let targetDeveloperId = null;
         let newSoftwareId = null;
         
@@ -652,15 +388,13 @@
             const urlParams = new URLSearchParams(window.location.search);
             targetDeveloperId = urlParams.get('developerId');
             newSoftwareId = urlParams.get('newSoftwareId');
-
-            setupPagination();
             
             // 初始化筛选下拉框
             loadFilterOptions();
             
             // 绑定筛选事件
-            document.getElementById('searchButton').addEventListener('click', searchSoftware);
-            document.getElementById('resetButton').addEventListener('click', resetFilter);
+            document.getElementById('searchBtn').addEventListener('click', searchSoftware);
+            document.getElementById('resetBtn').addEventListener('click', resetFilter);
 
             // 如果有目标厂商ID，则需要找到该厂商所在的页面
             if (targetDeveloperId) {
@@ -679,72 +413,8 @@
             setupSysReqModal();
         });
 
-        function setupPagination() {
-            document.getElementById('firstPage').addEventListener('click', () => {
-                if (currentPage > 1) {
-                    fetchSoftwareList(1, pageSize);
-                }
-            });
-
-            document.getElementById('prevPage').addEventListener('click', () => {
-                if (currentPage > 1) {
-                    fetchSoftwareList(currentPage - 1, pageSize);
-                }
-            });
-
-            document.getElementById('nextPage').addEventListener('click', () => {
-                const totalPages = Math.ceil(total / pageSize);
-                if (currentPage < totalPages) {
-                    fetchSoftwareList(currentPage + 1, pageSize);
-                }
-            });
-
-            document.getElementById('lastPage').addEventListener('click', () => {
-                const totalPages = Math.ceil(total / pageSize);
-                if (currentPage < totalPages) {
-                    fetchSoftwareList(totalPages, pageSize);
-                }
-            });
-
-            document.getElementById('goPage').addEventListener('click', () => {
-                const pageInput = document.getElementById('pageInput');
-                const page = parseInt(pageInput.value);
-                const totalPages = Math.ceil(total / pageSize);
-
-                if (page >= 1 && page <= totalPages) {
-                    fetchSoftwareList(page, pageSize);
-                } else {
-                    showMessage(`请输入有效的页码 (1-${totalPages})`, 'error');
-                }
-            });
-
-            document.getElementById('pageSizeInput').addEventListener('change', (e) => {
-                const newSize = parseInt(e.target.value);
-                if (newSize >= 1 && newSize <= 100) {
-                    pageSize = newSize;
-                    fetchSoftwareList(1, pageSize);
-                } else {
-                    showMessage('每页条数应在1-100之间', 'error');
-                    e.target.value = pageSize;
-                }
-            });
-
-            document.getElementById('pageInput').addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') {
-                    document.getElementById('goPage').click();
-                }
-            });
-
-            document.getElementById('pageSizeInput').addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') {
-                    document.getElementById('pageSizeInput').dispatchEvent(new Event('change'));
-                }
-            });
-        }
-
-        async function fetchSoftwareList(page = 1, pageSize = 20) {
+        async function fetchSoftwareList(page = 1, pageSize = 5) {
             try {
-                // 构建查询参数
                 const params = new URLSearchParams();
                 params.append('page', page);
                 params.append('page_size', pageSize);
@@ -765,18 +435,27 @@
                 
                 const response = await fetch(`${window.Config.API_BASE_URL}/software?${params.toString()}`);
                 if (!response.ok) throw new Error(`获取软件列表失败: ${response.status} ${response.statusText}`);
-
                 const result = await response.json();
                 const data = Array.isArray(result.items) ? result.items : [];
-                total = result.total || 0;
-                currentPage = result.page || page;
+                
+                // 更新分页信息
+                currentPage = result.page;
+                pageSize = result.pageSize;
+                total = result.total;
+                totalPages = Math.ceil(total / (pageSize || 20));
 
-                updatePaginationControls();
-                renderSoftwareTable(data);
+                // 更新分页组件
+                if (pagination) {
+                    pagination.updateTotal(total);
+                } else {
+                    pagination = initSharedPagination('paginationContainer', currentPage, pageSize, total, fetchSoftwareList);
+                }
+
+                renderTable(data);
             } catch (error) {
                 showMessage(error.message, 'error');
                 console.error('获取软件列表错误:', error);
-                renderSoftwareTable([]);
+                renderTable([]);
             }
         }
 
@@ -874,9 +553,12 @@
             }
         }
 
-        function renderSoftwareTable(data) {
+        function renderTable(data) {
             const tableBody = document.getElementById('softwareTableBody');
-            tableBody.innerHTML = '';
+            // 确保清空表格内容
+            if (tableBody) {
+                tableBody.innerHTML = '';
+            }
 
             if (!data || data.length === 0) {
                 const row = document.createElement('tr');
@@ -886,7 +568,6 @@
             }
 
             data.forEach((software, index) => {
-                // 计算序号
                 const serialNumber = (currentPage - 1) * pageSize + index + 1;
 
                 const id = software.id || '-';
@@ -902,6 +583,10 @@
                 const sourceUrl = software.sourceUrl || '-';
                 const downloadLink = software.downloadLink || '-';
 
+                const nameCell = nameEn === '-' ?
+                    `<span class="description-cell empty">-</span>` :
+                    `<span class="description-cell" data-description="${nameEn.replace(/"/g, '&quot;')}">${nameEn.substring(0, 50)}${nameEn.length > 50 ? '...' : ''}</span>`;
+            
                 // 处理描述字段 - 使用自定义tooltip显示完整内容
                 const description = software.description || '-';
                 const descriptionCell = description === '-' ?
@@ -957,8 +642,8 @@
                 }
 
                 const actions = `
-                    <button class="edit-btn" data-id="${id}">修改</button>
-                    <button class="delete-btn" data-id="${id}">删除</button>
+                    <button class="btn-edit" data-id="${id}">修改</button>
+                    <button class="btn-delete" data-id="${id}">删除</button>
                     <span class="delete-confirm" style="display: none;">
                         <button class="confirm-btn" data-id="${id}">确定</button>
                         <button class="cancel-btn">取消</button>
@@ -978,7 +663,7 @@
                 row.setAttribute('data-id', id);
                 row.innerHTML = `
                     <td class="col-index">${serialNumber}</td>
-                    <td class="col-name">${nameEn}</td>
+                    <td class="col-name">${nameCell}</td>
                     <td class="col-version">${version}</td>
                     <td class="col-country">${countryName}</td>
                     <td class="col-bitwidth">${bitWidthTags}</td>
@@ -1011,14 +696,14 @@
             // 绑定自定义tooltip事件
             bindTooltipEvents();
 
-            document.querySelectorAll('.edit-btn').forEach(button => {
+            document.querySelectorAll('.btn-edit').forEach(button => {
                 button.addEventListener('click', function() {
                     const softwareId = this.getAttribute('data-id');
                     window.location.href = `software_form.html?action=edit&id=${softwareId}`;
                 });
             });
 
-            document.querySelectorAll('.delete-btn').forEach(button => {
+            document.querySelectorAll('.btn-delete').forEach(button => {
                 button.addEventListener('click', function() {
                     const softwareId = this.getAttribute('data-id');
                     const softwareName = this.closest('tr').querySelector('td:nth-child(3)').textContent;
@@ -1092,56 +777,6 @@
             showMessage('链接已复制到剪贴板', 'success');
         }
 
-        function updatePaginationControls() {
-            const totalPages = Math.ceil(total / pageSize);
-            document.getElementById('pageInput').value = currentPage;
-            document.getElementById('pageInput').min = 1;
-            document.getElementById('pageInput').max = totalPages;
-            document.getElementById('totalPages').textContent = totalPages || 1;
-            document.getElementById('firstPage').disabled = currentPage <= 1;
-            document.getElementById('prevPage').disabled = currentPage <= 1;
-            document.getElementById('nextPage').disabled = currentPage >= totalPages;
-            document.getElementById('lastPage').disabled = currentPage >= totalPages;
-            document.getElementById('pageSizeInput').value = pageSize;
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return '-';
-
-            try {
-                const date = new Date(dateString);
-                if (isNaN(date.getTime())) return '-';
-
-                return new Intl.DateTimeFormat('zh-CN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                }).format(date);
-            } catch (error) {
-                console.error('日期格式化错误:', error);
-                return '-';
-            }
-        }
-
-        function formatSize(sizeBytes) {
-            if (!sizeBytes || sizeBytes <= 0) return '-';
-
-            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-            let size = sizeBytes;
-            let unitIndex = 0;
-
-            while (size >= 1024 && unitIndex < units.length - 1) {
-                size /= 1024;
-                unitIndex++;
-            }
-
-            return size.toFixed(2) + ' ' + units[unitIndex];
-        }
-
         // 加载筛选下拉框选项
         async function loadFilterOptions() {
             try {
@@ -1205,7 +840,7 @@
                         }
                     }
                 };
-            }catch (error) {
+            } catch (error) {
                 console.error('加载筛选选项失败:', error);
             }
         }
@@ -1237,22 +872,6 @@
             
             // 重置到第一页
             fetchSoftwareList(1, pageSize);
-        }
-
-        function showMessage(text, type) {
-            const messageEl = document.getElementById('message');
-            messageEl.textContent = text;
-            messageEl.className = `message ${type}`;
-
-            // 显示消息
-            messageEl.style.display = 'block';
-
-            // 3秒后隐藏消息
-            setTimeout(() => {
-                messageEl.style.display = 'none';
-                messageEl.textContent = '';
-                messageEl.className = 'message';
-            }, 3000);
         }
 
         async function deleteSoftware(id) {

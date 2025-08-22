@@ -93,5 +93,13 @@ INSERT INTO `isms_developer` (
   (79, '建设专家集团公司', 'Group of Companies "Stroy Expertiza"', 'basegroup.su', 'Base 10 + Фундамент 14 + Плита 6 软件开发商', 21, NOW(), NOW()),
   (80, 'Interior3D', 'Interior3D', 'interior3d.su', '室内设计软件开发商', 21, NOW(), NOW()),
   (81, 'Стройэкспертиза', 'Stroy Ekspertiza', 'https://basegroup.su', 'Фундамент 13.3 软件开发商', 21, NOW(), NOW()),
-  (82, 'MicroCrowd', 'MicroCrowd', 'http://www.sweethome3d.com/', 'Sweet Home 3D 2.6便携式软件开发商，支持32/64位系统，多语言界面（含俄语）', 14, NOW(), NOW());
-
+  (82, 'MicroCrowd', 'MicroCrowd', 'http://www.sweethome3d.com/', 'Sweet Home 3D 2.6便携式软件开发商，支持32/64位系统，多语言界面（含俄语）', 14, NOW(), NOW()),
+  (83, 'IMSI Design', 'IMSI Design', 'www.imsidesign.com', '知名的CAD和家居设计软件开发商，主要产品包括TurboCAD等', 26, NOW(), NOW()),
+  (84, 'AMS Software', 'AMS Software', 'https://amssoft.ru/interior/', '专业的室内设计软件开发商，提供Interior 3D Design等产品', 21, NOW(), NOW()),
+  (85, 'SCADSoft', 'SCADSoft', 'scadsoft.com', 'SCAD Office结构分析与设计集成系统，包含多个工程计算程序', 21, NOW(), NOW()),
+  (86, 'Sisoft Development', 'Sisoft Development', 'csdev.ru', 'SPDS图形软件开发商', 21, NOW(), NOW()),
+  (87, 'Dlubal软件', 'Dlubal Software', 'http://www.dlubal.ru/rstab-8xx.aspx', '结构分析软件开发商', 8, NOW(), NOW()),
+  (88, 'CSoft', 'CSoft', 'www.csoft.ru', '俄罗斯软件开发商', 21, NOW(), NOW()),
+  (89, 'Module软件', 'Module-Soft', 'https://www.modul-company.com/', 'HouseCreator+软件开发商', 21, NOW(), NOW()),
+  (90, 'Trimble公司', 'Trimble Inc.', 'https://www.trimble.com', '美国GPS技术领先创新者，提供先进的GPS组件以及通过其他定位技术增强的完整客户解决方案', 26, NOW(), NOW()),
+  (91, 'Optimal Programs', 'Optimal Programs', 'http://optimalprograms.com/cutting-optimization/', '专业的切割优化软件开发商', 26, NOW(), NOW());

@@ -36,7 +36,6 @@ func newIsmsSoftware(db *gorm.DB, opts ...gen.DOOption) ismsSoftware {
 	_ismsSoftware.ReleaseMonth = field.NewInt32(tableName, "release_month")
 	_ismsSoftware.ReleaseDay = field.NewInt32(tableName, "release_day")
 	_ismsSoftware.DeveloperID = field.NewInt32(tableName, "developer_id")
-	_ismsSoftware.CountryID = field.NewInt32(tableName, "country_id")
 	_ismsSoftware.CPUReq = field.NewString(tableName, "cpu_req")
 	_ismsSoftware.MemoryMinGb = field.NewFloat64(tableName, "memory_min_gb")
 	_ismsSoftware.DiskMinGb = field.NewFloat64(tableName, "disk_min_gb")
@@ -72,7 +71,6 @@ type ismsSoftware struct {
 	ReleaseMonth         field.Int32   // 发布月份（1-12，NULL表示仅精确到年）
 	ReleaseDay           field.Int32   // 发布日（1-31，NULL表示仅精确到年或月）
 	DeveloperID          field.Int32   // 开发商ID（关联isms_developer.id）
-	CountryID            field.Int32   // 产地国家ID（关联isms_country.id，由developer_id同步）
 	CPUReq               field.String  // 处理器要求（如：Intel i5及以上）
 	MemoryMinGb          field.Float64 // 最小内存要求（GB）
 	DiskMinGb            field.Float64 // 最小磁盘空间（GB）
@@ -113,7 +111,6 @@ func (i *ismsSoftware) updateTableName(table string) *ismsSoftware {
 	i.ReleaseMonth = field.NewInt32(table, "release_month")
 	i.ReleaseDay = field.NewInt32(table, "release_day")
 	i.DeveloperID = field.NewInt32(table, "developer_id")
-	i.CountryID = field.NewInt32(table, "country_id")
 	i.CPUReq = field.NewString(table, "cpu_req")
 	i.MemoryMinGb = field.NewFloat64(table, "memory_min_gb")
 	i.DiskMinGb = field.NewFloat64(table, "disk_min_gb")
@@ -158,7 +155,7 @@ func (i *ismsSoftware) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (i *ismsSoftware) fillFieldMap() {
-	i.fieldMap = make(map[string]field.Expr, 25)
+	i.fieldMap = make(map[string]field.Expr, 24)
 	i.fieldMap["id"] = i.ID
 	i.fieldMap["name_zh"] = i.NameZh
 	i.fieldMap["name_en"] = i.NameEn
@@ -167,7 +164,6 @@ func (i *ismsSoftware) fillFieldMap() {
 	i.fieldMap["release_month"] = i.ReleaseMonth
 	i.fieldMap["release_day"] = i.ReleaseDay
 	i.fieldMap["developer_id"] = i.DeveloperID
-	i.fieldMap["country_id"] = i.CountryID
 	i.fieldMap["cpu_req"] = i.CPUReq
 	i.fieldMap["memory_min_gb"] = i.MemoryMinGb
 	i.fieldMap["disk_min_gb"] = i.DiskMinGb

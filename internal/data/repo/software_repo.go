@@ -48,7 +48,6 @@ func (s *softwareRepo) Create(ctx context.Context, software *domain.IsmsSoftware
 		DiskMinGb:    software.DiskMinGb,
 		SysReqOther:  software.SysReqOther,
 		Description:  software.Description,
-		CountryID:    software.CountryID,
 		DeveloperID:  software.DeveloperID,
 		SizeBytes:    software.SizeBytes,
 		Status:       software.Status,
@@ -115,7 +114,6 @@ func (s *softwareRepo) Update(ctx context.Context, software *domain.IsmsSoftware
 		"memory_min_gb": software.MemoryMinGb,
 		"disk_min_gb":   software.DiskMinGb,
 		"sys_req_other": software.SysReqOther,
-		"country_id":    software.CountryID,
 		"developer_id":  software.DeveloperID,
 		"size_bytes":    software.SizeBytes,
 		"status":        software.Status,
@@ -293,6 +291,17 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 		bitWidths = strings.Split(*dataModel.BitWidths, ",")
 	}
 
+	// 查询关联的开发商
+	developer, err := s.query.IsmsDeveloper.WithContext(ctx).
+		Where(s.query.IsmsDeveloper.ID.Eq(dataModel.DeveloperID)).
+		First()
+	if err != nil {
+		return nil, fmt.Errorf("查询软件操作系统关联失败: %w", err)
+	}
+
+	countryID := int32(0)
+	countryID = developer.CountryID
+
 	return &domain.IsmsSoftware{
 		ID:           dataModel.ID,
 		NameZh:       dataModel.NameZh,
@@ -307,7 +316,7 @@ func (s *softwareRepo) FindByID(ctx context.Context, id uint32) (*domain.IsmsSof
 		MemoryMinGb:  dataModel.MemoryMinGb,
 		DiskMinGb:    dataModel.DiskMinGb,
 		SysReqOther:  dataModel.SysReqOther,
-		CountryID:    dataModel.CountryID,
+		CountryID:    countryID,
 		Status:       dataModel.Status,
 		SizeBytes:    dataModel.SizeBytes,
 		IndustryIDs:  industryIDs,
